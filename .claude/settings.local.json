@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan tinker --execute=\"echo json_encode\\(App\\\\Models\\\\TeardownLogImage::first\\(\\)\\);\")",
+      "Bash(php artisan make:middleware AddServerTimeHeader)",
+      "Bash(\"c:/telcovantage-aibaseapp/telcovantage-app/.env\")",
+      "Bash(php -r \"echo ini_get\\(''allow_url_fopen''\\);\")",
+      "Bash(xargs grep -l \"subcons\\\\|Subcontractor\")",
+      "Bash(grep -r \"''subcons''\" .)"
+    ]
+  }
+}
