@@ -22,8 +22,8 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
-        // Only these roles can log in via mobile
-        $allowedRoles = ['lineman', 'admin', 'pm', 'subcon'];
+        // Only these roles can log in via API
+        $allowedRoles = ['lineman', 'admin', 'pm', 'subcon', 'project_manager', 'executives'];
         if (!in_array($user->role, $allowedRoles)) {
             Auth::logout();
             return response()->json(['message' => 'Access denied for this account.'], 403);
@@ -31,13 +31,18 @@ class AuthController extends Controller
 
         $token = $user->createToken('mobile')->plainTextToken;
 
+        $team = $user->team_id ? \App\Models\Team::find($user->team_id) : null;
+
         return response()->json([
             'token' => $token,
             'user'  => [
-                'id'    => $user->id,
-                'name'  => $user->name,
-                'email' => $user->email,
-                'role'  => $user->role,
+                'id'         => $user->id,
+                'name'       => $user->name,
+                'email'      => $user->email,
+                'role'       => $user->role,
+                'subcon_role'=> $user->subcon_role,
+                'team_id'    => $user->team_id,
+                'team_name'  => $team?->team_name,
             ],
         ]);
     }

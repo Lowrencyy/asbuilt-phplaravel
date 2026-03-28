@@ -68,15 +68,24 @@ class TeardownLogController extends Controller
             'to_pole_longitude'          => 'nullable|numeric',
             'to_pole_gps_captured_at'    => 'nullable|string',
             'to_pole_gps_accuracy'       => 'nullable|string',
-            // photos sent alongside the log
-            'from_pole_before'           => 'nullable|image|max:10240',
-            'from_pole_after'            => 'nullable|image|max:10240',
-            'from_pole_tag'              => 'nullable|image|max:10240',
-            'to_pole_before'             => 'nullable|image|max:10240',
-            'to_pole_after'              => 'nullable|image|max:10240',
-            'to_pole_tag'                => 'nullable|image|max:10240',
-            'cable_photo'                => 'nullable|image|max:10240',
+            // photos sent alongside the log (field names match mobile app)
+            'from_before'                => 'nullable|image|max:10240',
+            'from_after'                 => 'nullable|image|max:10240',
+            'from_tag'                   => 'nullable|image|max:10240',
+            'to_before'                  => 'nullable|image|max:10240',
+            'to_after'                   => 'nullable|image|max:10240',
+            'to_tag'                     => 'nullable|image|max:10240',
+            'before_span'                => 'nullable|image|max:10240',
         ]);
+
+        // Prevent duplicate submission for the same span
+        $existing = TeardownLog::where('pole_span_id', $validated['pole_span_id'])->first();
+        if ($existing) {
+            return response()->json([
+                'message' => 'Teardown log already submitted for this span.',
+                'log'     => $existing->load(['poleSpan.fromPole', 'poleSpan.toPole', 'images']),
+            ], 409);
+        }
 
         // pull project_id from the span — eager load relationships needed for file paths
         $span = PoleSpan::with(['fromPole', 'toPole', 'node.project'])->findOrFail($validated['pole_span_id']);
@@ -93,11 +102,19 @@ class TeardownLogController extends Controller
             'expected_tsc_snapshot'      => $span->expected_tsc,
         ]));
 
+        \Illuminate\Support\Facades\Log::info('Teardown files received', [
+            'log_id' => $log->id,
+            'files'  => array_keys($request->allFiles()),
+            'has_from_before' => $request->hasFile('from_before'),
+            'has_to_before'   => $request->hasFile('to_before'),
+        ]);
+
         $processor   = new ImageProcessingService();
-        $projectCode = $span->node->project->project_code ?? $span->node->project_id;
-        $nodeId      = $span->node->node_id ?? $span->node_id;
-        $fromCode    = $span->fromPole->pole_code ?? $span->from_pole_id;
-        $toCode      = $span->toPole->pole_code   ?? $span->to_pole_id;
+        $safeName    = fn($v) => preg_replace('/[:\\\\\/\*\?"<>\|]/', '-', (string) $v);
+        $projectCode = $safeName($span->node->project->project_code ?? $span->node->project_id);
+        $nodeId      = $safeName($span->node->node_id ?? $span->node_id);
+        $fromCode    = $safeName($span->fromPole->pole_code ?? $span->from_pole_id);
+        $toCode      = $safeName($span->toPole->pole_code   ?? $span->to_pole_id);
 
         // Per-pole GPS for stamp overlay
         $fromGps = [
@@ -112,14 +129,16 @@ class TeardownLogController extends Controller
         ];
 
         // Map each photo field to its pole (from or to)
+        $fromDir = "{$projectCode}/{$nodeId}/{$fromCode}";
+        $toDir   = "{$projectCode}/{$nodeId}/{$toCode}";
         $photoMap = [
-            'from_pole_before' => ['pole_id' => $span->from_pole_id, 'dir' => "{$projectCode}/{$nodeId}/{$fromCode}", 'filename' => "{$fromCode}_{$toCode}_before.jpg", 'gps' => $fromGps, 'type' => 'BEFORE'],
-            'from_pole_after'  => ['pole_id' => $span->from_pole_id, 'dir' => "{$projectCode}/{$nodeId}/{$fromCode}", 'filename' => "{$fromCode}_{$toCode}_after.jpg",  'gps' => $fromGps, 'type' => 'AFTER'],
-            'from_pole_tag'    => ['pole_id' => $span->from_pole_id, 'dir' => "{$projectCode}/{$nodeId}/{$fromCode}", 'filename' => "{$fromCode}_{$toCode}_tag.jpg",    'gps' => $fromGps, 'type' => 'POLE TAG'],
-            'to_pole_before'   => ['pole_id' => $span->to_pole_id,   'dir' => "{$projectCode}/{$nodeId}/{$toCode}",   'filename' => "{$toCode}_{$fromCode}_before.jpg", 'gps' => $toGps,   'type' => 'BEFORE'],
-            'to_pole_after'    => ['pole_id' => $span->to_pole_id,   'dir' => "{$projectCode}/{$nodeId}/{$toCode}",   'filename' => "{$toCode}_{$fromCode}_after.jpg",  'gps' => $toGps,   'type' => 'AFTER'],
-            'to_pole_tag'      => ['pole_id' => $span->to_pole_id,   'dir' => "{$projectCode}/{$nodeId}/{$toCode}",   'filename' => "{$toCode}_{$fromCode}_tag.jpg",    'gps' => $toGps,   'type' => 'POLE TAG'],
-            'cable_photo'      => ['pole_id' => $span->from_pole_id, 'dir' => "{$projectCode}/{$nodeId}/{$fromCode}", 'filename' => "{$fromCode}_{$toCode}_cable.jpg",  'gps' => $fromGps, 'type' => 'CABLE'],
+            'from_before' => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_before.jpg",    'gps' => $fromGps, 'type' => 'BEFORE'],
+            'from_after'  => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_after.jpg",     'gps' => $fromGps, 'type' => 'AFTER'],
+            'from_tag'    => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_tag.jpg",       'gps' => $fromGps, 'type' => 'POLE TAG'],
+            'to_before'   => ['pole_id' => $span->to_pole_id,   'dir' => $toDir,   'filename' => "{$toCode}_before.jpg",      'gps' => $toGps,   'type' => 'BEFORE'],
+            'to_after'    => ['pole_id' => $span->to_pole_id,   'dir' => $toDir,   'filename' => "{$toCode}_after.jpg",       'gps' => $toGps,   'type' => 'AFTER'],
+            'to_tag'      => ['pole_id' => $span->to_pole_id,   'dir' => $toDir,   'filename' => "{$toCode}_tag.jpg",         'gps' => $toGps,   'type' => 'POLE TAG'],
+            'before_span' => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_cable.jpg",     'gps' => $fromGps, 'type' => 'CABLE'],
         ];
 
         foreach ($photoMap as $field => $info) {
@@ -148,6 +167,31 @@ class TeardownLogController extends Controller
             }
         }
 
+        // ── Update span status to completed ──────────────────────────────────
+        $span->update(['status' => 'completed', 'completed_at' => now()]);
+
+        // ── Update pole statuses ──────────────────────────────────────────────
+        $this->syncPoleStatus($span->fromPole);
+        $this->syncPoleStatus($span->toPole);
+
+        // ── Update node actual_cable = sum of all collected_cable for this node ──
+        $actualCable = TeardownLog::where('node_id', $log->node_id)->sum('collected_cable');
+        \App\Models\Node::where('id', $log->node_id)->update(['actual_cable' => $actualCable]);
+
         return response()->json($log->load(['poleSpan.fromPole', 'poleSpan.toPole', 'images']), 201);
+    }
+
+    private function syncPoleStatus(\App\Models\Pole $pole): void
+    {
+        $totalSpans = $pole->outgoingSpans()->count() + $pole->incomingSpans()->count();
+
+        if ($totalSpans === 0) return;
+
+        $completedSpans = $pole->outgoingSpans()->where('status', 'completed')->count()
+                        + $pole->incomingSpans()->where('status', 'completed')->count();
+
+        if ($completedSpans >= $totalSpans) {
+            $pole->update(['status' => 'completed', 'completed_at' => now()]);
+        }
     }
 }

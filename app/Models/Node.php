@@ -12,6 +12,7 @@ class Node extends Model
     protected $fillable = [
         'project_id',
         'node_id',
+        'node_name',
         'data_source',
         'sites',
         'province',

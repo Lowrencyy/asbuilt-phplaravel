@@ -11,18 +11,30 @@ class Pole extends Model
     protected $fillable = [
         'node_id',
         'pole_code',
+        'pole_name',
+        'slot',
         'status',
         'remarks',
         'completed_at',
         'map_latitude',
         'map_longitude',
+        'sitemap_x',
+        'sitemap_y',
+        'image',
     ];
 
     protected $casts = [
         'completed_at'  => 'datetime',
         'map_latitude'  => 'decimal:7',
         'map_longitude' => 'decimal:7',
+        'sitemap_x'     => 'decimal:4',
+        'sitemap_y'     => 'decimal:4',
     ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'id';
+    }
 
     public function node(): BelongsTo
     {

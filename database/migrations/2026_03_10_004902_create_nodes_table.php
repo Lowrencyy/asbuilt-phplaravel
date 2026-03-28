@@ -19,6 +19,7 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('node_id');
+            $table->string('node_name')->nullable(); // location/area name e.g. "Taytay Rizal Area 1"
             $table->enum('data_source', ['manual', 'ai'])->default('manual');
 
             $table->string('sites')->nullable();
@@ -42,6 +43,8 @@ return new class extends Migration
             $table->integer('node_count')->default(1);
             $table->integer('amplifier')->default(0);
             $table->integer('tsc')->default(0);
+            $table->integer('powersupply')->default(0);
+            $table->integer('powersupply_housing')->default(0);
 
             $table->decimal('progress_percentage', 5, 2)->default(0);
 

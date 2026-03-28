@@ -264,8 +264,8 @@ body{font-family:var(--ff);background:var(--bg);color:var(--txt);}
 <script>
 (function(){
   const CSRF       = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  const BASE       = '{{ route("admin.projects.index") }}';
-  const NODES_BASE = '{{ url("admin/projects") }}';
+  const BASE       = '{{ auth()->user()->role === "admin" ? route("admin.projects.index") : route("pm.projects.index") }}';
+  const NODES_BASE = '{{ auth()->user()->role === "admin" ? url("admin/projects") : url("pm/projects") }}';
 
   let PROJECTS = @json($projects);
   let statusFilter = 'ALL';

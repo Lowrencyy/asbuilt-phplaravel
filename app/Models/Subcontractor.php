@@ -31,4 +31,9 @@ class Subcontractor extends Model
     {
         return $this->hasMany(User::class, 'subcontractor_id');
     }
+
+    public function teams(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Team::class, 'subcon_id');
+    }
 }

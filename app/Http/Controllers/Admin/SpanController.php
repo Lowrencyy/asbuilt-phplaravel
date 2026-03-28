@@ -78,6 +78,8 @@ class SpanController extends Controller
             'to_pole_id'         => $s->to_pole_id,
             'from_pole_code'     => $s->fromPole?->pole_code ?? '—',
             'to_pole_code'       => $s->toPole?->pole_code ?? '—',
+            'from_pole_name'     => $s->fromPole?->pole_name ?: ($s->fromPole?->pole_code ?? '—'),
+            'to_pole_name'       => $s->toPole?->pole_name   ?: ($s->toPole?->pole_code   ?? '—'),
             'length_meters'      => (float) $s->length_meters,
             'runs'               => (int) $s->runs,
             'expected_cable'     => (float) $s->expected_cable,

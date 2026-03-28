@@ -93,4 +93,9 @@ class TeardownLog extends Model
     {
         return $this->hasMany(TeardownLogImage::class);
     }
+
+    public function submissionItem(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(TeardownSubmissionItem::class);
+    }
 }

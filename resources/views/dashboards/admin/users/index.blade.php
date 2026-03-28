@@ -1,18 +1,17 @@
 
 <x-layout>
+<div class="col-span-full" style="max-width:1200px;margin:0 auto;width:100%;">
 
     {{-- ===================== FLASH MESSAGE ===================== --}}
     @if (session('success'))
-        <div class="col-span-full">
-            <div class="flex items-center gap-3 p-4 mb-2 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm font-medium">
-                <span class="material-symbols-rounded text-green-500">check_circle</span>
-                {{ session('success') }}
-            </div>
+        <div class="flex items-center gap-3 p-4 mb-4 rounded-lg bg-green-50 border border-green-200 text-green-800 text-sm font-medium">
+            <span class="material-symbols-rounded text-green-500">check_circle</span>
+            {{ session('success') }}
         </div>
     @endif
 
     {{-- ===================== HEADER ROW ===================== --}}
-    <div class="col-span-full flex items-center justify-between mb-4">
+    <div class="flex items-center justify-between mb-4">
         <div>
             <h4 class="text-xl font-bold text-gray-800 dark:text-gray-100">User Management</h4>
             <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Manage all system users, roles, and access.</p>
@@ -25,7 +24,7 @@
     </div>
 
     {{-- ===================== TABLE CARD ===================== --}}
-    <div class="col-span-full card p-0 overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+    <div class="card p-0 overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
 
         {{-- Search Bar --}}
         <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-700 flex items-center gap-3">
@@ -42,7 +41,15 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full text-sm">
+            <table class="w-full text-sm" style="table-layout:fixed;">
+                <colgroup>
+                    <col style="width:220px;">{{-- User --}}
+                    <col style="width:220px;">{{-- Email --}}
+                    <col style="width:130px;">{{-- Role --}}
+                    <col style="width:160px;">{{-- Subcon --}}
+                    <col style="width:100px;">{{-- Status --}}
+                    <col style="width:110px;">{{-- Actions --}}
+                </colgroup>
                 <thead>
                     <tr class="border-b border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-slate-700/40">
                         <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
@@ -75,6 +82,7 @@
                                 'project_manager' => ['bg' => '#1E3932', 'text' => '#D4E9E2'],
                                 'accounting'      => ['bg' => '#92400E', 'text' => '#FEF3C7'],
                                 'subcon'          => ['bg' => '#1E40AF', 'text' => '#DBEAFE'],
+                                'warehouse'       => ['bg' => '#065F46', 'text' => '#D1FAE5'],
                                 'normal_employee' => ['bg' => '#374151', 'text' => '#F3F4F6'],
                                 'visitor'         => ['bg' => '#6B7280', 'text' => '#F9FAFB'],
                                 default           => ['bg' => '#6B7280', 'text' => '#F9FAFB'],
@@ -99,7 +107,7 @@
                             </td>
 
                             {{-- Email --}}
-                            <td class="px-6 py-4 text-gray-500 dark:text-gray-300">{{ $user->email }}</td>
+                            <td class="px-6 py-4 text-gray-500 dark:text-gray-300" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ $user->email }}</td>
 
                             {{-- Role Badge ✅ whitespace-nowrap fixes truncation --}}
                             <td class="px-6 py-4">
@@ -141,7 +149,7 @@
                                     <button type="button" title="Edit User"
                                         class="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
                                         data-fc-type="modal" data-fc-target="editUserModal"
-                                        onclick="fillEditModal({{ $user->id }},'{{ addslashes($user->name) }}','{{ $user->email }}','{{ $user->role }}','{{ $user->subcon_id }}','{{ $user->subcon_role }}',{{ $user->is_active ? 'true' : 'false' }})">
+                                        onclick="fillEditModal({{ $user->id }},'{{ addslashes($user->name) }}','{{ $user->email }}','{{ $user->role }}','{{ $user->subcon_id }}','{{ $user->subcon_role }}',{{ $user->is_active ? 'true' : 'false' }},'{{ $user->warehouse_id }}')">
                                         <span class="material-symbols-rounded text-base">edit</span>
                                     </button>
 
@@ -194,6 +202,8 @@
     </div>
 
 
+</div>{{-- /max-width wrapper --}}
+
     {{-- ============================================================ --}}
     {{-- CREATE USER MODAL                                            --}}
     {{-- ============================================================ --}}
@@ -238,10 +248,10 @@
 
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Role</label>
-                        <select name="role" id="createRoleSelect" required
+                        <select name="role" id="createRoleSelect" required onchange="toggleCreateWarehouse(this.value)"
                             class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition">
                             <option value="">-- Select Role --</option>
-                            @foreach (['admin','executives','hr','accounting','project_manager','normal_employee','subcon','visitor'] as $role)
+                            @foreach (['admin','executives','hr','accounting','project_manager','warehouse','normal_employee','subcon','visitor'] as $role)
                                 <option value="{{ $role }}">{{ ucfirst(str_replace('_', ' ', $role)) }}</option>
                             @endforeach
                         </select>
@@ -253,6 +263,18 @@
                             class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition">
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
+                        </select>
+                    </div>
+
+                    {{-- Warehouse selector (shown when role = warehouse) --}}
+                    <div id="createWarehouseField" class="col-span-2 hidden">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Assigned Warehouse</label>
+                        <select name="warehouse_id"
+                            class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition">
+                            <option value="">-- Select Warehouse --</option>
+                            @foreach ($warehouses as $wh)
+                                <option value="{{ $wh->id }}">{{ $wh->name }}{{ $wh->subcontractor ? ' ('.$wh->subcontractor->name.')' : '' }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -335,9 +357,9 @@
 
                     <div class="col-span-2 sm:col-span-1">
                         <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Role</label>
-                        <select name="role" id="editRoleSelect" required
+                        <select name="role" id="editRoleSelect" required onchange="toggleEditWarehouse(this.value)"
                             class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition">
-                            @foreach (['admin','executives','hr','accounting','project_manager','normal_employee','subcon','visitor'] as $role)
+                            @foreach (['admin','executives','hr','accounting','project_manager','warehouse','normal_employee','subcon','visitor'] as $role)
                                 <option value="{{ $role }}">{{ ucfirst(str_replace('_', ' ', $role)) }}</option>
                             @endforeach
                         </select>
@@ -349,6 +371,18 @@
                             class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition">
                             <option value="1">Active</option>
                             <option value="0">Inactive</option>
+                        </select>
+                    </div>
+
+                    {{-- Warehouse selector (shown when role = warehouse) --}}
+                    <div id="editWarehouseField" class="col-span-2 hidden">
+                        <label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">Assigned Warehouse</label>
+                        <select name="warehouse_id" id="editWarehouseId"
+                            class="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2.5 text-sm bg-white dark:bg-slate-700 dark:text-black focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition">
+                            <option value="">-- Select Warehouse --</option>
+                            @foreach ($warehouses as $wh)
+                                <option value="{{ $wh->id }}">{{ $wh->name }}{{ $wh->subcontractor ? ' ('.$wh->subcontractor->name.')' : '' }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -496,29 +530,32 @@
                 query ? `${visibleCount} result${visibleCount !== 1 ? 's' : ''}` : `{{ $users->total() }} users`;
         });
 
-        // ---- Create modal: show/hide subcon fields ----
-        document.getElementById('createRoleSelect').addEventListener('change', function () {
-            document.getElementById('createSubconFields').classList.toggle('hidden', this.value !== 'subcon');
-        });
+        // ---- Create modal: show/hide subcon / warehouse fields ----
+        function toggleCreateWarehouse(role) {
+            document.getElementById('createSubconFields').classList.toggle('hidden', role !== 'subcon');
+            document.getElementById('createWarehouseField').classList.toggle('hidden', role !== 'warehouse');
+        }
 
         // ---- Edit modal ----
-        function fillEditModal(id, name, email, role, subconId, subconRole, isActive) {
+        function fillEditModal(id, name, email, role, subconId, subconRole, isActive, warehouseId) {
             document.getElementById('editUserForm').action = `/admin/users/${id}`;
             document.getElementById('editName').value = name;
             document.getElementById('editEmail').value = email;
             document.getElementById('editStatus').value = isActive ? '1' : '0';
             document.getElementById('editRoleSelect').value = role;
             toggleEditSubcon(role);
+            toggleEditWarehouse(role);
             document.getElementById('editSubconId').value = subconId || '';
             document.getElementById('editSubconRole').value = subconRole || '';
+            document.getElementById('editWarehouseId').value = warehouseId || '';
         }
-
-        document.getElementById('editRoleSelect').addEventListener('change', function () {
-            toggleEditSubcon(this.value);
-        });
 
         function toggleEditSubcon(role) {
             document.getElementById('editSubconFields').classList.toggle('hidden', role !== 'subcon');
+        }
+
+        function toggleEditWarehouse(role) {
+            document.getElementById('editWarehouseField').classList.toggle('hidden', role !== 'warehouse');
         }
 
         // ---- Reset Password modal ----

@@ -169,7 +169,7 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
       <p>
         Project: <strong>{{ $project->name }}</strong>
         <span style="margin:0 .4rem;color:var(--bdr2)">·</span>
-        <a href="{{ route('admin.projects.index') }}" style="color:var(--p);font-size:.76rem;">← Back to Projects</a>
+        <a href="{{ auth()->user()->role === 'admin' ? route('admin.projects.index') : route('pm.projects.index') }}" style="color:var(--p);font-size:.76rem;">← Back to Projects</a>
       </p>
     </div>
     <button class="btn-p" id="btnOpenAdd"><i class="mgc_add_line"></i> Add Node ID</button>
@@ -204,12 +204,16 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     <div class="frow">
       <div class="fi-wrap">
         <i class="mgc_search_line fi-ico"></i>
-        <input id="fSearch" type="text" placeholder="Search Node ID, region, city…" class="fi" />
+        <input id="fSearch" type="text" placeholder="Search Node ID, province, city…" class="fi" />
       </div>
       <div class="fgrp">
         <select id="fRegion" class="fsel">
-          <option value="">All Regions</option>
-          <option>NCR</option><option>Luzon</option><option>Visayas</option><option>Mindanao</option>
+          <option value="">All Provinces</option>
+          <option>SOUTH LUZON</option>
+          <option>NORTH LUZON</option>
+          <option>NCR</option>
+          <option>VISAYAS</option>
+          <option>MINDANAO</option>
         </select>
         <select id="fStatusF" class="fsel">
           <option value="">All Status</option>
@@ -239,9 +243,12 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
           <tr>
             <th class="thl" style="width:40px;">#</th>
             <th class="thl">Node ID</th>
-            <th>Region</th>
+            <th class="thl">Node Name</th>
+            <th>Province</th>
             <th>City / District</th>
+            <th>Sites</th>
             <th>Subcon</th>
+            <th>Team</th>
             <th>Status</th>
             <th>Total Strand</th>
             <th>Exp. Cable</th>
@@ -280,12 +287,27 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
           <input id="fNodeId" class="inp" type="text" placeholder="e.g. QC-1104" required/>
         </div>
         <div>
-          <label class="lbl" for="fRegion2">Region</label>
-          <input id="fRegion2" class="inp" type="text" placeholder="e.g. NCR"/>
+          <label class="lbl" for="fNodeName">Node Name</label>
+          <input id="fNodeName" class="inp" type="text" placeholder="e.g. Bagong Silang Exchange"/>
+        </div>
+        <div>
+          <label class="lbl" for="fRegion2">Province</label>
+          <input id="fRegion2" class="inp" type="text" placeholder="e.g. Metro Manila"/>
         </div>
         <div>
           <label class="lbl" for="fCity">City / District</label>
           <input id="fCity" class="inp" type="text" placeholder="e.g. Quezon City, District 2"/>
+        </div>
+        <div class="c3">
+          <label class="lbl" for="fSites">Sites <span>*</span></label>
+          <select id="fSites" class="inp">
+            <option value="">— Select Site —</option>
+            <option>South Luzon</option>
+            <option>North Luzon</option>
+            <option>NCR</option>
+            <option>Visayas</option>
+            <option>Mindanao</option>
+          </select>
         </div>
         <div>
           <label class="lbl" for="fSubcon2">Subcontractor</label>
@@ -293,6 +315,15 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
             <option value="">— None —</option>
             @foreach($subcontractors as $sc)
               <option value="{{ $sc->id }}">{{ $sc->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div>
+          <label class="lbl" for="fTeam">Assigned Team</label>
+          <select id="fTeam" class="inp">
+            <option value="">— No Team —</option>
+            @foreach($teams as $team)
+              <option value="{{ $team->team_name }}">{{ $team->team_name }}</option>
             @endforeach
           </select>
         </div>
@@ -405,8 +436,8 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
 <script>
 (function(){
   const NODES     = @json($nodes);
-  const STORE_URL = "{{ route('admin.projects.nodes.store', $project) }}";
-  const BASE_URL  = "{{ url('admin/projects/' . $project->id . '/nodes') }}";
+  const STORE_URL = "{{ auth()->user()->role === 'admin' ? route('admin.projects.nodes.store', $project) : route('pm.projects.nodes.store', $project) }}";
+  const BASE_URL  = "{{ auth()->user()->role === 'admin' ? url('admin/projects/' . $project->id . '/nodes') : url('pm/projects/' . $project->id . '/nodes') }}";
   const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
 
   let rows = JSON.parse(JSON.stringify(NODES));
@@ -447,7 +478,7 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     const sc =$('fSubconF').value;
     const due=$('fDueFilter').value;
     return rows.filter(n=>{
-      if(q  && ![(n.node_code||''),(n.region||''),(n.city||'')].join(' ').toLowerCase().includes(q)) return false;
+      if(q  && ![(n.node_code||''),(n.node_name||''),(n.region||''),(n.city||'')].join(' ').toLowerCase().includes(q)) return false;
       if(reg && !(n.region||'').toLowerCase().includes(reg)) return false;
       if(st  && !(n.status||'').toLowerCase().includes(st)) return false;
       if(sc  && String(n.subcon_id)!==sc) return false;
@@ -462,7 +493,7 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     $('showCount').textContent=list.length;
 
     if(!list.length){
-      $('nodeTbody').innerHTML=`<tr><td colspan="16"><div class="empty-st"><i class="mgc_router_line"></i>No nodes found. Click "Add Node ID" to get started.</div></td></tr>`;
+      $('nodeTbody').innerHTML=`<tr><td colspan="19"><div class="empty-st"><i class="mgc_router_line"></i>No nodes found. Click "Add Node ID" to get started.</div></td></tr>`;
       return;
     }
 
@@ -474,9 +505,12 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
       return `<tr>
         <td class="c-idx tdl">${i+1}</td>
         <td class="c-nlink tdl"><a href="${polesUrl}"><i class="mgc_router_line" style="font-size:.7rem"></i> ${n.node_code}</a></td>
+        <td class="c-txt tdl" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${n.node_name||''}">${n.node_name||'—'}</td>
         <td class="c-txt">${n.region||'—'}</td>
         <td class="c-txt" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${n.city||''}">${n.city||'—'}</td>
+        <td class="c-txt" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${n.sites||''}">${n.sites||'—'}</td>
         <td class="c-txt">${subName}</td>
+        <td class="c-txt">${n.team||'—'}</td>
         <td>${statusBadge(n.status)}</td>
         <td class="c-num">${(+n.strand_m||0).toFixed(1)}<span class="cm">m</span></td>
         <td class="c-num">${(+n.cable_m||0).toFixed(1)}<span class="cm">m</span></td>
@@ -517,9 +551,12 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     $('editId').value=n.id;
     $('modalTitle').textContent='Edit Node ID';$('saveLbl').textContent='Update Node';
     $('fNodeId').value=n.node_code||'';
+    $('fNodeName').value=n.node_name||'';
+    $('fSites').value=n.sites||'';
     $('fRegion2').value=n.region||'';
     $('fCity').value=n.city||'';
     $('fSubcon2').value=n.subcon_id||'';
+    $('fTeam').value=n.team||'';
     $('fStatus').value=n.status||'ON GOING IMPLEMENTATION';
     $('fApprovedBy').value=n.approved_by||'';
     $('fDueDate').value=(n.due_date||'').slice(0,10);
@@ -544,10 +581,14 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     const editId=$('editId').value;
     const url=editId?`${BASE_URL}/${editId}`:STORE_URL;
     const fd=new FormData();
+    fd.append('_token',CSRF);
     fd.append('node_code',code);
+    fd.append('node_name',$('fNodeName').value.trim());
+    fd.append('sites',$('fSites').value.trim());
     fd.append('region',$('fRegion2').value.trim());
     fd.append('city',$('fCity').value.trim());
     fd.append('subcon_id',$('fSubcon2').value);
+    fd.append('team',$('fTeam').value);
     fd.append('status',$('fStatus').value);
     fd.append('approved_by',$('fApprovedBy').value.trim());
     fd.append('due_date',$('fDueDate').value);

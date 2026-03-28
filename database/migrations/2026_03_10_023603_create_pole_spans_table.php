@@ -10,12 +10,13 @@ return new class extends Migration
     {
         Schema::create('pole_spans', function (Blueprint $table) {
             $table->id();
+            $table->string('pole_span_code')->nullable()->unique();
+            // human-readable identifier e.g. TY:5232-001-002
 
             $table->foreignId('node_id')
                 ->constrained('nodes')
                 ->cascadeOnDelete();
 
-            
             $table->foreignId('from_pole_id')
                 ->constrained('poles')
                 ->cascadeOnDelete();
@@ -23,11 +24,6 @@ return new class extends Migration
             $table->foreignId('to_pole_id')
                 ->constrained('poles')
                 ->cascadeOnDelete();
-
-            // $table->string('direction_label')->nullable();
-            // north, south, east, west, custom
-            
-            // $table->deciman('span_id') -> default(0);
 
             $table->decimal('length_meters', 10, 2)->default(0);
             $table->integer('runs')->default(1);
@@ -37,6 +33,8 @@ return new class extends Migration
             $table->integer('expected_amplifier')->default(0);
             $table->integer('expected_extender')->default(0);
             $table->integer('expected_tsc')->default(0);
+            $table->integer('expected_powersupply')->default(0);
+            $table->integer('expected_powersupply_housing')->default(0);
 
             $table->string('status')->default('pending');
             // pending, in_progress, teardown, blocked, completed

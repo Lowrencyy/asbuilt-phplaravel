@@ -18,6 +18,12 @@ class ProjectController extends Controller
                 $q->where('subcontractor_id', $user->subcontractor_id);
             })->get();
 
+            // If no projects matched (nodes not yet assigned to this subcon),
+            // fall back to all projects so the app isn't blank
+            if ($projects->isEmpty()) {
+                $projects = Project::all();
+            }
+
             return response()->json($projects);
         }
 

@@ -39,12 +39,16 @@ return new class extends Migration
             $table->integer('collected_amplifier')->default(0);
             $table->integer('collected_extender')->default(0);
             $table->integer('collected_tsc')->default(0);
+            $table->integer('collected_powersupply')->default(0);
+            $table->integer('collected_powersupply_housing')->default(0);
 
             $table->decimal('expected_cable_snapshot', 10, 2)->default(0);
             $table->integer('expected_node_snapshot')->default(0);
             $table->integer('expected_amplifier_snapshot')->default(0);
             $table->integer('expected_extender_snapshot')->default(0);
             $table->integer('expected_tsc_snapshot')->default(0);
+            $table->integer('expected_powersupply_snapshot')->default(0);
+            $table->integer('expected_powersupply_housing_snapshot')->default(0);
 
             $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();

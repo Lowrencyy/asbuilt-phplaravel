@@ -9,7 +9,7 @@ class LinemanOnly
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!in_array($request->user()?->role, ['lineman', 'admin', 'pm'])) {
+        if (!in_array($request->user()?->role, ['lineman', 'admin', 'pm', 'subcon'])) {
             return response()->json(['message' => 'Unauthorized.'], 403);
         }
 

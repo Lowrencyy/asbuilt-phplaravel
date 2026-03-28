@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Subcontractor;
+use App\Models\Team;
 use App\Models\User;
+use App\Models\Warehouse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -45,6 +47,15 @@ class SubcontractorController extends Controller
             'logo_path'   => $logoPath,
         ]);
 
+        // Auto-create primary warehouse for this subcontractor
+        Warehouse::create([
+            'subcontractor_id' => $subcon->id,
+            'name'             => $validated['name'] . ' Warehouse',
+            'location'         => $validated['address'] ?? null,
+            'is_primary'       => true,
+            'status'           => 'active',
+        ]);
+
         return response()->json(['success' => true, 'subcon' => $subcon->append('logo_url')]);
     }
 
@@ -82,7 +93,50 @@ class SubcontractorController extends Controller
     public function show(Subcontractor $subcon)
     {
         $members = $subcon->members()->orderBy('subcon_role')->orderBy('name')->get();
-        return view('dashboards.admin.subcon.show', compact('subcon', 'members'));
+        $teams   = $subcon->teams()->with('members')->orderBy('team_name')->get();
+        return view('dashboards.admin.subcon.show', compact('subcon', 'members', 'teams'));
+    }
+
+    // ── Subcon Teams ────────────────────────────────────────────────────────
+
+    public function storeTeam(Request $request, Subcontractor $subcon)
+    {
+        $request->validate([
+            'team_name' => ['required', 'string', 'max:255'],
+        ]);
+
+        $team = Team::create([
+            'team_name' => $request->team_name,
+            'subcon_id' => $subcon->id,
+            'status'    => 'active',
+        ]);
+
+        return response()->json(['success' => true, 'team' => $team->load('members')]);
+    }
+
+    public function destroyTeam(Team $team)
+    {
+        $team->members()->update(['team_id' => null]);
+        $team->delete();
+        return response()->json(['success' => true]);
+    }
+
+    public function assignTeamMember(Request $request, Team $team)
+    {
+        $request->validate([
+            'user_id' => ['required', 'exists:users,id'],
+        ]);
+
+        User::where('id', $request->user_id)->update(['team_id' => $team->id]);
+
+        $user = User::find($request->user_id);
+        return response()->json(['success' => true, 'user' => $user]);
+    }
+
+    public function removeTeamMember(Team $team, User $user)
+    {
+        $user->update(['team_id' => null]);
+        return response()->json(['success' => true]);
     }
 
     public function destroy(Subcontractor $subcon)

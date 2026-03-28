@@ -16,16 +16,18 @@ return new class extends Migration
                 ->cascadeOnDelete();
 
             $table->string('pole_code');
-            $table->string('status')->default('pending');
+            $table->string('pole_name')->nullable();
+            $table->string('status')->default('active');
             $table->text('remarks')->nullable();
-
-            $table->timestamps();
-
-            $table->unique(['node_id', 'pole_code']);
-            $table->timestamp('completed_at')->nullable();
+            $table->string('image')->nullable(); // bunching/reference photo, optional
 
             $table->decimal('map_latitude', 10, 7)->nullable();
             $table->decimal('map_longitude', 10, 7)->nullable();
+
+            $table->timestamp('completed_at')->nullable();
+            $table->timestamps();
+
+            $table->unique(['node_id', 'pole_code']);
         });
     }
 

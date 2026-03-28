@@ -34,6 +34,9 @@ class User extends Authenticatable
     const SUBCON_PM      = 'pm';
     const SUBCON_LINEMAN = 'lineman';
 
+    // Warehouse role constant
+    const ROLE_WAREHOUSE = 'warehouse';
+
     protected $fillable = [
         'name',
         'email',
@@ -42,6 +45,8 @@ class User extends Authenticatable
         'subcon_role',
         'subcontractor_id',
         'is_warehouse_incharge',
+        'warehouse_id',
+        'team_id',
     ];
 
     public function isLineman(): bool

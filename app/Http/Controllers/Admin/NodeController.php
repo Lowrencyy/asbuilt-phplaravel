@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Node;
 use App\Models\Project;
 use App\Models\Subcontractor;
+use App\Models\Team;
 use Illuminate\Http\Request;
 
 class NodeController extends Controller
@@ -14,17 +15,22 @@ class NodeController extends Controller
     {
         $nodes = $project->nodes()->with('subcontractor')->get()->map(fn ($n) => $this->transform($n));
         $subcontractors = Subcontractor::orderBy('name')->get();
+        $teams = Team::orderBy('team_name')->get();
+        $sites = Node::whereNotNull('sites')->distinct()->orderBy('sites')->pluck('sites');
 
-        return view('dashboards.admin.projects.nodes.addnodes', compact('project', 'nodes', 'subcontractors'));
+        return view('dashboards.admin.projects.nodes.addnodes', compact('project', 'nodes', 'subcontractors', 'teams', 'sites'));
     }
 
     public function store(Request $request, Project $project)
     {
         $data = $request->validate([
             'node_code'         => ['required', 'string', 'max:100'],
+            'node_name'         => ['nullable', 'string', 'max:255'],
+            'sites'             => ['nullable', 'string', 'max:255'],
             'region'            => ['nullable', 'string', 'max:255'],
             'city'              => ['nullable', 'string', 'max:255'],
             'subcon_id'         => ['nullable', 'integer', 'exists:subcons,id'],
+            'team'              => ['nullable', 'string', 'max:255'],
             'status'            => ['required', 'string', 'max:100'],
             'approved_by'       => ['nullable', 'string', 'max:255'],
             'due_date'          => ['nullable', 'date'],
@@ -41,9 +47,12 @@ class NodeController extends Controller
 
         $node = $project->nodes()->create([
             'node_id'              => $data['node_code'],
+            'node_name'            => $data['node_name'] ?? null,
+            'sites'                => $data['sites'] ?? null,
             'province'             => $data['region'] ?? null,
             'city'                 => $data['city'] ?? null,
             'subcontractor_id'     => $data['subcon_id'] ?: null,
+            'team'                 => $data['team'] ?? null,
             'status'               => $data['status'],
             'approved_by'          => $data['approved_by'] ?? null,
             'due_date'             => $data['due_date'] ?? null,
@@ -65,9 +74,12 @@ class NodeController extends Controller
     {
         $data = $request->validate([
             'node_code'         => ['required', 'string', 'max:100'],
+            'node_name'         => ['nullable', 'string', 'max:255'],
+            'sites'             => ['nullable', 'string', 'max:255'],
             'region'            => ['nullable', 'string', 'max:255'],
             'city'              => ['nullable', 'string', 'max:255'],
             'subcon_id'         => ['nullable', 'integer', 'exists:subcons,id'],
+            'team'              => ['nullable', 'string', 'max:255'],
             'status'            => ['required', 'string', 'max:100'],
             'approved_by'       => ['nullable', 'string', 'max:255'],
             'due_date'          => ['nullable', 'date'],
@@ -84,9 +96,12 @@ class NodeController extends Controller
 
         $node->update([
             'node_id'              => $data['node_code'],
+            'node_name'            => $data['node_name'] ?? null,
+            'sites'                => $data['sites'] ?? null,
             'province'             => $data['region'] ?? null,
             'city'                 => $data['city'] ?? null,
             'subcontractor_id'     => $data['subcon_id'] ?: null,
+            'team'                 => $data['team'] ?? null,
             'status'               => $data['status'],
             'approved_by'          => $data['approved_by'] ?? null,
             'due_date'             => $data['due_date'] ?? null,
@@ -116,10 +131,13 @@ class NodeController extends Controller
         return [
             'id'                => $n->id,
             'node_code'         => $n->node_id,
+            'node_name'         => $n->node_name,
+            'sites'             => $n->sites,
             'region'            => $n->province,
             'city'              => $n->city,
             'subcon_id'         => $n->subcontractor_id,
             'subcontractor'     => $n->subcontractor ? ['name' => $n->subcontractor->name] : null,
+            'team'              => $n->team,
             'status'            => $n->status,
             'approved_by'       => $n->approved_by,
             'due_date'          => $n->due_date?->toDateString(),

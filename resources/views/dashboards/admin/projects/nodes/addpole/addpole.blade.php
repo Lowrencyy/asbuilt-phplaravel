@@ -139,7 +139,7 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="frow">
       <div class="fi-wrap">
         <i class="mgc_search_line fi-ico"></i>
-        <input id="fSearch" type="text" placeholder="Search pole code…" class="fi" />
+        <input id="fSearch" type="text" placeholder="Search by name or code…" class="fi" />
       </div>
       <div class="cpill" style="margin-left:auto;"><strong id="showCount">0</strong>&nbsp;pole(s)</div>
     </div>
@@ -148,7 +148,7 @@ tbody tr:last-child td{border-bottom:none;}
         <thead>
           <tr>
             <th style="width:40px;">#</th>
-            <th>Pole Code</th>
+            <th>Pole Name</th>
             <th class="tc">Status</th>
             <th>Remarks</th>
             <th class="tc">GPS</th>
@@ -174,7 +174,11 @@ tbody tr:last-child td{border-bottom:none;}
       <input type="hidden" id="editId"/>
       <div>
         <label class="lbl" for="fPoleCode">Pole Code <span>*</span></label>
-        <input id="fPoleCode" class="inp" type="text" placeholder="e.g. P-001 or F13-278"/>
+        <input id="fPoleCode" class="inp" type="text" placeholder="e.g. P-001 or NPT"/>
+      </div>
+      <div>
+        <label class="lbl" for="fPoleName">Pole Name <span id="nameRequired" style="color:var(--err);display:none;">*</span></label>
+        <input id="fPoleName" class="inp" type="text" placeholder="e.g. BGC-001 (required for NPT/NT)"/>
       </div>
       <div>
         <label class="lbl" for="fStatus">Status</label>
@@ -243,7 +247,7 @@ tbody tr:last-child td{border-bottom:none;}
 
   function renderTable(){
     const q=($('fSearch').value||'').toLowerCase();
-    const list=rows.filter(p=>!q||p.pole_code.toLowerCase().includes(q));
+    const list=rows.filter(p=>!q||[(p.pole_name||''),(p.pole_code||'')].some(v=>v.toLowerCase().includes(q)));
     renderStats(list);
     $('showCount').textContent=list.length;
     if(!list.length){
@@ -257,7 +261,7 @@ tbody tr:last-child td{border-bottom:none;}
       const cat=p.completed_at?`<span class="c-muted">${p.completed_at.slice(0,10)}</span>`:`<span style="color:var(--muted)">—</span>`;
       return `<tr>
         <td style="color:var(--muted);font-size:.67rem;font-family:var(--fm)">${i+1}</td>
-        <td class="pole-code">${p.pole_code}</td>
+        <td class="c-muted">${p.pole_name||'<span style="color:var(--muted)">—</span>'}</td>
         <td class="tc">${statusBadge(p.status)}</td>
         <td class="remarks-cell" title="${(p.remarks||'').replace(/"/g,'&quot;')}">${p.remarks||'<span style="color:var(--muted)">—</span>'}</td>
         <td class="tc">${gps}</td>
@@ -280,27 +284,39 @@ tbody tr:last-child td{border-bottom:none;}
   }
   function closeDel(){$('delOv').classList.remove('open');document.body.style.overflow='';pendingDelId=null;}
 
+  const UNTAGGED=['NPT','NT'];
+  function updateNameRequired(){
+    const isNpt=UNTAGGED.includes($('fPoleCode').value.trim().toUpperCase());
+    $('nameRequired').style.display=isNpt?'':'none';
+  }
+
   function resetForm(){
-    $('editId').value='';$('fPoleCode').value='';$('fStatus').value='pending';$('fRemarks').value='';
+    $('editId').value='';$('fPoleCode').value='';$('fPoleName').value='';$('fStatus').value='pending';$('fRemarks').value='';
     $('modalTitle').textContent='Add Pole';$('saveLbl').textContent='Save Pole';
-    $('fPoleCode').classList.remove('inp-e');
+    $('fPoleCode').classList.remove('inp-e');$('fPoleName').classList.remove('inp-e');
+    $('nameRequired').style.display='none';
   }
   function loadEdit(id){
     const p=rows.find(x=>x.id==id);if(!p)return;
     resetForm();
-    $('editId').value=p.id;$('fPoleCode').value=p.pole_code;
+    $('editId').value=p.id;$('fPoleCode').value=p.pole_code;$('fPoleName').value=p.pole_name||'';
     $('fStatus').value=p.status;$('fRemarks').value=p.remarks||'';
+    updateNameRequired();
     $('modalTitle').textContent='Edit Pole';$('saveLbl').textContent='Update Pole';
     openModal();
   }
 
   async function savePole(){
     const code=$('fPoleCode').value.trim();
+    const name=$('fPoleName').value.trim();
     if(!code){$('fPoleCode').classList.add('inp-e');return;}
     $('fPoleCode').classList.remove('inp-e');
+    const isNpt=UNTAGGED.includes(code.toUpperCase());
+    if(isNpt&&!name){$('fPoleName').classList.add('inp-e');toast('Pole Name is required for NPT/NT poles.','err');return;}
+    $('fPoleName').classList.remove('inp-e');
     const editId=$('editId').value;
     const fd=new FormData();
-    fd.append('pole_code',code);fd.append('status',$('fStatus').value);fd.append('remarks',$('fRemarks').value.trim());
+    fd.append('pole_code',code);fd.append('pole_name',name);fd.append('status',$('fStatus').value);fd.append('remarks',$('fRemarks').value.trim());
     const btn=$('btnSave');
     btn.disabled=true;btn.innerHTML='<i class="mgc_loading_4_line"></i> Saving…';
     try{
@@ -327,6 +343,7 @@ tbody tr:last-child td{border-bottom:none;}
     finally{btn.disabled=false;btn.innerHTML='<i class="mgc_delete_2_line"></i> Delete';}
   }
 
+  $('fPoleCode').addEventListener('input',updateNameRequired);
   $('btnOpenAdd').addEventListener('click',()=>{resetForm();openModal();});
   $('btnClose').addEventListener('click',closeModal);
   $('btnCancel').addEventListener('click',closeModal);

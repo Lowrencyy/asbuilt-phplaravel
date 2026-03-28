@@ -202,7 +202,12 @@ tbody tr:last-child td{border-bottom:none;}
           <label class="lbl" for="fFromPole">From Pole <span>*</span></label>
           <select id="fFromPole" class="inp">
             @foreach($poles as $pole)
-              <option value="{{ $pole->id }}">{{ $pole->pole_code }}</option>
+              @php
+                $untagged = ['NPT','NT'];
+                $label = $pole->pole_name ?: $pole->pole_code;
+                if (in_array(strtoupper($pole->pole_code), $untagged)) { $label .= ' (#'.$pole->id.')'; }
+              @endphp
+              <option value="{{ $pole->id }}">{{ $label }}</option>
             @endforeach
           </select>
         </div>
@@ -210,7 +215,11 @@ tbody tr:last-child td{border-bottom:none;}
           <label class="lbl" for="fToPole">To Pole <span>*</span></label>
           <select id="fToPole" class="inp">
             @foreach($poles as $pole)
-              <option value="{{ $pole->id }}">{{ $pole->pole_code }}</option>
+              @php
+                $label = $pole->pole_name ?: $pole->pole_code;
+                if (in_array(strtoupper($pole->pole_code), $untagged)) { $label .= ' (#'.$pole->id.')'; }
+              @endphp
+              <option value="{{ $pole->id }}">{{ $label }}</option>
             @endforeach
           </select>
         </div>
@@ -321,7 +330,7 @@ tbody tr:last-child td{border-bottom:none;}
 
   function renderTable(){
     const q=($('fSearch').value||'').toLowerCase();
-    const list=rows.filter(s=>!q||s.from_pole_code.toLowerCase().includes(q)||s.to_pole_code.toLowerCase().includes(q));
+    const list=rows.filter(s=>!q||s.from_pole_name.toLowerCase().includes(q)||s.to_pole_name.toLowerCase().includes(q));
     renderStats(list);
     $('showCount').textContent=list.length;
 
@@ -332,7 +341,7 @@ tbody tr:last-child td{border-bottom:none;}
 
     $('spanTbody').innerHTML=list.map((s,i)=>`<tr>
       <td style="color:var(--muted);font-size:.67rem;font-family:var(--fm)">${i+1}</td>
-      <td><div class="pole-pair"><span>${s.from_pole_code}</span><span class="arr">→</span><span>${s.to_pole_code}</span></div></td>
+      <td><div class="pole-pair"><span>${s.from_pole_name}</span><span class="arr">→</span><span>${s.to_pole_name}</span></div></td>
       <td class="tc c-num">${(+s.length_meters).toFixed(2)}</td>
       <td class="tc c-num">${s.runs}</td>
       <td class="tc c-num">${(+s.expected_cable).toFixed(2)}</td>
@@ -362,7 +371,7 @@ tbody tr:last-child td{border-bottom:none;}
   function openDel(id){
     const s=rows.find(x=>x.id==id);if(!s)return;
     pendingDelId=id;
-    $('delMsg').textContent=`Delete span "${s.from_pole_code} → ${s.to_pole_code}"? This cannot be undone.`;
+    $('delMsg').textContent=`Delete span "${s.from_pole_name} → ${s.to_pole_name}"? This cannot be undone.`;
     $('delOv').classList.add('open');document.body.style.overflow='hidden';
   }
   function closeDel(){$('delOv').classList.remove('open');document.body.style.overflow='';pendingDelId=null;}
@@ -382,8 +391,8 @@ tbody tr:last-child td{border-bottom:none;}
     const s=rows.find(x=>x.id==id);if(!s)return;
     resetForm();
     $('editId').value=s.id;
-    $('fFromPole').value=s.from_pole_id;
-    $('fToPole').value=s.to_pole_id;
+    $('fFromPole').value=s.from_pole_span_code;
+    $('fToPole').value=s.to_pole_span_code;
     $('fLength').value=s.length_meters;
     $('fRuns').value=s.runs;
     $('fExpCable').value=s.expected_cable;
@@ -412,7 +421,7 @@ tbody tr:last-child td{border-bottom:none;}
 
     const editId=$('editId').value;
     const fd=new FormData();
-    fd.append('from_pole_id',fromId);fd.append('to_pole_id',toId);
+    fd.append('from_pole_span_code',fromId);fd.append('to_pole_span_code',toId);
     fd.append('length_meters',length);fd.append('runs',runs);
     fd.append('expected_cable',$('fExpCable').value||0);
     fd.append('expected_node',$('fNode').value||0);
