@@ -173,12 +173,8 @@ tbody tr:last-child td{border-bottom:none;}
     <div class="mb">
       <input type="hidden" id="editId"/>
       <div>
-        <label class="lbl" for="fPoleCode">Pole Code <span>*</span></label>
-        <input id="fPoleCode" class="inp" type="text" placeholder="e.g. P-001 or NPT"/>
-      </div>
-      <div>
-        <label class="lbl" for="fPoleName">Pole Name <span id="nameRequired" style="color:var(--err);display:none;">*</span></label>
-        <input id="fPoleName" class="inp" type="text" placeholder="e.g. BGC-001 (required for NPT/NT)"/>
+        <label class="lbl" for="fPoleName">Pole Name <span>*</span></label>
+        <input id="fPoleName" class="inp" type="text" placeholder="e.g. BGC-001 or NPT" autocomplete="off" style="text-transform:uppercase;"/>
       </div>
       <div>
         <label class="lbl" for="fStatus">Status</label>
@@ -279,44 +275,32 @@ tbody tr:last-child td{border-bottom:none;}
   function openDel(id){
     const p=rows.find(x=>x.id==id);if(!p)return;
     pendingDelId=id;
-    $('delMsg').textContent=`Delete pole "${p.pole_code}"? This cannot be undone.`;
+    $('delMsg').textContent=`Delete pole "${p.pole_name||p.pole_code}"? This cannot be undone.`;
     $('delOv').classList.add('open');document.body.style.overflow='hidden';
   }
   function closeDel(){$('delOv').classList.remove('open');document.body.style.overflow='';pendingDelId=null;}
 
-  const UNTAGGED=['NPT','NT'];
-  function updateNameRequired(){
-    const isNpt=UNTAGGED.includes($('fPoleCode').value.trim().toUpperCase());
-    $('nameRequired').style.display=isNpt?'':'none';
-  }
-
   function resetForm(){
-    $('editId').value='';$('fPoleCode').value='';$('fPoleName').value='';$('fStatus').value='pending';$('fRemarks').value='';
+    $('editId').value='';$('fPoleName').value='';$('fStatus').value='pending';$('fRemarks').value='';
     $('modalTitle').textContent='Add Pole';$('saveLbl').textContent='Save Pole';
-    $('fPoleCode').classList.remove('inp-e');$('fPoleName').classList.remove('inp-e');
-    $('nameRequired').style.display='none';
+    $('fPoleName').classList.remove('inp-e');
   }
   function loadEdit(id){
     const p=rows.find(x=>x.id==id);if(!p)return;
     resetForm();
-    $('editId').value=p.id;$('fPoleCode').value=p.pole_code;$('fPoleName').value=p.pole_name||'';
+    $('editId').value=p.id;$('fPoleName').value=p.pole_name||p.pole_code||'';
     $('fStatus').value=p.status;$('fRemarks').value=p.remarks||'';
-    updateNameRequired();
     $('modalTitle').textContent='Edit Pole';$('saveLbl').textContent='Update Pole';
     openModal();
   }
 
   async function savePole(){
-    const code=$('fPoleCode').value.trim();
     const name=$('fPoleName').value.trim();
-    if(!code){$('fPoleCode').classList.add('inp-e');return;}
-    $('fPoleCode').classList.remove('inp-e');
-    const isNpt=UNTAGGED.includes(code.toUpperCase());
-    if(isNpt&&!name){$('fPoleName').classList.add('inp-e');toast('Pole Name is required for NPT/NT poles.','err');return;}
+    if(!name){$('fPoleName').classList.add('inp-e');return;}
     $('fPoleName').classList.remove('inp-e');
     const editId=$('editId').value;
     const fd=new FormData();
-    fd.append('pole_code',code);fd.append('pole_name',name);fd.append('status',$('fStatus').value);fd.append('remarks',$('fRemarks').value.trim());
+    fd.append('pole_name',name);fd.append('status',$('fStatus').value);fd.append('remarks',$('fRemarks').value.trim());
     const btn=$('btnSave');
     btn.disabled=true;btn.innerHTML='<i class="mgc_loading_4_line"></i> Saving…';
     try{
@@ -343,7 +327,11 @@ tbody tr:last-child td{border-bottom:none;}
     finally{btn.disabled=false;btn.innerHTML='<i class="mgc_delete_2_line"></i> Delete';}
   }
 
-  $('fPoleCode').addEventListener('input',updateNameRequired);
+  $('fPoleName').addEventListener('input',function(){
+    const pos=this.selectionStart;
+    this.value=this.value.toUpperCase();
+    this.setSelectionRange(pos,pos);
+  });
   $('btnOpenAdd').addEventListener('click',()=>{resetForm();openModal();});
   $('btnClose').addEventListener('click',closeModal);
   $('btnCancel').addEventListener('click',closeModal);

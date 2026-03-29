@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Span Connector – TelcoVantage PM Tool</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, sans-serif; background: #0f172a; color: #f1f5f9; height: 100vh; display: flex; flex-direction: column; }
+
+  /* ── Header ── */
+  header { background: #1e293b; border-bottom: 1px solid #334155; padding: 12px 20px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  header h1 { font-size: 1.1rem; font-weight: 700; color: #38bdf8; }
+  .badge { background: #0ea5e9; color: #fff; border-radius: 6px; font-size: 0.7rem; padding: 2px 8px; font-weight: 600; }
+
+  /* ── Config bar ── */
+  #config-bar { background: #1e293b; border-bottom: 1px solid #334155; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #config-bar label { font-size: 0.8rem; color: #94a3b8; }
+  #config-bar input, #config-bar select { background: #0f172a; border: 1px solid #334155; color: #f1f5f9; border-radius: 6px; padding: 5px 10px; font-size: 0.85rem; width: 180px; }
+  #config-bar button { background: #0ea5e9; color: #fff; border: none; border-radius: 6px; padding: 6px 16px; font-size: 0.85rem; cursor: pointer; font-weight: 600; }
+  #config-bar button:hover { background: #38bdf8; }
+  #config-bar button.secondary { background: #334155; }
+  #config-bar button.secondary:hover { background: #475569; }
+
+  /* ── Main layout ── */
+  #main { display: flex; flex: 1; overflow: hidden; }
+  #map { flex: 1; height: 100%; }
+
+  /* ── Sidebar ── */
+  #sidebar { width: 320px; background: #1e293b; border-left: 1px solid #334155; display: flex; flex-direction: column; overflow: hidden; }
+  #sidebar-header { padding: 12px 16px; border-bottom: 1px solid #334155; font-size: 0.85rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+  /* Steps */
+  #steps { padding: 12px 16px; border-bottom: 1px solid #334155; }
+  .step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: #334155; color: #94a3b8; font-size: 0.72rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-num.active { background: #0ea5e9; color: #fff; }
+  .step-num.done { background: #22c55e; color: #fff; }
+  .step-text { font-size: 0.78rem; color: #94a3b8; line-height: 1.4; }
+  .step-text strong { color: #f1f5f9; display: block; }
+
+  /* Selection display */
+  #selection-panel { padding: 12px 16px; border-bottom: 1px solid #334155; }
+  .sel-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .sel-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .sel-dot.from { background: #22c55e; }
+  .sel-dot.to   { background: #f97316; }
+  .sel-label { font-size: 0.8rem; color: #94a3b8; min-width: 40px; }
+  .sel-value { font-size: 0.85rem; color: #f1f5f9; font-weight: 600; }
+  .sel-value.empty { color: #475569; font-style: italic; font-weight: 400; }
+
+  /* Span form */
+  #span-form { padding: 12px 16px; border-bottom: 1px solid #334155; display: none; }
+  #span-form h3 { font-size: 0.8rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; margin-bottom: 10px; }
+  .form-row { margin-bottom: 10px; }
+  .form-row label { display: block; font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; }
+  .form-row input { width: 100%; background: #0f172a; border: 1px solid #334155; color: #f1f5f9; border-radius: 6px; padding: 7px 10px; font-size: 0.85rem; }
+  .form-row input:focus { outline: none; border-color: #0ea5e9; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #btn-create-span { width: 100%; background: #22c55e; color: #fff; border: none; border-radius: 8px; padding: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  #btn-create-span:hover { background: #16a34a; }
+  #btn-create-span:disabled { background: #334155; color: #64748b; cursor: not-allowed; }
+  #btn-clear { width: 100%; background: #334155; color: #94a3b8; border: none; border-radius: 8px; padding: 8px; font-size: 0.8rem; cursor: pointer; margin-top: 6px; }
+  #btn-clear:hover { background: #475569; color: #f1f5f9; }
+
+  /* Span list */
+  #span-list-wrap { flex: 1; overflow-y: auto; padding: 0; }
+  #span-list-header { padding: 10px 16px; font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+  #span-list { list-style: none; }
+  #span-list li { padding: 10px 16px; border-bottom: 1px solid #1e293b; transition: background 0.15s; }
+  #span-list li:hover { background: #0f172a; }
+  .span-item-poles { font-size: 0.82rem; color: #f1f5f9; font-weight: 600; }
+  .span-item-meta { font-size: 0.75rem; color: #64748b; margin-top: 3px; }
+  .span-item-meta span { color: #0ea5e9; }
+  .span-del { float: right; background: #7f1d1d; color: #fca5a5; border: none; border-radius: 4px; padding: 2px 8px; font-size: 0.72rem; cursor: pointer; margin-top: 2px; }
+  .span-del:hover { background: #ef4444; color: #fff; }
+
+  /* Footer export */
+  #footer { background: #1e293b; border-top: 1px solid #334155; padding: 12px 16px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  #footer button { flex: 1; background: #7c3aed; color: #fff; border: none; border-radius: 8px; padding: 9px 12px; font-size: 0.82rem; font-weight: 700; cursor: pointer; min-width: 120px; }
+  #footer button:hover { background: #8b5cf6; }
+  #footer button.sql { background: #0f766e; }
+  #footer button.sql:hover { background: #14b8a6; }
+  #footer .span-count-badge { color: #94a3b8; font-size: 0.8rem; }
+
+  /* Output modal */
+  #output-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; }
+  #output-modal.visible { display: flex; }
+  #output-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; width: 90%; max-width: 700px; max-height: 80vh; display: flex; flex-direction: column; overflow: hidden; }
+  #output-box header { padding: 14px 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+  #output-box header h2 { font-size: 1rem; font-weight: 700; color: #38bdf8; }
+  #close-modal { background: #334155; border: none; color: #94a3b8; border-radius: 6px; padding: 4px 12px; cursor: pointer; font-size: 0.85rem; }
+  #close-modal:hover { background: #475569; color: #f1f5f9; }
+  #output-content { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  pre { background: #0f172a; border-radius: 8px; padding: 14px; font-size: 0.78rem; color: #a3e635; overflow-x: auto; white-space: pre-wrap; word-break: break-all; line-height: 1.6; }
+  #copy-btn { margin: 12px 20px; background: #0ea5e9; color: #fff; border: none; border-radius: 8px; padding: 8px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+  #copy-btn:hover { background: #38bdf8; }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #22c55e; color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 0.85rem; font-weight: 600; display: none; z-index: 9999; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div>
+    <h1>⚡ Span Connector</h1>
+    <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">PM Tool – TelcoVantage</div>
+  </div>
+  <span class="badge" id="node-badge">Loading...</span>
+  <div style="margin-left:auto; display:flex; gap:8px; align-items:center;">
+    <span style="font-size:0.78rem; color:#64748b;">API Base URL:</span>
+    <input id="api-url" type="text" value="http://localhost:8000/api" style="width:220px; background:#0f172a; border:1px solid #334155; color:#94a3b8; border-radius:6px; padding:4px 10px; font-size:0.78rem;" />
+  </div>
+</header>
+
+<!-- Config bar -->
+<div id="config-bar">
+  <label>Node ID:</label>
+  <input id="node-id-input" type="text" value="TY-1121" placeholder="e.g. TY-1121" />
+  <button onclick="loadNode()">Load Poles</button>
+  <button class="secondary" onclick="clearSelection()">Clear Selection</button>
+  <div id="load-status" style="font-size:0.78rem; color:#64748b;"></div>
+</div>
+
+<!-- Main -->
+<div id="main">
+  <div id="map"></div>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-header">Span Builder</div>
+
+    <!-- Steps -->
+    <div id="steps">
+      <div class="step">
+        <div class="step-num active" id="step1-num">1</div>
+        <div class="step-text"><strong>Select FROM pole</strong>Click a green circle on the map</div>
+      </div>
+      <div class="step">
+        <div class="step-num" id="step2-num">2</div>
+        <div class="step-text"><strong>Select TO pole</strong>Click another circle</div>
+      </div>
+      <div class="step">
+        <div class="step-num" id="step3-num">3</div>
+        <div class="step-text"><strong>Fill details & Save</strong>Enter length, cable, equipment</div>
+      </div>
+    </div>
+
+    <!-- Selection display -->
+    <div id="selection-panel">
+      <div class="sel-row">
+        <div class="sel-dot from"></div>
+        <div class="sel-label">FROM</div>
+        <div class="sel-value empty" id="from-label">Not selected</div>
+      </div>
+      <div class="sel-row">
+        <div class="sel-dot to"></div>
+        <div class="sel-label">TO</div>
+        <div class="sel-value empty" id="to-label">Not selected</div>
+      </div>
+      <div id="calc-distance" style="font-size:0.75rem; color:#64748b; margin-top:4px; display:none;">
+        📏 Distance: <span id="dist-value" style="color:#38bdf8; font-weight:600;">—</span>
+      </div>
+    </div>
+
+    <!-- Span form -->
+    <div id="span-form">
+      <h3>Span Details</h3>
+      <div class="form-row">
+        <label>Length (meters)</label>
+        <input id="f-length" type="number" min="1" placeholder="e.g. 50" />
+      </div>
+      <div class="form-row">
+        <label>Runs (cable runs, default 1)</label>
+        <input id="f-runs" type="number" min="1" value="1" />
+      </div>
+      <div class="form-row">
+        <label>Expected Cable (meters)</label>
+        <input id="f-cable" type="number" min="0" placeholder="auto-calc if blank" />
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Node count</label>
+          <input id="f-node" type="number" min="0" value="0" />
+        </div>
+        <div class="form-row">
+          <label>Amplifier</label>
+          <input id="f-amp" type="number" min="0" value="0" />
+        </div>
+        <div class="form-row">
+          <label>Extender</label>
+          <input id="f-ext" type="number" min="0" value="0" />
+        </div>
+        <div class="form-row">
+          <label>TSC</label>
+          <input id="f-tsc" type="number" min="0" value="0" />
+        </div>
+      </div>
+      <button id="btn-create-span" onclick="createSpan()">+ Add Span</button>
+      <button id="btn-clear" onclick="clearSelection()">✕ Clear Selection</button>
+    </div>
+
+    <!-- Span list -->
+    <div id="span-list-wrap">
+      <div id="span-list-header">
+        <span>Spans Added</span>
+        <span id="span-count">0</span>
+      </div>
+      <ul id="span-list"></ul>
+    </div>
+
+    <!-- Footer export -->
+    <div id="footer">
+      <span class="span-count-badge" id="footer-summary">No spans yet</span>
+      <button onclick="exportJSON()">Export JSON</button>
+      <button class="sql" onclick="exportSQL()">Export SQL / Tinker</button>
+    </div>
+  </div>
+</div>
+
+<!-- Output modal -->
+<div id="output-modal">
+  <div id="output-box">
+    <header>
+      <h2 id="output-title">Output</h2>
+      <button id="close-modal" onclick="closeModal()">Close</button>
+    </header>
+    <div id="output-content">
+      <pre id="output-pre"></pre>
+    </div>
+    <button id="copy-btn" onclick="copyOutput()">Copy to Clipboard</button>
+  </div>
+</div>
+
+<div id="toast">Copied!</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let map, poles = [], spans = [], poleMarkers = {};
+let fromPole = null, toPole = null;
+let nodeId = '', nodePk = null;
+let previewLine = null;
+
+// ── Map init ──────────────────────────────────────────────────────────────
+map = L.map('map', { zoomControl: true }).setView([14.5400, 121.1085], 16);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 20
+}).addTo(map);
+
+// ── Load node ────────────────────────────────────────────────────────────
+async function loadNode() {
+  const nodeInput = document.getElementById('node-id-input').value.trim();
+  const apiBase   = document.getElementById('api-url').value.trim();
+  if (!nodeInput) return alert('Enter a node ID');
+
+  document.getElementById('load-status').textContent = 'Loading…';
+
+  try {
+    // Fetch nodes list and find matching node
+    const nodesRes = await fetch(`${apiBase}/nodes`);
+    const nodesData = await nodesRes.json();
+    const nodeList = nodesData.data || nodesData;
+    const foundNode = nodeList.find(n => n.node_id === nodeInput);
+
+    if (!foundNode) {
+      document.getElementById('load-status').textContent = `Node "${nodeInput}" not found`;
+      return;
+    }
+
+    nodePk  = foundNode.id;
+    nodeId  = foundNode.node_id;
+
+    // Fetch poles
+    const polesRes = await fetch(`${apiBase}/nodes/${nodePk}/poles`);
+    const polesData = await polesRes.json();
+    poles = polesData.poles || polesData.data || polesData;
+
+    // Fetch existing spans
+    const spansRes = await fetch(`${apiBase}/nodes/${nodePk}/spans`).catch(() => ({ ok: false }));
+    if (spansRes.ok) {
+      const spansData = await spansRes.json();
+      spans = (spansData.spans || spansData.data || spansData).map(s => ({
+        id: s.id,
+        from_pole_id: s.from_pole_id,
+        to_pole_id: s.to_pole_id,
+        from_code: poles.find(p => p.id === s.from_pole_id)?.pole_code || s.from_pole_id,
+        to_code: poles.find(p => p.id === s.to_pole_id)?.pole_code || s.to_pole_id,
+        length_meters: s.length_meters,
+        runs: s.runs,
+        expected_cable: s.expected_cable,
+        expected_node: s.expected_node,
+        expected_amplifier: s.expected_amplifier,
+        expected_extender: s.expected_extender,
+        expected_tsc: s.expected_tsc,
+        saved: true,
+      }));
+    }
+
+    document.getElementById('node-badge').textContent = `${nodeId} — ${poles.length} poles`;
+    document.getElementById('load-status').textContent = `✓ ${poles.length} poles loaded`;
+
+    renderPoles();
+    renderSpanList();
+  } catch(e) {
+    console.error(e);
+    document.getElementById('load-status').textContent = 'Error: ' + e.message;
+  }
+}
+
+// ── Render poles on map ──────────────────────────────────────────────────
+function renderPoles() {
+  // Clear old markers
+  Object.values(poleMarkers).forEach(m => map.removeLayer(m));
+  poleMarkers = {};
+
+  if (!poles.length) return;
+
+  poles.forEach(pole => {
+    if (!pole.map_latitude || !pole.map_longitude) return;
+    const lat = parseFloat(pole.map_latitude);
+    const lng = parseFloat(pole.map_longitude);
+    const marker = L.circleMarker([lat, lng], {
+      radius: 8,
+      fillColor: '#22c55e',
+      fillOpacity: 0.9,
+      color: '#fff',
+      weight: 2,
+    }).addTo(map);
+
+    marker.bindTooltip(pole.pole_code, {
+      permanent: false,
+      direction: 'top',
+      className: 'pole-tooltip',
+    });
+
+    marker.on('click', () => selectPole(pole, marker));
+    poleMarkers[pole.id] = { marker, pole };
+  });
+
+  // Draw existing spans
+  spans.forEach(s => drawSpanLine(s));
+
+  // Fit map to poles
+  const coords = poles
+    .filter(p => p.map_latitude && p.map_longitude)
+    .map(p => [parseFloat(p.map_latitude), parseFloat(p.map_longitude)]);
+  if (coords.length) map.fitBounds(coords, { padding: [40, 40] });
+}
+
+// ── Pole selection ──────────────────────────────────────────────────────
+function selectPole(pole, marker) {
+  if (!fromPole) {
+    fromPole = pole;
+    marker.setStyle({ fillColor: '#22c55e', color: '#22c55e', weight: 4 });
+    document.getElementById('from-label').textContent = pole.pole_code;
+    document.getElementById('from-label').classList.remove('empty');
+    setStep(2);
+  } else if (!toPole && pole.id !== fromPole.id) {
+    toPole = pole;
+    marker.setStyle({ fillColor: '#f97316', color: '#f97316', weight: 4 });
+    document.getElementById('to-label').textContent = pole.pole_code;
+    document.getElementById('to-label').classList.remove('empty');
+    setStep(3);
+
+    // Calculate distance
+    const d = haversine(
+      parseFloat(fromPole.map_latitude), parseFloat(fromPole.map_longitude),
+      parseFloat(pole.map_latitude), parseFloat(pole.map_longitude)
+    );
+    document.getElementById('dist-value').textContent = d.toFixed(1) + ' m';
+    document.getElementById('calc-distance').style.display = 'block';
+    document.getElementById('f-length').value = Math.round(d);
+    document.getElementById('f-cable').placeholder = `auto: ${Math.round(d)} m`;
+
+    // Preview line
+    if (previewLine) map.removeLayer(previewLine);
+    previewLine = L.polyline([
+      [parseFloat(fromPole.map_latitude), parseFloat(fromPole.map_longitude)],
+      [parseFloat(toPole.map_latitude), parseFloat(toPole.map_longitude)],
+    ], { color: '#facc15', weight: 2, dashArray: '6,4' }).addTo(map);
+
+    document.getElementById('span-form').style.display = 'block';
+  }
+}
+
+// ── Haversine distance (meters) ─────────────────────────────────────────
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+// ── Step indicator ──────────────────────────────────────────────────────
+function setStep(n) {
+  [1,2,3].forEach(i => {
+    const el = document.getElementById(`step${i}-num`);
+    el.className = 'step-num ' + (i < n ? 'done' : i === n ? 'active' : '');
+  });
+}
+
+// ── Create span (local) ─────────────────────────────────────────────────
+function createSpan() {
+  if (!fromPole || !toPole) return;
+  const length = parseFloat(document.getElementById('f-length').value) || 0;
+  const runs   = parseInt(document.getElementById('f-runs').value) || 1;
+  const cable  = parseFloat(document.getElementById('f-cable').value) || length * runs;
+
+  const span = {
+    id: 'local-' + Date.now(),
+    from_pole_id: fromPole.id,
+    to_pole_id:   toPole.id,
+    from_code:    fromPole.pole_code,
+    to_code:      toPole.pole_code,
+    length_meters:     length,
+    runs:              runs,
+    expected_cable:    cable,
+    expected_node:     parseInt(document.getElementById('f-node').value) || 0,
+    expected_amplifier:parseInt(document.getElementById('f-amp').value) || 0,
+    expected_extender: parseInt(document.getElementById('f-ext').value) || 0,
+    expected_tsc:      parseInt(document.getElementById('f-tsc').value) || 0,
+    node_id:           nodePk,
+    saved: false,
+  };
+
+  spans.push(span);
+  drawSpanLine(span);
+  renderSpanList();
+  clearSelection();
+  showToast('Span added! Export when done.');
+}
+
+// ── Draw permanent span line ────────────────────────────────────────────
+function drawSpanLine(span) {
+  const from = poles.find(p => p.id === span.from_pole_id);
+  const to   = poles.find(p => p.id === span.to_pole_id);
+  if (!from || !to) return;
+  const line = L.polyline([
+    [parseFloat(from.map_latitude), parseFloat(from.map_longitude)],
+    [parseFloat(to.map_latitude),   parseFloat(to.map_longitude)],
+  ], {
+    color: span.saved ? '#64748b' : '#38bdf8',
+    weight: 3,
+    opacity: 0.85,
+  }).addTo(map);
+  line.bindTooltip(`${span.from_code} → ${span.to_code} (${span.length_meters}m)`, { sticky: true });
+}
+
+// ── Clear selection ─────────────────────────────────────────────────────
+function clearSelection() {
+  fromPole = null; toPole = null;
+  if (previewLine) { map.removeLayer(previewLine); previewLine = null; }
+
+  // Reset all marker styles
+  Object.values(poleMarkers).forEach(({ marker }) => {
+    marker.setStyle({ fillColor: '#22c55e', color: '#fff', weight: 2 });
+  });
+
+  document.getElementById('from-label').textContent = 'Not selected';
+  document.getElementById('from-label').classList.add('empty');
+  document.getElementById('to-label').textContent = 'Not selected';
+  document.getElementById('to-label').classList.add('empty');
+  document.getElementById('calc-distance').style.display = 'none';
+  document.getElementById('span-form').style.display = 'none';
+  setStep(1);
+
+  // Reset form
+  ['f-length','f-cable'].forEach(id => document.getElementById(id).value = '');
+  ['f-runs','f-node','f-amp','f-ext','f-tsc'].forEach(id => document.getElementById(id).value = id === 'f-runs' ? '1' : '0');
+}
+
+// ── Render span list ────────────────────────────────────────────────────
+function renderSpanList() {
+  const ul = document.getElementById('span-list');
+  ul.innerHTML = '';
+  document.getElementById('span-count').textContent = spans.length;
+  document.getElementById('footer-summary').textContent =
+    spans.length ? `${spans.length} span${spans.length > 1 ? 's' : ''} ready` : 'No spans yet';
+
+  spans.forEach((s, idx) => {
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <div class="span-item-poles">
+        <span style="color:#22c55e">${s.from_code}</span>
+        <span style="color:#64748b"> → </span>
+        <span style="color:#f97316">${s.to_code}</span>
+        ${s.saved ? '<span style="color:#64748b;font-size:0.7rem;margin-left:6px;">[saved]</span>' : ''}
+        <button class="span-del" onclick="removeSpan(${idx})">✕</button>
+      </div>
+      <div class="span-item-meta">
+        <span>${s.length_meters}m</span> · runs: <span>${s.runs}</span> · cable: <span>${s.expected_cable}m</span>
+        ${s.expected_amplifier ? ` · amp:${s.expected_amplifier}` : ''}
+        ${s.expected_extender  ? ` · ext:${s.expected_extender}` : ''}
+        ${s.expected_tsc       ? ` · tsc:${s.expected_tsc}` : ''}
+        ${s.expected_node      ? ` · node:${s.expected_node}` : ''}
+      </div>
+    `;
+    ul.appendChild(li);
+  });
+}
+
+function removeSpan(idx) {
+  spans.splice(idx, 1);
+  renderSpanList();
+}
+
+// ── Export JSON ─────────────────────────────────────────────────────────
+function exportJSON() {
+  const newSpans = spans.filter(s => !s.saved);
+  if (!newSpans.length) return alert('No new spans to export.');
+  openModal('JSON Export', JSON.stringify(newSpans.map(s => ({
+    node_id:            nodePk,
+    from_pole_id:       s.from_pole_id,
+    to_pole_id:         s.to_pole_id,
+    length_meters:      s.length_meters,
+    runs:               s.runs,
+    expected_cable:     s.expected_cable,
+    expected_node:      s.expected_node,
+    expected_amplifier: s.expected_amplifier,
+    expected_extender:  s.expected_extender,
+    expected_tsc:       s.expected_tsc,
+    status:             'pending',
+  })), null, 2));
+}
+
+// ── Export SQL/Tinker ───────────────────────────────────────────────────
+function exportSQL() {
+  const newSpans = spans.filter(s => !s.saved);
+  if (!newSpans.length) return alert('No new spans to export.');
+
+  let lines = [
+    `<?php`,
+    `// Tinker script – paste in: php artisan tinker`,
+    `// Node: ${nodeId} (id=${nodePk})`,
+    ``,
+    `use App\\Models\\PoleSpan;`,
+    ``,
+    `$spans = [`,
+  ];
+
+  newSpans.forEach(s => {
+    lines.push(`    // ${s.from_code} → ${s.to_code}`);
+    lines.push(`    ['node_id'=>${nodePk},'from_pole_id'=>${s.from_pole_id},'to_pole_id'=>${s.to_pole_id},'length_meters'=>${s.length_meters},'runs'=>${s.runs},'expected_cable'=>${s.expected_cable},'expected_node'=>${s.expected_node},'expected_amplifier'=>${s.expected_amplifier},'expected_extender'=>${s.expected_extender},'expected_tsc'=>${s.expected_tsc},'status'=>'pending'],`);
+  });
+
+  lines.push(`];`);
+  lines.push(``);
+  lines.push(`foreach ($spans as $data) {`);
+  lines.push(`    $s = PoleSpan::create($data);`);
+  lines.push(`    echo "Created span #{$s->id}: {$s->from_pole_id} → {$s->to_pole_id}\\n";`);
+  lines.push(`}`);
+  lines.push(``);
+  lines.push(`echo "Done! " . count($spans) . " spans created.\\n";`);
+
+  openModal('PHP Tinker Export', lines.join('\n'));
+}
+
+// ── Modal helpers ──────────────────────────────────────────────────────
+function openModal(title, content) {
+  document.getElementById('output-title').textContent = title;
+  document.getElementById('output-pre').textContent = content;
+  document.getElementById('output-modal').classList.add('visible');
+}
+function closeModal() {
+  document.getElementById('output-modal').classList.remove('visible');
+}
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('output-pre').textContent)
+    .then(() => showToast('Copied!'));
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 2200);
+}
+
+// Auto-load on page open
+window.onload = () => loadNode();
+</script>
+</body>
+</html>

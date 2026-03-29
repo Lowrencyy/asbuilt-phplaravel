@@ -99,6 +99,44 @@ body{font-family:var(--ff);}
 /* popup */
 .leaflet-popup-content-wrapper{border-radius:12px!important;box-shadow:0 4px 20px rgba(15,23,42,.15)!important;border:1px solid #e2e8f0!important;}
 .leaflet-popup-tip{display:none!important;}
+
+/* location search */
+.map-search-wrap{
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);
+    z-index:1000;width:min(380px, calc(100% - 24px));
+    display:flex;flex-direction:column;gap:0;
+}
+.map-search-inner{
+    display:flex;align-items:center;gap:.4rem;
+    background:#fff;border:1.5px solid var(--bdr);border-radius:11px;
+    padding:.42rem .6rem .42rem .75rem;
+    box-shadow:0 4px 18px rgba(15,23,42,.14);
+}
+.map-search-input{
+    flex:1;border:none;outline:none;font-size:.82rem;font-family:var(--ff);
+    color:var(--txt);background:transparent;min-width:0;
+}
+.map-search-input::placeholder{color:var(--muted);}
+.map-search-btn{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:30px;height:30px;border:none;border-radius:8px;
+    background:var(--p);color:#fff;cursor:pointer;font-size:.85rem;flex-shrink:0;
+}
+.map-search-btn:hover{background:var(--p2);}
+.map-search-results{
+    background:#fff;border:1.5px solid var(--bdr);border-radius:0 0 11px 11px;
+    border-top:none;box-shadow:0 8px 18px rgba(15,23,42,.12);
+    max-height:220px;overflow-y:auto;display:none;
+}
+.map-search-results.open{display:block;}
+.map-search-item{
+    padding:.55rem .85rem;font-size:.78rem;color:var(--txt);cursor:pointer;
+    border-bottom:1px solid var(--bdr);line-height:1.35;
+}
+.map-search-item:last-child{border-bottom:none;}
+.map-search-item:hover{background:var(--surf2);}
+.map-search-empty{padding:.7rem .85rem;font-size:.78rem;color:var(--muted);}
+.map-search-spinner{padding:.7rem .85rem;font-size:.78rem;color:var(--muted);}
 </style>
 @endpush
 
@@ -188,7 +226,20 @@ body{font-family:var(--ff);}
                     <span style="color:#2563eb;font-weight:700;">●</span> Selected
                 </span>
             </div>
-            <div id="nodeMap"></div>
+            <div id="nodeMap" style="position:relative;">
+                <div class="map-search-wrap" id="mapSearchWrap">
+                    <div class="map-search-inner">
+                        <i class="mgc_search_line" style="color:var(--muted);font-size:.9rem;flex-shrink:0;"></i>
+                        <input id="mapSearchInput" class="map-search-input" type="text"
+                               placeholder="Search location (e.g. Taytay, Rizal)…"
+                               autocomplete="off"/>
+                        <button class="map-search-btn" id="mapSearchBtn" title="Search">
+                            <i class="mgc_search_line"></i>
+                        </button>
+                    </div>
+                    <div class="map-search-results" id="mapSearchResults"></div>
+                </div>
+            </div>
             <div class="gps-bar">
                 <i class="mgc_touch_line" style="color:var(--muted);font-size:1rem;"></i>
                 <span style="font-size:.78rem;color:var(--muted);">Click anywhere on the map to assign GPS to a pole &nbsp;·&nbsp; Drag existing pins to reposition</span>
@@ -415,6 +466,80 @@ body{font-family:var(--ff);}
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 2800);
     }
+
+    /* ── Location Search (Nominatim) ──────────────────────────────── */
+    const mapSearchInput   = document.getElementById('mapSearchInput');
+    const mapSearchBtn     = document.getElementById('mapSearchBtn');
+    const mapSearchResults = document.getElementById('mapSearchResults');
+    let searchDebounce = null;
+    let searchMarker = null;
+
+    function showResults(html) {
+        mapSearchResults.innerHTML = html;
+        mapSearchResults.classList.add('open');
+    }
+    function closeResults() {
+        mapSearchResults.classList.remove('open');
+    }
+
+    async function doSearch(q) {
+        q = q.trim();
+        if (!q) { closeResults(); return; }
+        showResults('<div class="map-search-spinner">Searching…</div>');
+        try {
+            const res = await fetch(
+                `https://nominatim.openstreetmap.org/search?format=json&limit=6&q=${encodeURIComponent(q)}`,
+                { headers: { 'Accept-Language': 'en', 'User-Agent': 'TelcoVantage/1.0' } }
+            );
+            const data = await res.json();
+            if (!data.length) {
+                showResults('<div class="map-search-empty">No results found.</div>');
+                return;
+            }
+            showResults(data.map((r, i) =>
+                `<div class="map-search-item" data-i="${i}" data-lat="${r.lat}" data-lng="${r.lon}">
+                    ${r.display_name}
+                </div>`
+            ).join(''));
+            mapSearchResults.querySelectorAll('.map-search-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const lat = parseFloat(el.dataset.lat);
+                    const lng = parseFloat(el.dataset.lng);
+                    map.flyTo([lat, lng], 17, { duration: 1 });
+                    if (searchMarker) map.removeLayer(searchMarker);
+                    searchMarker = L.marker([lat, lng], {
+                        icon: L.divIcon({
+                            className:'',
+                            html:`<div style="background:#2563eb;color:#fff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2);">📍 ${el.textContent.trim().split(',')[0]}</div>`,
+                            iconAnchor:[0,0],
+                        })
+                    }).addTo(map);
+                    mapSearchInput.value = el.textContent.trim().split(',')[0];
+                    closeResults();
+                });
+            });
+        } catch {
+            showResults('<div class="map-search-empty">Search failed. Check connection.</div>');
+        }
+    }
+
+    mapSearchInput.addEventListener('input', () => {
+        clearTimeout(searchDebounce);
+        searchDebounce = setTimeout(() => doSearch(mapSearchInput.value), 500);
+    });
+    mapSearchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { clearTimeout(searchDebounce); doSearch(mapSearchInput.value); }
+        if (e.key === 'Escape') closeResults();
+    });
+    mapSearchBtn.addEventListener('click', () => { clearTimeout(searchDebounce); doSearch(mapSearchInput.value); });
+
+    // Close results when clicking outside
+    document.addEventListener('click', e => {
+        if (!document.getElementById('mapSearchWrap').contains(e.target)) closeResults();
+    });
+
+    // Prevent map click from firing when clicking the search bar
+    L.DomEvent.disableClickPropagation(document.getElementById('mapSearchWrap'));
 
 })();
 

@@ -19,33 +19,26 @@ class PoleController extends Controller
     public function store(Request $request, Project $project, Node $node)
     {
         $data = $request->validate([
-            'pole_code' => ['required', 'string', 'max:100'],
-            'pole_name' => ['nullable', 'string', 'max:100'],
+            'pole_name' => ['required', 'string', 'max:100'],
             'status'    => ['required', 'in:pending,completed'],
             'remarks'   => ['nullable', 'string', 'max:1000'],
         ]);
 
+        $poleCode = strtoupper($data['pole_name']);
         $untagged = ['NPT', 'NT'];
-        $isUntagged = in_array(strtoupper($data['pole_code']), $untagged);
+        $isUntagged = in_array($poleCode, $untagged);
 
         if (!$isUntagged) {
-            // Tagged poles: pole_code must be unique per node
-            if ($node->poles()->where('pole_code', $data['pole_code'])->exists()) {
-                return response()->json(['success' => false, 'message' => 'Pole code already exists in this node.'], 422);
-            }
-        } else {
-            // NPT/NT poles: pole_name must be provided and unique per node
-            if (empty($data['pole_name'])) {
-                return response()->json(['success' => false, 'message' => 'Pole Name is required for NPT/NT poles.'], 422);
-            }
+            // Named poles: pole_name must be unique per node
             if ($node->poles()->where('pole_name', $data['pole_name'])->exists()) {
-                return response()->json(['success' => false, 'message' => 'Pole name already exists in this node.'], 422);
+                return response()->json(['success' => false, 'message' => 'A pole with this name already exists in this node.'], 422);
             }
         }
+        // NPT/NT poles allow multiple — no uniqueness check
 
         $pole = $node->poles()->create([
-            'pole_code' => $data['pole_code'],
-            'pole_name' => $data['pole_name'] ?? null,
+            'pole_code' => $poleCode,
+            'pole_name' => $data['pole_name'],
             'status'    => $data['status'],
             'remarks'   => $data['remarks'] ?? null,
         ]);
@@ -56,28 +49,25 @@ class PoleController extends Controller
     public function update(Request $request, Project $project, Node $node, Pole $pole)
     {
         $data = $request->validate([
-            'pole_code' => ['required', 'string', 'max:100'],
-            'pole_name' => ['nullable', 'string', 'max:100'],
+            'pole_name' => ['required', 'string', 'max:100'],
             'status'    => ['required', 'in:pending,completed'],
             'remarks'   => ['nullable', 'string', 'max:1000'],
         ]);
 
+        $poleCode = strtoupper($data['pole_name']);
         $untagged = ['NPT', 'NT'];
-        $isUntagged = in_array(strtoupper($data['pole_code']), $untagged);
+        $isUntagged = in_array($poleCode, $untagged);
 
-        if ($isUntagged) {
-            // NPT/NT poles: pole_name must be provided and unique per node (excluding self)
-            if (empty($data['pole_name'])) {
-                return response()->json(['success' => false, 'message' => 'Pole Name is required for NPT/NT poles.'], 422);
-            }
+        if (!$isUntagged) {
+            // Named poles: pole_name must be unique per node (excluding self)
             if ($node->poles()->where('pole_name', $data['pole_name'])->where('id', '!=', $pole->id)->exists()) {
-                return response()->json(['success' => false, 'message' => 'Pole name already exists in this node.'], 422);
+                return response()->json(['success' => false, 'message' => 'A pole with this name already exists in this node.'], 422);
             }
         }
 
         $pole->update([
-            'pole_code' => $data['pole_code'],
-            'pole_name' => $data['pole_name'] ?? null,
+            'pole_code' => $poleCode,
+            'pole_name' => $data['pole_name'],
             'status'    => $data['status'],
             'remarks'   => $data['remarks'] ?? null,
         ]);

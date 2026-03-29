@@ -3,6 +3,7 @@
 @push('title')Spans — {{ $node->node_id }}@endpush
 
 @push('styles')
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 :root{
@@ -102,6 +103,59 @@ tbody tr:last-child td{border-bottom:none;}
 #delOv.open #delCard{transform:scale(1);opacity:1;}
 .delib{height:44px;width:44px;border-radius:10px;background:rgba(239,68,68,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--err);font-size:1.15rem;margin-bottom:.8rem;}
 .btn-del{padding:.42rem 1rem;border-radius:var(--r-sm);border:none;background:var(--err);color:#fff;font-size:.8rem;font-weight:900;font-family:var(--ff);cursor:pointer;}
+/* ── Map Connector ─────────────────────────────────────── */
+.mc-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:1.25rem;}
+.mc-hd{display:flex;align-items:center;gap:.6rem;padding:.75rem 1rem;border-bottom:1px solid var(--bdr);background:var(--surf2);flex-wrap:wrap;}
+.mc-hd-title{font-size:.82rem;font-weight:900;color:var(--txt);display:flex;align-items:center;gap:.4rem;}
+.mc-steps{display:flex;align-items:center;gap:.3rem;margin-left:.5rem;}
+.mc-step{display:inline-flex;align-items:center;gap:.25rem;padding:.2rem .55rem;border-radius:999px;font-size:.65rem;font-weight:800;background:var(--surf2);border:1px solid var(--bdr);color:var(--muted);white-space:nowrap;}
+.mc-step.active{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.3);color:var(--p);}
+.mc-step.done{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:#16a34a;}
+.mc-sel{display:flex;align-items:center;gap:.5rem;margin-left:auto;font-size:.78rem;font-weight:700;color:var(--txt2);}
+.mc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.mc-dot.from{background:#22c55e;}
+.mc-dot.to{background:#f97316;}
+.mc-sel-val{font-family:var(--fm);font-weight:900;color:var(--txt);}
+.mc-sel-val.empty{color:var(--muted);font-weight:600;font-family:var(--ff);}
+.mc-body{display:flex;height:480px;}
+#mcMap{flex:1;min-width:0;cursor:crosshair;}
+.mc-sidebar{width:280px;flex-shrink:0;border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden;}
+.mc-sb-section{padding:.85rem 1rem;border-bottom:1px solid var(--bdr);}
+.mc-sb-label{font-size:.62rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.6rem;}
+.mc-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem;}
+.mc-row:last-child{margin-bottom:0;}
+.mc-pole-name{font-size:.8rem;font-weight:800;font-family:var(--fm);color:var(--txt);flex:1;}
+.mc-pole-name.empty{color:var(--muted);font-family:var(--ff);font-weight:600;font-size:.78rem;}
+.mc-dist{font-size:.72rem;color:var(--txt3);background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:.2rem .5rem;display:inline-flex;align-items:center;gap:.3rem;}
+.mc-span-list{flex:1;overflow-y:auto;}
+.mc-span-item{padding:.6rem 1rem;border-bottom:1px solid var(--bdr);font-size:.76rem;}
+.mc-span-item:last-child{border-bottom:none;}
+.mc-span-poles{font-weight:800;font-family:var(--fm);color:var(--p);margin-bottom:.2rem;}
+.mc-span-meta{font-size:.69rem;color:var(--muted);}
+.mc-empty{text-align:center;padding:2rem 1rem;color:var(--muted);font-size:.78rem;}
+.btn-sm{display:inline-flex;align-items:center;gap:.3rem;padding:.3rem .75rem;border-radius:var(--r-sm);border:1px solid var(--bdr);background:var(--surf2);color:var(--txt2);font-size:.73rem;font-weight:800;font-family:var(--ff);cursor:pointer;transition:all .15s;}
+.btn-sm:hover{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3);color:var(--err);}
+.btn-sm-ok{background:var(--ok);border-color:var(--ok);color:#fff;}
+.btn-sm-ok:hover{background:#16a34a;border-color:#16a34a;}
+/* ── Sheet popup ──────────────────────────────────────── */
+#mcSheet{position:fixed;inset:0;z-index:1000;background:rgba(7,15,30,.55);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
+#mcSheet.open{opacity:1;pointer-events:all;}
+#mcSheetCard{background:var(--surf);border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:0 0 1.5rem;box-shadow:0 -8px 40px rgba(15,23,42,.18);transform:translateY(60px);transition:transform .28s cubic-bezier(.34,1.18,.64,1);}
+#mcSheet.open #mcSheetCard{transform:translateY(0);}
+.sheet-handle{width:40px;height:4px;border-radius:2px;background:var(--bdr2);margin:12px auto 8px;}
+.sheet-hd{padding:.5rem 1.2rem .9rem;border-bottom:1px solid var(--bdr);}
+.sheet-title{font-size:.95rem;font-weight:900;color:var(--txt);}
+.sheet-poles{display:flex;align-items:center;gap:.5rem;margin-top:.3rem;font-size:.8rem;font-weight:800;font-family:var(--fm);}
+.sheet-from{color:#16a34a;}
+.sheet-to{color:#ea580c;}
+.sheet-dist{font-size:.7rem;color:var(--muted);font-family:var(--ff);font-weight:600;margin-left:.25rem;}
+.sheet-body{padding:.9rem 1.2rem;display:grid;grid-template-columns:1fr 1fr;gap:.7rem;}
+.sheet-body .c2{grid-column:span 2;}
+.sheet-sec{font-size:.62rem;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:.4rem 0 0;border-top:1px solid var(--bdr);grid-column:span 2;margin-top:.2rem;}
+.sheet-ft{padding:.5rem 1.2rem 0;display:flex;gap:.6rem;justify-content:flex-end;}
+/* leaflet popup */
+.leaflet-popup-content-wrapper{border-radius:10px!important;box-shadow:0 4px 16px rgba(15,23,42,.14)!important;border:1px solid var(--bdr)!important;}
+.leaflet-popup-tip{display:none!important;}
 /* toast */
 .toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none;}
 .toast{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;border-radius:10px;background:var(--surf);border:1px solid var(--bdr);box-shadow:var(--sh-lg);font-size:.8rem;font-weight:700;color:var(--txt);min-width:240px;transform:translateX(120%);opacity:0;transition:transform .3s cubic-bezier(.34,1.3,.64,1),opacity .25s;pointer-events:all;}
@@ -153,6 +207,48 @@ tbody tr:last-child td{border-bottom:none;}
   </div>
 
   {{-- TABLE --}}
+  {{-- ── MAP CONNECTOR ──────────────────────────────────────── --}}
+  <div class="mc-card">
+    <div class="mc-hd">
+      <span class="mc-hd-title"><i class="mgc_git_branch_line" style="color:var(--p)"></i> Span Connector</span>
+      <div class="mc-steps">
+        <span class="mc-step active" id="mcStep1">① Click FROM pole</span>
+        <span class="mc-step" id="mcStep2">② Click TO pole</span>
+        <span class="mc-step" id="mcStep3">③ Fill details</span>
+      </div>
+      <div class="mc-sel" id="mcSelDisplay">
+        <span class="mc-dot from"></span><span class="mc-sel-val empty" id="mcFromLabel">Not selected</span>
+        <span style="color:var(--muted);font-size:.75rem;">→</span>
+        <span class="mc-dot to"></span><span class="mc-sel-val empty" id="mcToLabel">Not selected</span>
+      </div>
+      <button class="btn-sm" id="mcClearBtn" onclick="mcClear()" style="margin-left:.5rem;display:none;"><i class="mgc_close_line"></i> Clear</button>
+      <button class="btn-p" style="margin-left:.5rem;font-size:.74rem;padding:.35rem .8rem;" onclick="resetForm();openModal()"><i class="mgc_edit_line"></i> Manual</button>
+    </div>
+    <div class="mc-body">
+      <div id="mcMap"></div>
+      <div class="mc-sidebar">
+        <div class="mc-sb-section">
+          <div class="mc-sb-label">Legend</div>
+          <div style="display:flex;flex-direction:column;gap:.35rem;font-size:.73rem;color:var(--txt2);">
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;margin-right:.4rem;"></span>Pole with GPS</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f59e0b;margin-right:.4rem;"></span>No GPS</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#2563eb;margin-right:.4rem;"></span>Selected (FROM)</span>
+            <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#f97316;margin-right:.4rem;"></span>Selected (TO)</span>
+          </div>
+        </div>
+        <div class="mc-sb-section">
+          <div class="mc-sb-label">Existing Spans on Map</div>
+          <div style="font-size:.73rem;color:var(--muted);"><span id="mcSpanCount">0</span> span(s) shown &nbsp;·&nbsp; <span style="display:inline-block;width:12px;height:3px;background:#94a3b8;border-radius:2px;vertical-align:middle;"></span> existing</div>
+        </div>
+        <div class="mc-sb-section" style="flex:1;overflow-y:auto;border-bottom:none;">
+          <div class="mc-sb-label">Poles Without GPS</div>
+          <div id="mcNoGpsList" style="font-size:.72rem;color:var(--muted);">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- ── TABLE ──────────────────────────────────────────────────── --}}
   <div class="tv-card">
     <div class="frow">
       <div class="fi-wrap">
@@ -291,6 +387,57 @@ tbody tr:last-child td{border-bottom:none;}
 
 <div class="toast-wrap" id="toastWrap"></div>
 
+{{-- ── SHEET POPUP (after clicking From+To on map) ────────────────── --}}
+<div id="mcSheet">
+  <div id="mcSheetCard">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hd">
+      <div class="sheet-title">Span Details</div>
+      <div class="sheet-poles">
+        <span class="sheet-from" id="shFromLabel">—</span>
+        <span style="color:var(--muted)">→</span>
+        <span class="sheet-to" id="shToLabel">—</span>
+        <span class="sheet-dist" id="shDist"></span>
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div>
+        <label class="lbl">Length (m) <span>*</span></label>
+        <input id="shLength" class="inp" type="number" step="0.01" min="0" placeholder="0.00"/>
+      </div>
+      <div>
+        <label class="lbl">Runs <span>*</span></label>
+        <input id="shRuns" class="inp" type="number" min="1" value="1"/>
+      </div>
+      <div class="c2">
+        <label class="lbl">Expected Cable (m)</label>
+        <input id="shCable" class="inp" type="number" step="0.01" min="0" placeholder="Auto: Length × Runs"/>
+      </div>
+      <div class="sheet-sec">Expected Collectibles</div>
+      <div>
+        <label class="lbl">Node</label>
+        <input id="shNode" class="inp" type="number" min="0" value="0"/>
+      </div>
+      <div>
+        <label class="lbl">Amplifier</label>
+        <input id="shAmp" class="inp" type="number" min="0" value="0"/>
+      </div>
+      <div>
+        <label class="lbl">Extender</label>
+        <input id="shExt" class="inp" type="number" min="0" value="0"/>
+      </div>
+      <div>
+        <label class="lbl">TSC</label>
+        <input id="shTsc" class="inp" type="number" min="0" value="0"/>
+      </div>
+    </div>
+    <div class="sheet-ft">
+      <button class="btn-c" onclick="mcCloseSheet()">Cancel</button>
+      <button class="btn-s" id="shSaveBtn" onclick="mcSaveSpan()"><i class="mgc_save_line"></i> Save Span</button>
+    </div>
+  </div>
+</div>
+
 @push('scripts')
 <script>
 (function(){
@@ -391,8 +538,8 @@ tbody tr:last-child td{border-bottom:none;}
     const s=rows.find(x=>x.id==id);if(!s)return;
     resetForm();
     $('editId').value=s.id;
-    $('fFromPole').value=s.from_pole_span_code;
-    $('fToPole').value=s.to_pole_span_code;
+    $('fFromPole').value=s.from_pole_id;
+    $('fToPole').value=s.to_pole_id;
     $('fLength').value=s.length_meters;
     $('fRuns').value=s.runs;
     $('fExpCable').value=s.expected_cable;
@@ -421,7 +568,7 @@ tbody tr:last-child td{border-bottom:none;}
 
     const editId=$('editId').value;
     const fd=new FormData();
-    fd.append('from_pole_span_code',fromId);fd.append('to_pole_span_code',toId);
+    fd.append('from_pole_id',fromId);fd.append('to_pole_id',toId);
     fd.append('length_meters',length);fd.append('runs',runs);
     fd.append('expected_cable',$('fExpCable').value||0);
     fd.append('expected_node',$('fNode').value||0);
@@ -435,12 +582,15 @@ tbody tr:last-child td{border-bottom:none;}
     try{
       const url=editId?`${BASE_URL}/${editId}`:BASE_URL;
       const res=await fetch(url,{method:'POST',headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'},body:fd});
-      const data=await res.json();
-      if(!res.ok||!data.success){toast(data.message||'Something went wrong.','err');return;}
+      const ct=res.headers.get('content-type')||'';
+      let data={};
+      if(ct.includes('application/json')){data=await res.json();}
+      else{const txt=await res.text();toast(`Server error (${res.status}) — check logs.`,'err');console.error('Non-JSON:',res.status,txt.substring(0,500));return;}
+      if(!res.ok||!data.success){toast(data.message||data.error||'Something went wrong.','err');return;}
       if(editId){const idx=rows.findIndex(x=>x.id==editId);if(idx>=0)rows[idx]=data.span;}
       else rows.unshift(data.span);
       closeModal();renderTable();toast(editId?'Span updated.':'Span declared.');
-    }catch(e){toast('Network error.','err');}
+    }catch(e){toast('Network error: '+e.message,'err');console.error('saveSpan error:',e);}
     finally{btn.disabled=false;btn.innerHTML='<i class="mgc_save_line"></i> <span id="saveLbl">Save Span</span>';}
   }
 
@@ -482,6 +632,233 @@ tbody tr:last-child td{border-bottom:none;}
   });
 
   renderTable();
+  // Expose for map connector
+  window._addSpanRow = function(span) { rows.unshift(span); renderTable(); };
+})();
+</script>
+
+@php
+  $mapPolesData = $poles->map(fn($p) => [
+    'id'      => $p->id,
+    'code'    => $p->pole_name ?: $p->pole_code,
+    'raw_code'=> $p->pole_code,
+    'has_gps' => !!(float)($p->map_latitude ?? 0) && !!(float)($p->map_longitude ?? 0),
+    'lat'     => (float)($p->map_latitude ?? 0),
+    'lng'     => (float)($p->map_longitude ?? 0),
+  ]);
+  $mapSpansData = collect($spans)->map(fn($s) => [
+    'from_pole_id' => is_array($s) ? $s['from_pole_id'] : $s->from_pole_id,
+    'to_pole_id'   => is_array($s) ? $s['to_pole_id']   : $s->to_pole_id,
+  ]);
+@endphp
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ── Span Map Connector ───────────────────────────────────────────── */
+(function(){
+  const MAP_POLES = @json($mapPolesData);
+  const MAP_SPANS = @json($mapSpansData);
+  const BASE_URL = "{{ url('admin/projects/'.$project->id.'/nodes/'.$node->id.'/spans') }}";
+  const CSRF     = document.querySelector('meta[name="csrf-token"]').content;
+
+  const $ = id => document.getElementById(id);
+
+  const map = L.map('mcMap', { zoomControl: true }).setView([14.5995, 120.9842], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors', maxZoom: 20
+  }).addTo(map);
+
+  let mcFrom = null, mcTo = null, previewLine = null;
+  const poleMarkers = {};
+
+  function circleIcon(color, size=11) {
+    return L.circleMarker([0,0], { radius: size, fillColor: color, fillOpacity: .92, color: '#fff', weight: 2 });
+  }
+
+  // Render poles
+  const withGps = MAP_POLES.filter(p => p.has_gps);
+  const noGps   = MAP_POLES.filter(p => !p.has_gps);
+
+  withGps.forEach(p => {
+    const m = L.circleMarker([p.lat, p.lng], {
+      radius: 9, fillColor: '#22c55e', fillOpacity: .9, color: '#fff', weight: 2.5
+    }).addTo(map);
+    m.bindTooltip(`<b>${p.code}</b>`, { direction: 'top', className: '' });
+    m.on('click', () => mcSelectPole(p, m));
+    poleMarkers[p.id] = { marker: m, pole: p };
+  });
+
+  if (withGps.length) {
+    map.fitBounds(L.latLngBounds(withGps.map(p => [p.lat, p.lng])), { padding: [40, 40] });
+  }
+
+  // Draw existing spans as gray lines
+  MAP_SPANS.forEach(s => {
+    const f = MAP_POLES.find(p => p.id === s.from_pole_id);
+    const t = MAP_POLES.find(p => p.id === s.to_pole_id);
+    if (f?.has_gps && t?.has_gps) {
+      L.polyline([[f.lat, f.lng],[t.lat, t.lng]], {
+        color: '#94a3b8', weight: 2.5, opacity: .7, dashArray: '4 3'
+      }).addTo(map).bindTooltip(`${f.code} → ${t.code}`, { sticky: true });
+    }
+  });
+  $('mcSpanCount').textContent = MAP_SPANS.length;
+
+  // No GPS list
+  if (noGps.length) {
+    $('mcNoGpsList').innerHTML = noGps.map(p =>
+      `<div style="padding:.18rem 0;color:var(--txt2);">${p.code}</div>`
+    ).join('');
+  } else {
+    $('mcNoGpsList').textContent = 'All poles have GPS ✓';
+  }
+
+  function setStep(n) {
+    [1,2,3].forEach(i => {
+      const el = $('mcStep'+i);
+      el.className = 'mc-step' + (i < n ? ' done' : i === n ? ' active' : '');
+    });
+  }
+
+  function haversine(lat1,lon1,lat2,lon2) {
+    const R=6371000, dL=(lat2-lat1)*Math.PI/180, dO=(lon2-lon1)*Math.PI/180;
+    const a=Math.sin(dL/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dO/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
+
+  function mcSelectPole(pole, marker) {
+    if (!mcFrom) {
+      mcFrom = pole;
+      marker.setStyle({ fillColor: '#2563eb', color: '#2563eb', weight: 3 });
+      $('mcFromLabel').textContent = pole.code;
+      $('mcFromLabel').classList.remove('empty');
+      $('mcClearBtn').style.display = '';
+      setStep(2);
+    } else if (!mcTo && pole.id !== mcFrom.id) {
+      mcTo = pole;
+      marker.setStyle({ fillColor: '#f97316', color: '#f97316', weight: 3 });
+      $('mcToLabel').textContent = pole.code;
+      $('mcToLabel').classList.remove('empty');
+      setStep(3);
+
+      // Preview line
+      if (previewLine) map.removeLayer(previewLine);
+      previewLine = L.polyline([[mcFrom.lat,mcFrom.lng],[mcTo.lat,mcTo.lng]], {
+        color: '#facc15', weight: 2.5, dashArray: '6 4', opacity: .9
+      }).addTo(map);
+
+      // Distance
+      const dist = haversine(mcFrom.lat, mcFrom.lng, mcTo.lat, mcTo.lng);
+
+      // Open sheet
+      $('shFromLabel').textContent = mcFrom.code;
+      $('shToLabel').textContent   = mcTo.code;
+      $('shDist').textContent      = `~${Math.round(dist)} m`;
+      $('shLength').value          = Math.round(dist);
+      $('shRuns').value            = 1;
+      $('shCable').value           = '';
+      $('shNode').value=$('shAmp').value=$('shExt').value=$('shTsc').value=0;
+      $('mcSheet').classList.add('open');
+    }
+  }
+
+  window.mcClear = function() {
+    mcFrom = null; mcTo = null;
+    if (previewLine) { map.removeLayer(previewLine); previewLine = null; }
+    Object.values(poleMarkers).forEach(({marker}) => {
+      marker.setStyle({ fillColor: '#22c55e', color: '#fff', weight: 2.5 });
+    });
+    $('mcFromLabel').textContent = 'Not selected'; $('mcFromLabel').classList.add('empty');
+    $('mcToLabel').textContent   = 'Not selected'; $('mcToLabel').classList.add('empty');
+    $('mcClearBtn').style.display = 'none';
+    setStep(1);
+    mcCloseSheet();
+  };
+
+  window.mcCloseSheet = function() {
+    $('mcSheet').classList.remove('open');
+  };
+
+  window.mcSaveSpan = async function() {
+    if (!mcFrom || !mcTo) return;
+    const length = $('shLength').value.trim();
+    const runs   = $('shRuns').value.trim();
+    if (!length || !runs) {
+      if (!length) $('shLength').classList.add('inp-e');
+      if (!runs)   $('shRuns').classList.add('inp-e');
+      return;
+    }
+    $('shLength').classList.remove('inp-e');
+    $('shRuns').classList.remove('inp-e');
+    const cable = $('shCable').value || (parseFloat(length) * parseInt(runs)).toFixed(2);
+
+    const btn = $('shSaveBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="mgc_loading_4_line"></i> Saving…';
+
+    const fd = new FormData();
+    fd.append('from_pole_id', mcFrom.id);
+    fd.append('to_pole_id',   mcTo.id);
+    fd.append('length_meters', length);
+    fd.append('runs',          runs);
+    fd.append('expected_cable', cable);
+    fd.append('expected_node',      $('shNode').value || 0);
+    fd.append('expected_amplifier', $('shAmp').value  || 0);
+    fd.append('expected_extender',  $('shExt').value  || 0);
+    fd.append('expected_tsc',       $('shTsc').value  || 0);
+    fd.append('status', 'pending');
+
+    const showToast = (msg, type) => {
+      const w = document.getElementById('toastWrap'), el = document.createElement('div');
+      el.className = `toast t-${type}`;
+      el.innerHTML = `<i class="mgc_${type==='ok'?'check_circle_line':'close_circle_line'}" style="color:${type==='ok'?'#16a34a':'var(--err)'}"></i><span>${msg}</span>`;
+      w.appendChild(el);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+      setTimeout(()=>{ el.classList.remove('show'); setTimeout(()=>el.remove(),350); }, 3500);
+    };
+    try {
+      const res  = await fetch(BASE_URL, { method:'POST', headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'}, body:fd });
+      let data = {};
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const txt = await res.text();
+        showToast(`Server error (${res.status}) — check Laravel logs.`, 'err');
+        console.error('Non-JSON response:', res.status, txt.substring(0, 500));
+        return;
+      }
+      if (!res.ok || !data.success) {
+        showToast(data.message || data.error || 'Something went wrong.', 'err');
+        return;
+      }
+      // Add span line permanently
+      L.polyline([[mcFrom.lat,mcFrom.lng],[mcTo.lat,mcTo.lng]], {
+        color: '#3b82f6', weight: 3, opacity: .85
+      }).addTo(map).bindTooltip(`${mcFrom.code} → ${mcTo.code}`, { sticky: true });
+      $('mcSpanCount').textContent = parseInt($('mcSpanCount').textContent) + 1;
+
+      // Add to table rows (via bridge exposed by the table IIFE)
+      if (window._addSpanRow) window._addSpanRow(data.span);
+      mcCloseSheet();
+      mcClear();
+      showToast(`Span saved: ${mcFrom.code} → ${mcTo.code}`, 'ok');
+    } catch(e) {
+      showToast('Network error: ' + e.message, 'err');
+      console.error('mcSaveSpan error:', e);
+    } finally {
+      btn.disabled = false; btn.innerHTML = '<i class="mgc_save_line"></i> Save Span';
+    }
+  };
+
+  // Auto-calc cable
+  ['shLength','shRuns'].forEach(id => {
+    $(id).addEventListener('input', () => {
+      const l = parseFloat($('shLength').value)||0, r = parseInt($('shRuns').value)||0;
+      if (!$('shCable').value) $('shCable').placeholder = `Auto: ${(l*r).toFixed(2)} m`;
+    });
+  });
+
+  // Close sheet on backdrop click
+  $('mcSheet').addEventListener('click', e => { if(e.target===$('mcSheet')) mcCloseSheet(); });
 })();
 </script>
 @endpush

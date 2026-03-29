@@ -37,6 +37,14 @@ class SpanController extends Controller
             'status'             => ['required', 'string', 'in:pending,in_progress,completed,blocked'],
         ]);
 
+        // Check unique pair before hitting the DB constraint
+        $exists = PoleSpan::where('from_pole_id', $data['from_pole_id'])
+            ->where('to_pole_id', $data['to_pole_id'])
+            ->exists();
+        if ($exists) {
+            return response()->json(['success' => false, 'message' => 'A span between these two poles already exists.'], 422);
+        }
+
         $span = $node->spans()->create($data);
         $span->load(['fromPole', 'toPole']);
 

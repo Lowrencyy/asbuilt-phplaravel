@@ -51,7 +51,9 @@ class TeardownLogController extends Controller
             'started_at'                 => 'nullable|date',
             'finished_at'                => 'nullable|date',
             'submitted_by'               => 'nullable|string',
-            // GPS audit (shared / form-level)
+            // GPS audit (shared / form-level) — mobile sends as gps_latitude or captured_latitude
+            'gps_latitude'               => 'nullable|numeric',
+            'gps_longitude'              => 'nullable|numeric',
             'captured_latitude'          => 'nullable|numeric',
             'captured_longitude'         => 'nullable|numeric',
             'gps_accuracy_meters'        => 'nullable|numeric',
@@ -68,6 +70,14 @@ class TeardownLogController extends Controller
             'to_pole_longitude'          => 'nullable|numeric',
             'to_pole_gps_captured_at'    => 'nullable|string',
             'to_pole_gps_accuracy'       => 'nullable|string',
+            // per-photo capture timestamps
+            'from_before_captured_at'    => 'nullable|string',
+            'from_after_captured_at'     => 'nullable|string',
+            'from_tag_captured_at'       => 'nullable|string',
+            'to_before_captured_at'      => 'nullable|string',
+            'to_after_captured_at'       => 'nullable|string',
+            'to_tag_captured_at'         => 'nullable|string',
+            'before_span_captured_at'    => 'nullable|string',
             // photos sent alongside the log (field names match mobile app)
             'from_before'                => 'nullable|image|max:10240',
             'from_after'                 => 'nullable|image|max:10240',
@@ -89,6 +99,13 @@ class TeardownLogController extends Controller
 
         // pull project_id from the span — eager load relationships needed for file paths
         $span = PoleSpan::with(['fromPole', 'toPole', 'node.project'])->findOrFail($validated['pole_span_id']);
+
+        // Normalise: mobile sends gps_latitude/gps_longitude; map to captured_latitude/captured_longitude
+        if (!empty($validated['gps_latitude']) && empty($validated['captured_latitude'])) {
+            $validated['captured_latitude']  = $validated['gps_latitude'];
+            $validated['captured_longitude'] = $validated['gps_longitude'];
+        }
+        unset($validated['gps_latitude'], $validated['gps_longitude']);
 
         $log = TeardownLog::create(array_merge($validated, [
             'project_id'                 => $span->node->project_id,
@@ -143,10 +160,15 @@ class TeardownLogController extends Controller
 
         foreach ($photoMap as $field => $info) {
             if ($request->hasFile($field)) {
+                // Use per-photo capture time if sent, fall back to pole GPS time, then device time
+                $photoCapturedAt = $request->input("{$field}_captured_at")
+                    ?? $info['gps']['captured_at']
+                    ?? $request->input('captured_at_device');
+
                 $meta = [
                     'latitude'      => $info['gps']['lat'],
                     'longitude'     => $info['gps']['lng'],
-                    'captured_at'   => $info['gps']['captured_at'],
+                    'captured_at'   => $photoCapturedAt,
                     'location_name' => $request->input('location_notes'),
                     'from_pole'     => $fromCode,
                     'to_pole'       => $toCode,

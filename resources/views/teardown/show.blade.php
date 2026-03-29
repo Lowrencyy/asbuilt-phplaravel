@@ -151,6 +151,14 @@ body{ font-family:var(--sans); }
     border-radius:16px;overflow:hidden;height:340px;
     border:1px solid #eef2f6;position:relative;
 }
+.map-toggle-btn{
+    display:inline-flex;align-items:center;gap:.35rem;
+    padding:.28rem .72rem;border-radius:999px;border:1.5px solid #c7d7fe;
+    background:#eef4ff;color:#1d4ed8;font-size:.7rem;font-weight:800;
+    cursor:pointer;transition:.15s ease;letter-spacing:.02em;user-select:none;
+}
+.map-toggle-btn:hover{ background:#dde8ff; }
+.map-toggle-btn.off{ background:#f4f4f5;border-color:#e4e4e7;color:#71717a; }
 .td-map-no-gps{
     height:340px;display:flex;align-items:center;justify-content:center;
     flex-direction:column;gap:.5rem;color:#9ca3af;font-size:.88rem;font-weight:600;
@@ -222,11 +230,14 @@ body{ font-family:var(--sans); }
                 ? asset('storage/' . $images[$type]->image_path)
                 : null;
 
-    // GPS — prefer per-pole coords captured at photo time, fallback to pole map coords
-    $fromLat = (float)($log->from_pole_latitude  ?: $fromPole?->map_latitude  ?: 0);
-    $fromLng = (float)($log->from_pole_longitude ?: $fromPole?->map_longitude ?: 0);
+    // GPS — prefer per-pole coords captured at photo time,
+    //        fallback to pole map coords stored in admin,
+    //        fallback to captured_latitude (device GPS at submission time — same location as from pole)
+    $fromLat = (float)($log->from_pole_latitude  ?: $fromPole?->map_latitude  ?: $log->captured_latitude  ?: 0);
+    $fromLng = (float)($log->from_pole_longitude ?: $fromPole?->map_longitude ?: $log->captured_longitude ?: 0);
     $toLat   = (float)($log->to_pole_latitude    ?: $toPole?->map_latitude    ?: 0);
     $toLng   = (float)($log->to_pole_longitude   ?: $toPole?->map_longitude   ?: 0);
+    $fromGpsIsFallback = !$log->from_pole_latitude && !$fromPole?->map_latitude && $log->captured_latitude;
     $hasGps  = ($fromLat && $fromLng) || ($toLat && $toLng);
 
     $comps = [
@@ -340,9 +351,16 @@ body{ font-family:var(--sans); }
     <div class="td-card">
         <div class="td-card-title">
             Span Location Map
-            @if($span?->length_meters)
-                <span class="badge badge-blue">{{ number_format($span->length_meters,0) }} m span</span>
-            @endif
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;">
+                @if($span?->length_meters)
+                    <span class="badge badge-blue">{{ number_format($span->length_meters,0) }} m span</span>
+                @endif
+                @if($hasGps)
+                    <button class="map-toggle-btn" id="btnToggleLine" onclick="toggleSpanLine()">
+                        <i class="mgc_git_branch_line"></i> Span Line: ON
+                    </button>
+                @endif
+            </div>
         </div>
 
         @if($hasGps)
@@ -422,6 +440,22 @@ document.addEventListener('keydown', e => {
 });
 
 /* ── Span Map ─────────────────────────────────────────────────────── */
+let _spanLine = null;
+let _spanMap  = null;
+function toggleSpanLine() {
+    const btn = document.getElementById('btnToggleLine');
+    if (!_spanLine || !_spanMap) return;
+    if (_spanMap.hasLayer(_spanLine)) {
+        _spanMap.removeLayer(_spanLine);
+        btn.classList.add('off');
+        btn.innerHTML = '<i class="mgc_git_branch_line"></i> Span Line: OFF';
+    } else {
+        _spanLine.addTo(_spanMap);
+        btn.classList.remove('off');
+        btn.innerHTML = '<i class="mgc_git_branch_line"></i> Span Line: ON';
+    }
+}
+
 @if($hasGps)
 (function () {
     const FROM = {
@@ -431,6 +465,7 @@ document.addEventListener('keydown', e => {
         role: 'From Pole',
         gpsAt: @json($log->from_pole_gps_captured_at ?? null),
         accuracy: @json($log->from_pole_gps_accuracy ?? null),
+        isFallback: {{ $fromGpsIsFallback ? 'true' : 'false' }},
     };
     const TO = {
         lat:  {{ $toLat ?: 'null' }},
@@ -451,23 +486,33 @@ document.addEventListener('keydown', e => {
     const centerLng = points.reduce((s,p) => s + p.lng, 0) / points.length;
 
     const map = L.map('spanMap', { zoomControl: true }).setView([centerLat, centerLng], 17);
+    _spanMap = map;
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 20,
     }).addTo(map);
 
-    function makeIcon(color) {
+    function makeIcon(color, label) {
         return L.divIcon({
             className: '',
             html: `<div style="
-                width:36px;height:36px;border-radius:50% 50% 50% 0;
-                background:${color};border:3px solid #fff;
-                box-shadow:0 4px 14px rgba(0,0,0,.25);
-                transform:rotate(-45deg);
-            "></div>`,
-            iconSize: [36, 36],
-            iconAnchor: [18, 36],
+                display:flex;flex-direction:column;align-items:center;gap:2px;
+            ">
+                <div style="
+                    background:#fff;border:2px solid ${color};border-radius:6px;
+                    padding:2px 6px;font-size:10px;font-weight:900;color:${color};
+                    white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.18);
+                    font-family:ui-monospace,monospace;
+                ">${label}</div>
+                <div style="
+                    width:14px;height:14px;border-radius:50%;
+                    background:${color};border:2.5px solid #fff;
+                    box-shadow:0 2px 8px rgba(0,0,0,.25);
+                "></div>
+            </div>`,
+            iconSize: [60, 36],
+            iconAnchor: [30, 34],
             popupAnchor: [0, -36],
         });
     }
@@ -481,6 +526,8 @@ document.addEventListener('keydown', e => {
             rows += `<div class="map-popup-row">Accuracy <strong>±${parseFloat(pole.accuracy).toFixed(1)} m</strong></div>`;
         if (pole.gpsAt)
             rows += `<div class="map-popup-row">Captured <strong>${new Date(pole.gpsAt).toLocaleString('en-PH',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</strong></div>`;
+        if (pole.isFallback)
+            rows += `<div class="map-popup-row" style="color:#b45309;">⚠ Approx. location (device GPS)</div>`;
         return `<div class="map-popup">
             <div class="map-popup-role" style="color:${roleColor}">${pole.role}</div>
             <div class="map-popup-code">${pole.code}</div>
@@ -491,14 +538,14 @@ document.addEventListener('keydown', e => {
     const bounds = [];
 
     if (FROM.lat && FROM.lng) {
-        L.marker([FROM.lat, FROM.lng], { icon: makeIcon('#2563eb') })
+        L.marker([FROM.lat, FROM.lng], { icon: makeIcon('#2563eb', FROM.code) })
             .addTo(map)
             .bindPopup(popupHTML(FROM), { maxWidth: 240 });
         bounds.push([FROM.lat, FROM.lng]);
     }
 
     if (TO.lat && TO.lng) {
-        L.marker([TO.lat, TO.lng], { icon: makeIcon('#7c3aed') })
+        L.marker([TO.lat, TO.lng], { icon: makeIcon('#7c3aed', TO.code) })
             .addTo(map)
             .bindPopup(popupHTML(TO), { maxWidth: 240 });
         bounds.push([TO.lat, TO.lng]);
@@ -506,7 +553,7 @@ document.addEventListener('keydown', e => {
 
     // Draw span line between poles
     if (FROM.lat && FROM.lng && TO.lat && TO.lng) {
-        const line = L.polyline([[FROM.lat, FROM.lng],[TO.lat, TO.lng]], {
+        const line = _spanLine = L.polyline([[FROM.lat, FROM.lng],[TO.lat, TO.lng]], {
             color: '#2563eb',
             weight: 4,
             opacity: .75,

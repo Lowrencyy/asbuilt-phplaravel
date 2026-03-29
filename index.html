@@ -1,17 +1,620 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <button>
-        <a href="http://192.168.0.159:3000/?fbclid=IwY2xjawQmCXxleHRuA2FlbQIxMABicmlkETFSY3RnMGNjM3FReTl2S2tsc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHmr1eFHOLUkp2vQ5vTWDGcRulX7Mwi5TEC2iCec033coSblji2PyRZRjkuCm_aem_wBIqiUGeVAuPojA3nqG4RA" target="_blank">as built iq</a>
-    </button>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Node Schematic — TelcoVantage</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100vh;
+        font-family: "Inter", sans-serif;
+        background: #f0f4f8;
+      }
+      #map {
+        width: 100%;
+        height: 100vh;
+        cursor: grab;
+      }
+      #map:active {
+        cursor: grabbing;
+      }
+      .leaflet-div-icon {
+        background: none !important;
+        border: none !important;
+      }
 
-    <button><a href="http://127.0.0.1:8080/admin/projects" target="_blank">
-        pole master
-    </a></button>
-</body>
+      .pole-circle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        border: 3px solid;
+        font-family: "Inter", sans-serif;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.22);
+        cursor: pointer;
+        transition:
+          transform 0.15s,
+          box-shadow 0.15s;
+      }
+      .pole-circle:hover {
+        transform: scale(1.2);
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+      }
+
+      .leaflet-tooltip {
+        font-family: "Inter", sans-serif !important;
+        padding: 0 !important;
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+      }
+      .leaflet-tooltip-top:before {
+        display: none;
+      }
+
+      .tt {
+        background: #1e2433;
+        color: #fff;
+        border-radius: 12px;
+        padding: 11px 15px;
+        min-width: 190px;
+        font-family: "Inter", sans-serif;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+        pointer-events: none;
+      }
+      .tt-title {
+        font-size: 13px;
+        font-weight: 800;
+        margin-bottom: 7px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 6px;
+      }
+      .tt-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        margin-top: 5px;
+        gap: 12px;
+      }
+      .tt-label {
+        color: #9ca3af;
+        font-weight: 600;
+      }
+      .tt-val {
+        color: #fff;
+        font-weight: 700;
+        text-align: right;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 99px;
+        font-size: 10px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+
+      #legend {
+        position: fixed;
+        bottom: 18px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1e2433;
+        color: #fff;
+        border-radius: 14px;
+        padding: 10px 22px;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        font-size: 11px;
+        font-weight: 700;
+        z-index: 9999;
+        white-space: nowrap;
+      }
+      .ld {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 5px;
+        vertical-align: middle;
+      }
+
+      #hint {
+        position: fixed;
+        top: 14px;
+        right: 14px;
+        background: rgba(30, 36, 51, 0.82);
+        color: #9ca3af;
+        border-radius: 10px;
+        padding: 8px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        z-index: 9999;
+        backdrop-filter: blur(6px);
+        letter-spacing: 0.2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+
+    <div id="legend">
+      <span><span class="ld" style="background: #10b981"></span>Completed</span>
+      <span><span class="ld" style="background: #f59e0b"></span>Pending</span>
+      <span
+        ><span class="ld" style="background: #3b82f6"></span>Not Started</span
+      >
+      <span><span class="ld" style="background: #ef4444"></span>Canceled</span>
+    </div>
+
+    <div id="hint">
+      🖱 Scroll = zoom &nbsp;·&nbsp; Drag = pan &nbsp;·&nbsp; Hover = details
+    </div>
+
+    <script>
+      var map = L.map("map", {
+        zoomControl: true,
+        attributionControl: false,
+        scrollWheelZoom: true,
+        dragging: true,
+        doubleClickZoom: true,
+        minZoom: 1,
+        maxZoom: 22,
+      });
+      L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        opacity: 0.28,
+        maxZoom: 22,
+        maxNativeZoom: 19,
+      }).addTo(map);
+
+      /* ── Sample Data ─────────────────────────────── */
+      var poles = [
+        {
+          id: 1,
+          code: "F13-246",
+          status: "completed",
+          completed_at: "Mar 12, 2026 2:14 PM",
+          lat: 14.539801,
+          lng: 121.109103,
+          collected: 23,
+          expected: 23,
+        },
+        {
+          id: 2,
+          code: "F13-247",
+          status: "completed",
+          completed_at: "Mar 13, 2026 9:40 AM",
+          lat: 14.539938,
+          lng: 121.108687,
+          collected: 17,
+          expected: 17,
+        },
+        {
+          id: 3,
+          code: "F13-248",
+          status: "pending",
+          completed_at: null,
+          lat: 14.540187,
+          lng: 121.108771,
+          collected: 0,
+          expected: 108,
+        },
+        {
+          id: 4,
+          code: "F13-249",
+          status: "not_started",
+          completed_at: null,
+          lat: 14.540399,
+          lng: 121.108129,
+          collected: 0,
+          expected: 38,
+        },
+        {
+          id: 5,
+          code: "F13-250",
+          status: "not_started",
+          completed_at: null,
+          lat: 14.540422,
+          lng: 121.108841,
+          collected: 0,
+          expected: 40,
+        },
+        {
+          id: 6,
+          code: "F13-251",
+          status: "canceled",
+          completed_at: null,
+          lat: 14.539891,
+          lng: 121.109655,
+          collected: 0,
+          expected: 30,
+        },
+      ];
+
+      var spans = [
+        {
+          id: 101,
+          code: "SP-246→247",
+          from: 1,
+          to: 2,
+          len: 23,
+          collected: 23,
+          status: "completed",
+          completed_at: "Mar 13, 2026 9:40 AM",
+          node: "NODE-01",
+          submitted_by: "Juan dela Cruz",
+          col_node: 1,
+          col_amp: 0,
+          col_ext: 1,
+          col_tsc: 0,
+          exp_node: 1,
+          exp_amp: 0,
+          exp_ext: 1,
+          exp_tsc: 0,
+        },
+        {
+          id: 102,
+          code: "SP-247→248",
+          from: 2,
+          to: 3,
+          len: 17,
+          collected: 17,
+          status: "completed",
+          completed_at: "Mar 13, 2026 10:15 AM",
+          node: "NODE-01",
+          submitted_by: "Maria Santos",
+          col_node: 0,
+          col_amp: 1,
+          col_ext: 0,
+          col_tsc: 0,
+          exp_node: 0,
+          exp_amp: 1,
+          exp_ext: 0,
+          exp_tsc: 0,
+        },
+        {
+          id: 103,
+          code: "SP-248→249",
+          from: 3,
+          to: 4,
+          len: 38,
+          collected: 0,
+          status: "pending",
+          completed_at: null,
+          node: "NODE-01",
+          submitted_by: null,
+          col_node: 0,
+          col_amp: 0,
+          col_ext: 0,
+          col_tsc: 0,
+          exp_node: 1,
+          exp_amp: 0,
+          exp_ext: 2,
+          exp_tsc: 1,
+        },
+        {
+          id: 104,
+          code: "SP-248→250",
+          from: 3,
+          to: 5,
+          len: 40,
+          collected: 0,
+          status: "not_started",
+          completed_at: null,
+          node: "NODE-01",
+          submitted_by: null,
+          col_node: 0,
+          col_amp: 0,
+          col_ext: 0,
+          col_tsc: 0,
+          exp_node: 0,
+          exp_amp: 1,
+          exp_ext: 1,
+          exp_tsc: 0,
+        },
+        {
+          id: 105,
+          code: "SP-248→251",
+          from: 3,
+          to: 6,
+          len: 30,
+          collected: 0,
+          status: "canceled",
+          completed_at: null,
+          node: "NODE-01",
+          submitted_by: "Pedro Reyes",
+          col_node: 0,
+          col_amp: 0,
+          col_ext: 0,
+          col_tsc: 0,
+          exp_node: 0,
+          exp_amp: 0,
+          exp_ext: 1,
+          exp_tsc: 0,
+        },
+      ];
+
+      var currentPoleIds = [3, 4]; // currently active teardown poles
+
+      /* ── Color map ───────────────────────────────── */
+      var C = {
+        completed: {
+          fill: "#10b981",
+          border: "#059669",
+          text: "#fff",
+          badge: "background:#d1fae5;color:#065f46",
+        },
+        pending: {
+          fill: "#f59e0b",
+          border: "#d97706",
+          text: "#fff",
+          badge: "background:#fef3c7;color:#92400e",
+        },
+        not_started: {
+          fill: "#3b82f6",
+          border: "#2563eb",
+          text: "#fff",
+          badge: "background:#dbeafe;color:#1e40af",
+        },
+        canceled: {
+          fill: "#ef4444",
+          border: "#dc2626",
+          text: "#fff",
+          badge: "background:#fee2e2;color:#991b1b",
+        },
+      };
+      function gc(s) {
+        return C[s] || C.not_started;
+      }
+
+      var poleMap = {};
+      poles.forEach(function (p) {
+        poleMap[p.id] = p;
+      });
+      var bounds = [];
+
+      /* ── Draw Spans ──────────────────────────────── */
+      spans.forEach(function (s) {
+        var fp = poleMap[s.from],
+          tp = poleMap[s.to];
+        if (!fp || !tp) return;
+        var c = gc(s.status);
+        var dash =
+          s.status === "not_started" || s.status === "canceled" ? "7,5" : null;
+        var opts = {
+          color: c.fill,
+          weight: 4,
+          opacity: s.status === "canceled" ? 0.5 : 0.88,
+        };
+        if (dash) opts.dashArray = dash;
+
+        var line = L.polyline(
+          [
+            [fp.lat, fp.lng],
+            [tp.lat, tp.lng],
+          ],
+          opts,
+        ).addTo(map);
+
+        var rec = s.len > 0 ? Math.round((s.collected / s.len) * 100) : 0;
+        var unrecNode = Math.max((s.exp_node || 0) - (s.col_node || 0), 0);
+        var unrecAmp = Math.max((s.exp_amp || 0) - (s.col_amp || 0), 0);
+        var unrecExt = Math.max((s.exp_ext || 0) - (s.col_ext || 0), 0);
+        var unrecTsc = Math.max((s.exp_tsc || 0) - (s.col_tsc || 0), 0);
+        var hasUnrec = unrecNode || unrecAmp || unrecExt || unrecTsc;
+        var hasComp = s.exp_node || s.exp_amp || s.exp_ext || s.exp_tsc;
+
+        function compRow(label, col, exp) {
+          if (!exp) return "";
+          var ok = col >= exp;
+          return (
+            '<div class="tt-row">' +
+            '<span class="tt-label">' +
+            label +
+            "</span>" +
+            '<span class="tt-val" style="color:' +
+            (ok ? "#10b981" : "#f59e0b") +
+            '">' +
+            col +
+            " / " +
+            exp +
+            (ok ? " ✓" : " ⚠") +
+            "</span>" +
+            "</div>"
+          );
+        }
+        var unrecParts = [];
+        if (unrecNode) unrecParts.push("Node ×" + unrecNode);
+        if (unrecAmp) unrecParts.push("AMP ×" + unrecAmp);
+        if (unrecExt) unrecParts.push("EXT ×" + unrecExt);
+        if (unrecTsc) unrecParts.push("TSC ×" + unrecTsc);
+
+        var ttHtml =
+          '<div class="tt">' +
+          '<div class="tt-title">📡 ' +
+          s.code +
+          "</div>" +
+          '<div class="tt-row"><span class="tt-label">Status</span><span class="tt-val"><span class="badge" style="' +
+          c.badge +
+          '">' +
+          s.status.replace(/_/g, " ") +
+          "</span></span></div>" +
+          '<div class="tt-row"><span class="tt-label">Node</span><span class="tt-val">' +
+          s.node +
+          "</span></div>" +
+          (s.submitted_by
+            ? '<div class="tt-row"><span class="tt-label">Submitted By</span><span class="tt-val">👤 ' +
+              s.submitted_by +
+              "</span></div>"
+            : "") +
+          '<div style="border-top:1px solid rgba(255,255,255,0.08);margin:7px 0 4px"></div>' +
+          '<div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Cable</div>' +
+          '<div class="tt-row"><span class="tt-label">Span Length</span><span class="tt-val">' +
+          s.len +
+          " m</span></div>" +
+          '<div class="tt-row"><span class="tt-label">Collected</span><span class="tt-val">' +
+          s.collected +
+          " m</span></div>" +
+          '<div class="tt-row"><span class="tt-label">Recovery</span><span class="tt-val" style="color:' +
+          (rec >= 100 ? "#10b981" : rec > 50 ? "#f59e0b" : "#ef4444") +
+          '">' +
+          rec +
+          "%</span></div>" +
+          (hasComp
+            ? '<div style="border-top:1px solid rgba(255,255,255,0.08);margin:7px 0 4px"></div>' +
+              '<div style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">Components</div>' +
+              compRow("Node", s.col_node || 0, s.exp_node || 0) +
+              compRow("Amplifier", s.col_amp || 0, s.exp_amp || 0) +
+              compRow("Extender", s.col_ext || 0, s.exp_ext || 0) +
+              compRow("TSC", s.col_tsc || 0, s.exp_tsc || 0)
+            : "") +
+          (hasUnrec
+            ? '<div style="border-top:1px solid rgba(239,68,68,0.3);margin:7px 0 4px"></div>' +
+              '<div style="font-size:10px;color:#ef4444;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px">⚠ Unrecovered Equipment</div>' +
+              '<div class="tt-row"><span class="tt-label" style="color:#fca5a5">Items</span><span class="tt-val" style="color:#fca5a5">' +
+              unrecParts.join(" · ") +
+              "</span></div>"
+            : "") +
+          (s.completed_at
+            ? '<div style="border-top:1px solid rgba(255,255,255,0.08);margin:7px 0 4px"></div>' +
+              '<div class="tt-row"><span class="tt-label">Completed At</span><span class="tt-val">' +
+              s.completed_at +
+              "</span></div>"
+            : "") +
+          "</div>";
+        line.bindTooltip(ttHtml, {
+          sticky: true,
+          direction: "top",
+          opacity: 1,
+          className: "",
+          offset: [0, -4],
+        });
+
+        /* Distance label */
+        var ml = (fp.lat + tp.lat) / 2,
+          mg = (fp.lng + tp.lng) / 2;
+        var distLabel = s.len + " meters";
+        L.marker([ml, mg], {
+          icon: L.divIcon({
+            className: "",
+            html:
+              '<span style="font:700 11px Inter,sans-serif;color:#111827;background:#fff;padding:3px 9px;border-radius:6px;white-space:nowrap;display:inline-block;box-shadow:0 1px 6px rgba(0,0,0,0.18);border:1px solid ' +
+              c.fill +
+              '44;">' +
+              distLabel +
+              "</span>",
+            iconSize: [80, 22],
+            iconAnchor: [40, 11],
+          }),
+          interactive: false,
+        }).addTo(map);
+      });
+
+      /* ── Draw Poles ──────────────────────────────── */
+      poles.forEach(function (p) {
+        var isCurrent = currentPoleIds.indexOf(p.id) >= 0;
+        var c = gc(p.status);
+        var fill = isCurrent ? "#0d47c9" : c.fill;
+        var border = isCurrent ? "#0a349e" : c.border;
+        var size = isCurrent ? 42 : 33;
+        var label = p.code.replace(/^[A-Z0-9]+-/, "");
+        var fs = size <= 33 ? "8px" : "9px";
+
+        var icon = L.divIcon({
+          className: "",
+          html:
+            '<div class="pole-circle" style="width:' +
+            size +
+            "px;height:" +
+            size +
+            "px;background:" +
+            fill +
+            ";border-color:" +
+            border +
+            ";color:" +
+            c.text +
+            ";font-size:" +
+            fs +
+            ";" +
+            (isCurrent
+              ? "box-shadow:0 0 0 5px rgba(13,71,201,0.22),0 3px 12px rgba(0,0,0,0.3);"
+              : "") +
+            '">' +
+            label +
+            "</div>",
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+        });
+
+        var rec =
+          p.expected > 0 ? Math.round((p.collected / p.expected) * 100) : 0;
+        var statusLabel = isCurrent
+          ? "In Progress (Current)"
+          : p.status.replace(/_/g, " ");
+        var badgeStyle = isCurrent
+          ? "background:#dbeafe;color:#1e3a8a"
+          : c.badge;
+        var ttHtml =
+          '<div class="tt">' +
+          '<div class="tt-title">🔌 ' +
+          p.code +
+          "</div>" +
+          '<div class="tt-row"><span class="tt-label">Status</span><span class="tt-val"><span class="badge" style="' +
+          badgeStyle +
+          '">' +
+          statusLabel +
+          "</span></span></div>" +
+          '<div class="tt-row"><span class="tt-label">Expected Cable</span><span class="tt-val">' +
+          p.expected +
+          " m</span></div>" +
+          '<div class="tt-row"><span class="tt-label">Cable Collected</span><span class="tt-val">' +
+          p.collected +
+          " m</span></div>" +
+          '<div class="tt-row"><span class="tt-label">Recovery</span><span class="tt-val">' +
+          rec +
+          "%</span></div>" +
+          (p.completed_at
+            ? '<div class="tt-row"><span class="tt-label">Completed At</span><span class="tt-val">' +
+              p.completed_at +
+              "</span></div>"
+            : "") +
+          "</div>";
+
+        L.marker([p.lat, p.lng], { icon: icon })
+          .addTo(map)
+          .bindTooltip(ttHtml, {
+            sticky: true,
+            direction: "top",
+            opacity: 1,
+            className: "",
+            offset: [0, -(size / 2) - 6],
+          });
+
+        bounds.push([p.lat, p.lng]);
+      });
+
+      if (bounds.length)
+        map.fitBounds(L.latLngBounds(bounds), { padding: [65, 65] });
+    </script>
+  </body>
 </html>
