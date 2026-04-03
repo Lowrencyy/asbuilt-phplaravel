@@ -16,14 +16,25 @@ use App\Http\Controllers\Api\BulkUploadController;
 
 // ─── Public: File proxy (serves storage files via API to bypass symlink issues) ──
 Route::get('/files/{path}', function (string $path) {
-    $fullPath = storage_path('app/public/' . $path);
-    if (! file_exists($fullPath)) {
+    // Use Storage::disk('public') so this works regardless of whether
+    // `php artisan storage:link` has been run. The disk root matches
+    // where ImageProcessingService actually writes the files.
+    if (! \Storage::disk('public')->exists($path)) {
         abort(404);
     }
+    $fullPath = \Storage::disk('public')->path($path);
     return response()->file($fullPath);
 })->where('path', '.*');
 
 Route::prefix('v1')->group(function () {
+
+    // ─── Public: App status (maintenance mode check) ─────────────
+    Route::get('/status', function () {
+        return response()->json([
+            'maintenance' => (bool) env('APP_DOWN', false),
+            'message'     => env('APP_DOWN_MESSAGE', 'The app is currently under maintenance. We\'ll be back shortly.'),
+        ]);
+    });
 
     // ─── Public: Auth ────────────────────────────────────────────
     Route::post('/login', [AuthController::class, 'login']);
@@ -73,6 +84,10 @@ Route::prefix('v1')->group(function () {
 
         // Pole Spans search
         Route::get('/pole-spans', [\App\Http\Controllers\Api\PoleSpanController::class, 'index']);
+
+        // Lineman live locations
+        Route::get('/lineman-locations',  [\App\Http\Controllers\Api\LinemanLocationController::class, 'index']);
+        Route::post('/lineman-location',  [\App\Http\Controllers\Api\LinemanLocationController::class, 'ping']);
 
         // Teardown Logs — read: any authenticated user | write: lineman/admin/pm only
         Route::get('/teardown-logs', [TeardownLogController::class, 'index']);

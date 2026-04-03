@@ -1,7 +1,7 @@
 <x-layout>
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="/assets/libs/leaflet/leaflet.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 :root{
@@ -100,43 +100,19 @@ body{font-family:var(--ff);}
 .leaflet-popup-content-wrapper{border-radius:12px!important;box-shadow:0 4px 20px rgba(15,23,42,.15)!important;border:1px solid #e2e8f0!important;}
 .leaflet-popup-tip{display:none!important;}
 
-/* location search */
-.map-search-wrap{
-    position:absolute;top:10px;left:50%;transform:translateX(-50%);
-    z-index:1000;width:min(380px, calc(100% - 24px));
-    display:flex;flex-direction:column;gap:0;
-}
-.map-search-inner{
-    display:flex;align-items:center;gap:.4rem;
-    background:#fff;border:1.5px solid var(--bdr);border-radius:11px;
-    padding:.42rem .6rem .42rem .75rem;
-    box-shadow:0 4px 18px rgba(15,23,42,.14);
-}
-.map-search-input{
-    flex:1;border:none;outline:none;font-size:.82rem;font-family:var(--ff);
-    color:var(--txt);background:transparent;min-width:0;
-}
+/* Map location search */
+.map-search-wrap{position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:1000;width:320px;max-width:calc(100% - 80px);}
+.map-search-inner{display:flex;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 4px 18px rgba(15,23,42,.14);overflow:hidden;}
+.map-search-input{flex:1;border:none;outline:none;padding:.52rem .75rem;font-size:.82rem;font-family:var(--ff);color:var(--txt);background:transparent;}
 .map-search-input::placeholder{color:var(--muted);}
-.map-search-btn{
-    display:inline-flex;align-items:center;justify-content:center;
-    width:30px;height:30px;border:none;border-radius:8px;
-    background:var(--p);color:#fff;cursor:pointer;font-size:.85rem;flex-shrink:0;
-}
+.map-search-btn{padding:.52rem .8rem;background:var(--p);border:none;color:#fff;cursor:pointer;font-size:.85rem;display:flex;align-items:center;}
 .map-search-btn:hover{background:var(--p2);}
-.map-search-results{
-    background:#fff;border:1.5px solid var(--bdr);border-radius:0 0 11px 11px;
-    border-top:none;box-shadow:0 8px 18px rgba(15,23,42,.12);
-    max-height:220px;overflow-y:auto;display:none;
-}
-.map-search-results.open{display:block;}
-.map-search-item{
-    padding:.55rem .85rem;font-size:.78rem;color:var(--txt);cursor:pointer;
-    border-bottom:1px solid var(--bdr);line-height:1.35;
-}
+.map-search-results{background:#fff;border:1px solid var(--bdr);border-radius:0 0 10px 10px;border-top:none;max-height:220px;overflow-y:auto;box-shadow:0 8px 24px rgba(15,23,42,.13);}
+.map-search-item{padding:.55rem .8rem;font-size:.78rem;cursor:pointer;border-bottom:1px solid var(--bdr);color:var(--txt);line-height:1.35;}
 .map-search-item:last-child{border-bottom:none;}
 .map-search-item:hover{background:var(--surf2);}
-.map-search-empty{padding:.7rem .85rem;font-size:.78rem;color:var(--muted);}
-.map-search-spinner{padding:.7rem .85rem;font-size:.78rem;color:var(--muted);}
+.map-search-empty{padding:.7rem .8rem;font-size:.78rem;color:var(--muted);text-align:center;}
+.map-search-spinner{padding:.6rem .8rem;font-size:.75rem;color:var(--muted);text-align:center;}
 </style>
 @endpush
 
@@ -226,19 +202,15 @@ body{font-family:var(--ff);}
                     <span style="color:#2563eb;font-weight:700;">●</span> Selected
                 </span>
             </div>
-            <div id="nodeMap" style="position:relative;">
-                <div class="map-search-wrap" id="mapSearchWrap">
-                    <div class="map-search-inner">
-                        <i class="mgc_search_line" style="color:var(--muted);font-size:.9rem;flex-shrink:0;"></i>
-                        <input id="mapSearchInput" class="map-search-input" type="text"
-                               placeholder="Search location (e.g. Taytay, Rizal)…"
-                               autocomplete="off"/>
-                        <button class="map-search-btn" id="mapSearchBtn" title="Search">
-                            <i class="mgc_search_line"></i>
-                        </button>
-                    </div>
-                    <div class="map-search-results" id="mapSearchResults"></div>
+            <div style="position:relative;">
+              <div id="nodeMap"></div>
+              <div class="map-search-wrap" id="mapSearchWrap">
+                <div class="map-search-inner">
+                  <input id="mapSearchInput" class="map-search-input" type="text" placeholder="Search location…" autocomplete="off"/>
+                  <button class="map-search-btn" onclick="doMapSearch()"><i class="mgc_search_line"></i></button>
                 </div>
+                <div id="mapSearchResults" style="display:none;" class="map-search-results"></div>
+              </div>
             </div>
             <div class="gps-bar">
                 <i class="mgc_touch_line" style="color:var(--muted);font-size:1rem;"></i>
@@ -267,7 +239,7 @@ body{font-family:var(--ff);}
     </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/assets/libs/leaflet/leaflet.js"></script>
 <script>
 (function(){
     const ALL_POLES   = @json($mapPoles);
@@ -458,6 +430,77 @@ body{font-family:var(--ff);}
         }
     };
 
+    // Fix: invalidate map size after layout paints (grid sizing issue)
+    setTimeout(() => map.invalidateSize(), 100);
+    setTimeout(() => map.invalidateSize(), 400);
+    window.addEventListener('resize', () => map.invalidateSize());
+
+    // Prevent search bar clicks from triggering map click → assign popup
+    const searchWrap = document.getElementById('mapSearchWrap');
+    if (searchWrap) L.DomEvent.disableClickPropagation(searchWrap);
+
+    // ── Location search (Nominatim) ──────────────────────────────────────
+    let searchTimer = null;
+    let searchMarker = null;
+
+    document.getElementById('mapSearchInput').addEventListener('input', function() {
+        clearTimeout(searchTimer);
+        const q = this.value.trim();
+        if (!q) { hideResults(); return; }
+        searchTimer = setTimeout(() => doMapSearch(), 500);
+    });
+    document.getElementById('mapSearchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') { e.preventDefault(); clearTimeout(searchTimer); doMapSearch(); }
+    });
+
+    window.doMapSearch = async function() {
+        const q = document.getElementById('mapSearchInput').value.trim();
+        if (!q) return;
+        const res = document.getElementById('mapSearchResults');
+        res.style.display = 'block';
+        res.innerHTML = '<div class="map-search-spinner">Searching…</div>';
+        try {
+            const r = await fetch(
+                `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=6&addressdetails=1`,
+                { headers: { 'Accept-Language': 'en', 'User-Agent': 'TelcoVantage/1.0' } }
+            );
+            const data = await r.json();
+            if (!data.length) { res.innerHTML = '<div class="map-search-empty">No results found.</div>'; return; }
+            res.innerHTML = data.map((item, i) =>
+                `<div class="map-search-item" onclick="flyToResult(${item.lat},${item.lon},'${item.display_name.replace(/'/g,"&#39;").substring(0,80)}')">
+                    <strong style="font-size:.8rem;">${item.display_name.split(',')[0]}</strong><br>
+                    <span style="color:var(--muted);font-size:.7rem;">${item.display_name.substring(0,90)}</span>
+                </div>`
+            ).join('');
+        } catch(e) {
+            res.innerHTML = '<div class="map-search-empty">Search failed. Check connection.</div>';
+        }
+    };
+
+    window.flyToResult = function(lat, lng, label) {
+        map.flyTo([+lat, +lng], 16, { duration: 1 });
+        if (searchMarker) map.removeLayer(searchMarker);
+        searchMarker = L.marker([+lat, +lng], {
+            icon: L.divIcon({
+                className: '',
+                html: `<div style="background:#2563eb;color:#fff;padding:.2rem .5rem;border-radius:6px;font-size:.7rem;font-weight:700;white-space:nowrap;box-shadow:0 2px 8px rgba(37,99,235,.4);">${label}</div>`,
+                iconAnchor: [0, 10],
+            })
+        }).addTo(map);
+        hideResults();
+        document.getElementById('mapSearchInput').value = label;
+    };
+
+    function hideResults() {
+        const res = document.getElementById('mapSearchResults');
+        res.style.display = 'none';
+        res.innerHTML = '';
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!document.getElementById('mapSearchWrap').contains(e.target)) hideResults();
+    });
+
     // Toast notification
     function showToast(msg, isError) {
         const t = document.createElement('div');
@@ -466,80 +509,6 @@ body{font-family:var(--ff);}
         document.body.appendChild(t);
         setTimeout(() => t.remove(), 2800);
     }
-
-    /* ── Location Search (Nominatim) ──────────────────────────────── */
-    const mapSearchInput   = document.getElementById('mapSearchInput');
-    const mapSearchBtn     = document.getElementById('mapSearchBtn');
-    const mapSearchResults = document.getElementById('mapSearchResults');
-    let searchDebounce = null;
-    let searchMarker = null;
-
-    function showResults(html) {
-        mapSearchResults.innerHTML = html;
-        mapSearchResults.classList.add('open');
-    }
-    function closeResults() {
-        mapSearchResults.classList.remove('open');
-    }
-
-    async function doSearch(q) {
-        q = q.trim();
-        if (!q) { closeResults(); return; }
-        showResults('<div class="map-search-spinner">Searching…</div>');
-        try {
-            const res = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&limit=6&q=${encodeURIComponent(q)}`,
-                { headers: { 'Accept-Language': 'en', 'User-Agent': 'TelcoVantage/1.0' } }
-            );
-            const data = await res.json();
-            if (!data.length) {
-                showResults('<div class="map-search-empty">No results found.</div>');
-                return;
-            }
-            showResults(data.map((r, i) =>
-                `<div class="map-search-item" data-i="${i}" data-lat="${r.lat}" data-lng="${r.lon}">
-                    ${r.display_name}
-                </div>`
-            ).join(''));
-            mapSearchResults.querySelectorAll('.map-search-item').forEach(el => {
-                el.addEventListener('click', () => {
-                    const lat = parseFloat(el.dataset.lat);
-                    const lng = parseFloat(el.dataset.lng);
-                    map.flyTo([lat, lng], 17, { duration: 1 });
-                    if (searchMarker) map.removeLayer(searchMarker);
-                    searchMarker = L.marker([lat, lng], {
-                        icon: L.divIcon({
-                            className:'',
-                            html:`<div style="background:#2563eb;color:#fff;border-radius:8px;padding:3px 8px;font-size:11px;font-weight:800;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,.2);">📍 ${el.textContent.trim().split(',')[0]}</div>`,
-                            iconAnchor:[0,0],
-                        })
-                    }).addTo(map);
-                    mapSearchInput.value = el.textContent.trim().split(',')[0];
-                    closeResults();
-                });
-            });
-        } catch {
-            showResults('<div class="map-search-empty">Search failed. Check connection.</div>');
-        }
-    }
-
-    mapSearchInput.addEventListener('input', () => {
-        clearTimeout(searchDebounce);
-        searchDebounce = setTimeout(() => doSearch(mapSearchInput.value), 500);
-    });
-    mapSearchInput.addEventListener('keydown', e => {
-        if (e.key === 'Enter') { clearTimeout(searchDebounce); doSearch(mapSearchInput.value); }
-        if (e.key === 'Escape') closeResults();
-    });
-    mapSearchBtn.addEventListener('click', () => { clearTimeout(searchDebounce); doSearch(mapSearchInput.value); });
-
-    // Close results when clicking outside
-    document.addEventListener('click', e => {
-        if (!document.getElementById('mapSearchWrap').contains(e.target)) closeResults();
-    });
-
-    // Prevent map click from firing when clicking the search bar
-    L.DomEvent.disableClickPropagation(document.getElementById('mapSearchWrap'));
 
 })();
 

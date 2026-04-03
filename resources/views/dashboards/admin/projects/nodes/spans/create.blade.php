@@ -3,7 +3,7 @@
 @push('title')Spans — {{ $node->node_id }}@endpush
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="/assets/libs/leaflet/leaflet.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 :root{
@@ -651,7 +651,7 @@ tbody tr:last-child td{border-bottom:none;}
     'to_pole_id'   => is_array($s) ? $s['to_pole_id']   : $s->to_pole_id,
   ]);
 @endphp
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/assets/libs/leaflet/leaflet.js"></script>
 <script>
 /* ── Span Map Connector ───────────────────────────────────────────── */
 (function(){

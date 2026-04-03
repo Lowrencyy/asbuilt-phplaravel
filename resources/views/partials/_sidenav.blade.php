@@ -353,10 +353,52 @@
 
                     <li class="menu-title">Reports</li>
 
-                    <li class="menu-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
                         <a href="{{ route('reports.index') }}" class="menu-link">
                             <span class="menu-icon"><i class="mgc_file_check_line"></i></span>
                             <span class="menu-text">Daily Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.sequence-tracker') ? 'active' : '' }}">
+                        <a href="{{ route('reports.sequence-tracker') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_radar_line"></i></span>
+                            <span class="menu-text">Sequence Tracker</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.pole-reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.pole-reports.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_photo_album_line"></i></span>
+                            <span class="menu-text">Pole Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.rtd.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.rtd.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_file_export_line"></i></span>
+                            <span class="menu-text">RTD Report</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.live-map') ? 'active' : '' }}">
+                        <a href="{{ route('reports.live-map') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_map_line"></i></span>
+                            <span class="menu-text">Live Map</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('admin.declare-span.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.declare-span.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_link_line"></i></span>
+                            <span class="menu-text">Declare Span</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('admin.pole-planner.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pole-planner.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_calendar_line"></i></span>
+                            <span class="menu-text">Pole Planner</span>
                         </a>
                     </li>
 
@@ -419,10 +461,45 @@
 
                     <li class="menu-title">Reports</li>
 
-                    <li class="menu-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
                         <a href="{{ route('reports.index') }}" class="menu-link">
                             <span class="menu-icon"><i class="mgc_file_check_line"></i></span>
                             <span class="menu-text">Daily Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.sequence-tracker') ? 'active' : '' }}">
+                        <a href="{{ route('reports.sequence-tracker') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_radar_line"></i></span>
+                            <span class="menu-text">Sequence Tracker</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.pole-reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.pole-reports.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_photo_album_line"></i></span>
+                            <span class="menu-text">Pole Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.rtd.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.rtd.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_file_export_line"></i></span>
+                            <span class="menu-text">RTD Report</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.live-map') ? 'active' : '' }}">
+                        <a href="{{ route('reports.live-map') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_map_line"></i></span>
+                            <span class="menu-text">Live Map</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('admin.pole-planner.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pole-planner.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_calendar_line"></i></span>
+                            <span class="menu-text">Pole Planner</span>
                         </a>
                     </li>
 
@@ -511,10 +588,38 @@
 
                     <li class="menu-title">Reports</li>
 
-                    <li class="menu-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
                         <a href="{{ route('reports.index') }}" class="menu-link">
                             <span class="menu-icon"><i class="mgc_file_check_line"></i></span>
                             <span class="menu-text">Daily Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.sequence-tracker') ? 'active' : '' }}">
+                        <a href="{{ route('reports.sequence-tracker') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_radar_line"></i></span>
+                            <span class="menu-text">Sequence Tracker</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.pole-reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.pole-reports.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_photo_album_line"></i></span>
+                            <span class="menu-text">Pole Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.rtd.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.rtd.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_file_export_line"></i></span>
+                            <span class="menu-text">RTD Report</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.live-map') ? 'active' : '' }}">
+                        <a href="{{ route('reports.live-map') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_map_line"></i></span>
+                            <span class="menu-text">Live Map</span>
                         </a>
                     </li>
 
@@ -548,10 +653,52 @@
 
                     <li class="menu-title">Reports</li>
 
-                    <li class="menu-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
                         <a href="{{ route('reports.index') }}" class="menu-link">
                             <span class="menu-icon"><i class="mgc_file_check_line"></i></span>
                             <span class="menu-text">Daily Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.sequence-tracker') ? 'active' : '' }}">
+                        <a href="{{ route('reports.sequence-tracker') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_radar_line"></i></span>
+                            <span class="menu-text">Sequence Tracker</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.pole-reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.pole-reports.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_photo_album_line"></i></span>
+                            <span class="menu-text">Pole Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.rtd.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.rtd.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_file_export_line"></i></span>
+                            <span class="menu-text">RTD Report</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.live-map') ? 'active' : '' }}">
+                        <a href="{{ route('reports.live-map') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_map_line"></i></span>
+                            <span class="menu-text">Live Map</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('admin.declare-span.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.declare-span.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_link_line"></i></span>
+                            <span class="menu-text">Declare Span</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('admin.pole-planner.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.pole-planner.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_calendar_line"></i></span>
+                            <span class="menu-text">Pole Planner</span>
                         </a>
                     </li>
 
@@ -591,10 +738,38 @@
 
                     <li class="menu-title">Reports</li>
 
-                    <li class="menu-item {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+                    <li class="menu-item {{ request()->routeIs('reports.index') ? 'active' : '' }}">
                         <a href="{{ route('reports.index') }}" class="menu-link">
                             <span class="menu-icon"><i class="mgc_file_check_line"></i></span>
                             <span class="menu-text">Daily Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.sequence-tracker') ? 'active' : '' }}">
+                        <a href="{{ route('reports.sequence-tracker') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_radar_line"></i></span>
+                            <span class="menu-text">Sequence Tracker</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.pole-reports.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.pole-reports.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_photo_album_line"></i></span>
+                            <span class="menu-text">Pole Reports</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.rtd.*') ? 'active' : '' }}">
+                        <a href="{{ route('reports.rtd.index') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_file_export_line"></i></span>
+                            <span class="menu-text">RTD Report</span>
+                        </a>
+                    </li>
+
+                    <li class="menu-item {{ request()->routeIs('reports.live-map') ? 'active' : '' }}">
+                        <a href="{{ route('reports.live-map') }}" class="menu-link">
+                            <span class="menu-icon"><i class="mgc_map_line"></i></span>
+                            <span class="menu-text">Live Map</span>
                         </a>
                     </li>
 
@@ -648,6 +823,13 @@
                             <a href="{{ route('subcon.pm.index') }}" class="menu-link">
                                 <span class="menu-icon"><i class="mgc_document_line"></i></span>
                                 <span class="menu-text">Daily Reports</span>
+                            </a>
+                        </li>
+
+                        <li class="menu-item {{ request()->routeIs('admin.pole-planner.*') ? 'active' : '' }}">
+                            <a href="{{ route('admin.pole-planner.index') }}" class="menu-link">
+                                <span class="menu-icon"><i class="mgc_calendar_line"></i></span>
+                                <span class="menu-text">Pole Planner</span>
                             </a>
                         </li>
 

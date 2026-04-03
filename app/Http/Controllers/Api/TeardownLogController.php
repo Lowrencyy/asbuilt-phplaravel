@@ -13,17 +13,67 @@ class TeardownLogController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
-        $query = TeardownLog::with(['poleSpan.fromPole', 'poleSpan.toPole', 'images']);
+        $user  = $request->user();
+        $query = TeardownLog::with([
+            'poleSpan.fromPole',
+            'poleSpan.toPole',
+            'node',
+            'project',
+            'images',
+        ]);
+
+        // ── Role-based visibility ────────────────────────────────────────────
+        if ($user->role === 'subcon') {
+            if ($user->subcon_role === 'lineman') {
+                // Lineman: logs from their own team (by team name) OR
+                // any log under a node belonging to their subcontractor
+                // (covers older logs submitted before team field was populated)
+                $team            = $user->team_id ? \App\Models\Team::find($user->team_id) : null;
+                $subcontractorId = $user->subcontractor_id;
+
+                if (!$team && !$subcontractorId) {
+                    return response()->json([]);
+                }
+
+                $query->where(function ($q) use ($team, $subcontractorId) {
+                    if ($team) {
+                        $q->where('team', $team->team_name);
+                    }
+                    if ($subcontractorId) {
+                        $q->orWhereHas('node', fn ($nq) =>
+                            $nq->where('subcontractor_id', $subcontractorId)
+                        );
+                    }
+                });
+            } else {
+                // Subcon PM: all logs under their subcontractor's nodes
+                $subcontractorId = $user->subcontractor_id;
+
+                if (!$subcontractorId) {
+                    return response()->json([]);
+                }
+
+                $query->whereHas('node', function ($q) use ($subcontractorId) {
+                    $q->where('subcontractor_id', $subcontractorId);
+                });
+            }
+        }
+        // Admins / project_manager / other internal roles see everything
 
         if ($request->has('node_id')) {
             $query->where('node_id', $request->node_id);
+        }
+
+        // Filter by node_id string (node_code) — used by mobile node-logs screen
+        if ($request->filled('node_code')) {
+            $query->whereHas('node', fn ($q) => $q->where('node_id', $request->node_code));
         }
 
         if ($request->has('pole_span_id')) {
             $query->where('pole_span_id', $request->pole_span_id);
         }
 
-        return response()->json($query->get());
+        return response()->json($query->orderBy('created_at', 'desc')->get());
     }
 
     public function show(TeardownLog $teardownLog): JsonResponse
@@ -150,7 +200,7 @@ class TeardownLogController extends Controller
         $toDir   = "{$projectCode}/{$nodeId}/{$toCode}";
         $photoMap = [
             'from_before' => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_before.jpg",    'gps' => $fromGps, 'type' => 'BEFORE'],
-            'from_after'  => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_after.jpg",     'gps' => $fromGps, 'type' => 'AFTER'],
+            'from_after'  => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_to_{$toCode}_after.jpg", 'gps' => $fromGps, 'type' => 'AFTER'],
             'from_tag'    => ['pole_id' => $span->from_pole_id, 'dir' => $fromDir, 'filename' => "{$fromCode}_tag.jpg",       'gps' => $fromGps, 'type' => 'POLE TAG'],
             'to_before'   => ['pole_id' => $span->to_pole_id,   'dir' => $toDir,   'filename' => "{$toCode}_before.jpg",      'gps' => $toGps,   'type' => 'BEFORE'],
             'to_after'    => ['pole_id' => $span->to_pole_id,   'dir' => $toDir,   'filename' => "{$toCode}_after.jpg",       'gps' => $toGps,   'type' => 'AFTER'],

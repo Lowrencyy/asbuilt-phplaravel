@@ -1,7 +1,7 @@
 <x-layout>
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="/assets/libs/leaflet/leaflet.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 :root{
@@ -480,7 +480,7 @@ body{font-family:var(--ff);}
     <div id="lb-cap"></div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/assets/libs/leaflet/leaflet.js"></script>
 <script>
 // ── Accordion ──
 function toggleSpan(id) {

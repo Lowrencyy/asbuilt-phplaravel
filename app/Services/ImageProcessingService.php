@@ -67,38 +67,47 @@ class ImageProcessingService
 
         try {
             $dt = Carbon::parse($meta['captured_at'] ?? 'now')->setTimezone('Asia/Manila');
-            $dateStr = $dt->format('M d, Y  g:i A');
+            $dateStr = $dt->format('M d, Y  H:i:s');
         } catch (\Throwable) {
-            $dateStr = Carbon::now('Asia/Manila')->format('M d, Y  g:i A');
+            $dateStr = Carbon::now('Asia/Manila')->format('M d, Y  H:i:s');
         }
 
         $fromPole  = $meta['from_pole'] ?? null;
         $toPole    = $meta['to_pole']   ?? null;
         $poleType  = $meta['pole_type'] ?? null;
         $nodeCode  = $meta['node_code'] ?? null;
-        $location  = $meta['location_name'] ?? null;
 
-        // Reverse geocode if no location name
-        if (! $location && $lat && $lng) {
-            $location = $this->reverseGeocode($lat, $lng);
+        // Reverse geocode — split into street + city/province
+        $street      = null;
+        $cityProvince = $meta['location_name'] ?? null;
+
+        if ($lat && $lng) {
+            $geo         = $this->reverseGeocode($lat, $lng);
+            $street      = $geo['street'];
+            $cityProvince = $cityProvince ?? $geo['city_province'];
         }
 
+        // Pole type label mapping
+        $poleTypeMap = ['before' => 'BEFORE', 'after' => 'AFTER', 'poletag' => 'POLE TAG'];
+        $poleTypeLabel = $poleType ? ($poleTypeMap[strtolower($poleType)] ?? strtoupper($poleType)) : null;
+
         $spanStr = ($fromPole && $toPole)
-            ? strtoupper("{$fromPole} → {$toPole}" . ($poleType ? "  ({$poleType})" : ''))
+            ? strtoupper("{$fromPole} → {$toPole}") . ($poleTypeLabel ? "  ({$poleTypeLabel})" : '')
             : null;
 
-        $nodeStr = $nodeCode ? "Node: {$nodeCode}" : null;
+        $nodeStr = $nodeCode ? "Node ID:  {$nodeCode}" : null;
 
         // ── Layout sizes ─────────────────────────────────────────────────────
-        $fontSize = max(14, (int) ($W * 0.022));
-        $lineH    = (int) ($fontSize * 1.65);
-        $pad      = (int) ($fontSize * 1.1);
+        $fontSize = max(20, (int) ($W * 0.030));
+        $lineH    = (int) ($fontSize * 1.75);
+        $pad      = (int) ($fontSize * 1.2);
         $mapW     = (int) ($W * 0.36);
         $mapH     = (int) ($mapW * 0.65);
 
         $lines = array_values(array_filter([
             $dateStr,
-            $location,
+            $street,
+            $cityProvince,
             $coordStr,
             $spanStr,
             $nodeStr,
@@ -145,7 +154,7 @@ class ImageProcessingService
 
     protected function buildOsmThumbnail(float $lat, float $lng, int $mapW, int $mapH): mixed
     {
-        $zoom     = 16;
+        $zoom     = 17;
         $tileSize = 256;
         $n        = pow(2, $zoom);
 
@@ -197,13 +206,37 @@ class ImageProcessingService
         imagecopy($cropped, $canvas, 0, 0, $cropX, $cropY, $mapW, $mapH);
         imagedestroy($canvas);
 
-        // Draw red pin at center
-        $cx2  = (int) ($pixOffX - $cropX);
-        $cy2  = (int) ($pixOffY - $cropY);
-        $red   = imagecolorallocate($cropped, 220, 38, 38);
-        $white = imagecolorallocate($cropped, 255, 255, 255);
-        imagefilledellipse($cropped, $cx2, $cy2, 16, 16, $red);
-        imageellipse($cropped, $cx2, $cy2, 16, 16, $white);
+        // Draw teardrop location pin
+        $tipX  = (int) ($pixOffX - $cropX);
+        $tipY  = (int) ($pixOffY - $cropY);
+        $pinR  = max(10, (int) round($mapW * 0.07));   // radius scales with map size
+        $headY = $tipY - $pinR * 2 - (int) ($pinR * 0.4);  // circle center above the tip
+
+        $red    = imagecolorallocate($cropped, 220, 38, 38);
+        $white  = imagecolorallocate($cropped, 255, 255, 255);
+        $shadow = imagecolorallocatealpha($cropped, 0, 0, 0, 90);
+
+        // Drop shadow under circle head
+        imagefilledellipse($cropped, $tipX + 2, $headY + 2, $pinR * 2 + 4, $pinR * 2 + 4, $shadow);
+
+        // Pin tail (triangle: base at bottom of circle → tip point)
+        $tailBaseW = (int) ($pinR * 0.65);
+        $tailBaseY = $headY + (int) ($pinR * 0.7);
+        imagefilledpolygon($cropped, [
+            $tipX - $tailBaseW, $tailBaseY,
+            $tipX + $tailBaseW, $tailBaseY,
+            $tipX,              $tipY,
+        ], $red);
+
+        // Red filled circle head
+        imagefilledellipse($cropped, $tipX, $headY, $pinR * 2, $pinR * 2, $red);
+
+        // White border ring
+        imageellipse($cropped, $tipX, $headY, $pinR * 2 + 2, $pinR * 2 + 2, $white);
+
+        // White inner dot (hole effect)
+        $dotR = (int) ($pinR * 0.42);
+        imagefilledellipse($cropped, $tipX, $headY, $dotR * 2, $dotR * 2, $white);
 
         // Convert to PNG string and wrap as Intervention image
         ob_start();
@@ -214,7 +247,7 @@ class ImageProcessingService
         return $this->manager->read($png);
     }
 
-    protected function reverseGeocode(float $lat, float $lng): ?string
+    protected function reverseGeocode(float $lat, float $lng): array
     {
         try {
             $r = Http::timeout(5)
@@ -226,15 +259,24 @@ class ImageProcessingService
                 ]);
 
             if ($r->ok()) {
-                $addr     = $r->json()['address'] ?? [];
-                $city     = $addr['city'] ?? $addr['town'] ?? $addr['municipality'] ?? $addr['village'] ?? '';
+                $addr    = $r->json()['address'] ?? [];
+                $street  = $addr['road']
+                    ?? $addr['pedestrian']
+                    ?? $addr['footway']
+                    ?? $addr['street']
+                    ?? $addr['path']
+                    ?? $addr['neighbourhood']
+                    ?? null;
+                $city     = $addr['city'] ?? $addr['town'] ?? $addr['municipality'] ?? $addr['village'] ?? $addr['suburb'] ?? '';
                 $province = $addr['state'] ?? $addr['county'] ?? '';
-                return implode(', ', array_filter([$city, $province])) ?: null;
+                $cityProvince = implode(', ', array_filter([$city, $province])) ?: null;
+
+                return ['street' => $street, 'city_province' => $cityProvince];
             }
         } catch (\Throwable $e) {
             Log::warning('Reverse geocode failed: ' . $e->getMessage());
         }
 
-        return null;
+        return ['street' => null, 'city_province' => null];
     }
 }

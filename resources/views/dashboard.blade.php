@@ -1,7 +1,7 @@
 <x-layout>
 
 @push('styles')
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="/assets/libs/leaflet/leaflet.css"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 
@@ -70,6 +70,12 @@ body{
   display:flex;
   flex-direction:column;
   gap:1rem;
+}
+
+@media (max-width: 640px){
+  .db-wrap{
+    padding:1rem .85rem 2rem;
+  }
 }
 
 /* hero */
@@ -241,14 +247,53 @@ body{
   display:grid;
   grid-template-columns:350px minmax(0,1fr);
   gap:1rem;
-  align-items:start;
+  align-items:stretch;
 }
-@media(max-width:1200px){.db-main{grid-template-columns:1fr;}}
+@media(max-width:1200px){
+  .db-main{
+    grid-template-columns:1fr;
+  }
+}
 
 .left-col,.map-col{
   display:flex;
   flex-direction:column;
   gap:1rem;
+  min-height:0;
+}
+
+@media(min-width:1201px){
+  .db-main{
+    min-height:780px;
+  }
+
+  .left-col,
+  .map-col{
+    height:780px;
+  }
+
+  .project-panel{
+    flex:0 0 240px;
+    min-height:200px;
+  }
+
+  .alerts-panel{
+    flex:1 1 auto;
+    min-height:0;
+  }
+
+  .map-wrap{
+    height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+}
+
+@media(max-width:1200px){
+  .left-col,
+  .map-col{
+    height:auto;
+  }
 }
 
 /* shared panel */
@@ -292,15 +337,15 @@ body{
 
 /* project list */
 .proj-list{
-  max-height:320px;
+  max-height:200px;
   overflow-y:auto;
 }
 
 .proj-row{
   display:flex;
   align-items:center;
-  gap:.75rem;
-  padding:.8rem 1rem;
+  gap:.6rem;
+  padding:.45rem .85rem;
   border-bottom:1px solid var(--line);
   cursor:pointer;
   transition:background .14s ease;
@@ -324,7 +369,7 @@ body{
 }
 
 .proj-name{
-  font-size:.8rem;
+  font-size:.76rem;
   font-weight:800;
   color:var(--txt);
   white-space:nowrap;
@@ -333,8 +378,8 @@ body{
 }
 
 .proj-sub{
-  margin-top:.18rem;
-  font-size:.67rem;
+  margin-top:.1rem;
+  font-size:.63rem;
   color:var(--txt3);
   font-family:var(--fm);
 }
@@ -359,9 +404,23 @@ body{
 .chip-tot{background:var(--blue-soft);color:var(--blue);border:1px solid rgba(37,99,235,.10);}
 
 /* alerts */
+.alerts-panel{
+  display:flex;
+  flex-direction:column;
+  min-height:0;
+}
+
 .alerts-list{
-  max-height:280px;
+  flex:1 1 auto;
+  min-height:0;
+  max-height:none;
   overflow-y:auto;
+}
+
+@media(max-width:1200px){
+  .alerts-list{
+    max-height:420px;
+  }
 }
 
 .alert-row{
@@ -429,12 +488,14 @@ body{
 /* map */
 .map-wrap{
   overflow:hidden;
+  min-height:0;
 }
 
 .map-hd{
   display:flex;
   align-items:center;
   gap:.55rem;
+  flex-wrap:wrap;
 }
 
 .map-meta{
@@ -459,6 +520,35 @@ body{
   min-height:560px;
   width:100%;
   background:#edf3f9;
+}
+
+@media(min-width:1201px){
+  #mainMap{
+    flex:1 1 auto;
+    min-height:0;
+    height:auto;
+  }
+}
+
+@media(max-width:1200px){
+  #mainMap{
+    height:500px;
+    min-height:500px;
+  }
+}
+
+@media(max-width:768px){
+  #mainMap{
+    height:420px;
+    min-height:420px;
+  }
+}
+
+@media(max-width:480px){
+  #mainMap{
+    height:340px;
+    min-height:340px;
+  }
 }
 
 .leaflet-container{
@@ -514,6 +604,15 @@ body{
   flex:1;
 }
 
+@media(max-width:700px){
+  .node-search{
+    margin-left:0;
+    min-width:100%;
+    max-width:none;
+    width:100%;
+  }
+}
+
 .node-search input{
   width:100%;
   border:1px solid var(--line-2);
@@ -528,7 +627,14 @@ body{
 .node-search input::placeholder{color:var(--txt3);}
 
 .nl-wrap{
-  overflow-x:auto;
+  overflow:auto;
+  max-height:560px;
+}
+
+@media(max-width:768px){
+  .nl-wrap{
+    max-height:460px;
+  }
 }
 
 .nl-table{
@@ -717,7 +823,7 @@ body{
         {{-- LEFT --}}
         <div class="left-col">
 
-            <div class="panel">
+            <div class="panel project-panel">
                 <div class="panel-hd">
                     <i class="mgc_folder_line" style="color:var(--blue);font-size:1rem;"></i>
                     <span class="panel-title">Project Summary</span>
@@ -755,7 +861,7 @@ body{
                 </div>
             </div>
 
-            <div class="panel">
+            <div class="panel alerts-panel">
                 <div class="panel-hd">
                     <i class="mgc_alert_line" style="color:var(--amber);font-size:1rem;"></i>
                     <span class="panel-title">Live Alerts</span>
@@ -813,7 +919,13 @@ body{
                         <a class="alert-row" href="{{ route('reports.teardown-log.show', $alert->id) }}">
                             <div class="alert-dot"></div>
                             <div class="alert-body">
-                                <div class="alert-span">{{ $alert->poleSpan?->pole_span_code ?? 'Span #'.$alert->id }}</div>
+                                <div class="alert-span">
+                                    @if($alert->poleSpan?->fromPole?->pole_code && $alert->poleSpan?->toPole?->pole_code)
+                                        {{ $alert->poleSpan->fromPole->pole_code }} &rarr; {{ $alert->poleSpan->toPole->pole_code }}
+                                    @else
+                                        {{ $alert->poleSpan?->pole_span_code ?? ('Span #'.$alert->id) }}
+                                    @endif
+                                </div>
                                 <div class="alert-node">
                                     {{ $alert->node?->node_id ?? '' }}
                                     @if($alert->node?->node_name) — {{ $alert->node->node_name }}@endif
@@ -935,7 +1047,7 @@ body{
 
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/assets/libs/leaflet/leaflet.js"></script>
 <script>
 (function(){
     const nodeData = @json($nodes);
@@ -1086,6 +1198,12 @@ body{
             });
         });
     }
+
+    window.addEventListener('resize', () => {
+        setTimeout(() => map.invalidateSize(), 180);
+    });
+
+    setTimeout(() => map.invalidateSize(), 300);
 })();
 </script>
 
@@ -1196,7 +1314,7 @@ body{
         <div id="lm-to-photos" style="display:grid;grid-template-columns:1fr 1fr;gap:.65rem;"></div>
       </div>
 
-    </div>{{-- end scrollable --}}
+    </div>
   </div>
 </div>
 
@@ -1244,6 +1362,18 @@ body{
     aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;
     color:#c0c8d4;font-size:1.4rem;background:#f3f5f7;
 }
+
+@media(max-width:640px){
+  #log-modal{
+    max-width:100% !important;
+    border-radius:20px !important;
+  }
+
+  #lm-pane-highlights .lm-comp,
+  #lm-pane-highlights .lm-photo-card{
+    min-width:0;
+  }
+}
 </style>
 
 <script>
@@ -1287,26 +1417,21 @@ function lmZoom(src) {
 function openLogModal(el) {
     const d = JSON.parse(el.dataset.log);
 
-    // Reset tab to highlights
     lmSwitchTab('highlights');
 
-    // Badges
     const nodeCode = [d.node_id, d.node_name].filter(Boolean).join(' — ');
     document.getElementById('lm-node-badge').textContent = nodeCode || 'Unknown Node';
     document.getElementById('lm-status-badge').textContent = (d.status || 'submitted').toUpperCase().replace(/_/g,' ');
     document.getElementById('lm-offline-badge').style.display = d.offline ? 'inline-flex' : 'none';
 
-    // Span title
     const fromTo = (d.from_pole && d.to_pole) ? d.from_pole + ' → ' + d.to_pole : '';
     document.getElementById('lm-span').textContent = fromTo || d.span || '—';
     const loc = [d.node_id, d.city].filter(Boolean).join(' • ');
     document.getElementById('lm-location').textContent = loc + (d.span_length ? '  ·  ' + d.span_length.toFixed(0) + ' m span' : '');
 
-    // Tab labels
     document.getElementById('lm-tab-from').textContent = d.from_pole || 'From Pole';
     document.getElementById('lm-tab-to').textContent   = d.to_pole   || 'To Pole';
 
-    // Cable
     const col = d.cable || 0, exp = d.cable_expected || 0;
     document.getElementById('lm-cable-col').textContent = col.toFixed(2) + ' m';
     document.getElementById('lm-cable-exp').textContent = exp.toFixed(2) + ' m';
@@ -1327,7 +1452,6 @@ function openLogModal(el) {
         unrDiv.textContent = '⚠ Unrecovered: ' + d.unrecovered.toFixed(2) + ' m' + (d.unrecovered_reason ? ' — ' + d.unrecovered_reason : '');
     } else { unrDiv.style.display = 'none'; }
 
-    // Components
     function compHTML(label, col, exp) {
         const ok = col >= exp;
         return `<div class="lm-comp-label">${label}</div>
@@ -1344,19 +1468,16 @@ function openLogModal(el) {
         el2.className = 'lm-comp ' + (c >= e ? 'ok' : 'warn');
     });
 
-    // Meta
     const meta = document.getElementById('lm-meta');
     meta.innerHTML = '';
     if (d.team)         meta.innerHTML += `<span class="lm-meta-chip"><i class="mgc_group_line"></i>${d.team}</span>`;
     if (d.submitted_by) meta.innerHTML += `<span class="lm-meta-chip"><i class="mgc_user_3_line"></i>${d.submitted_by}</span>`;
     if (d.started_at)   meta.innerHTML += `<span class="lm-meta-chip"><i class="mgc_time_line"></i>${fmtTime(d.started_at)} → ${d.finished_at ? fmtTime(d.finished_at) : '—'}</span>`;
 
-    // Photo tabs
     const photos = d.photos || {};
     lmPhotoGrid('lm-from-photos', photos);
     lmPhotoGrid('lm-to-photos',   photos);
 
-    // Report link
     const linkWrap = document.getElementById('lm-report-link-wrap');
     const linkEl   = document.getElementById('lm-report-link');
     if (d.report_url) {
@@ -1382,5 +1503,6 @@ function fmtTime(dt) {
 document.addEventListener('keydown', e => {
     if (e.key === 'Escape') document.getElementById('log-modal-overlay').style.display = 'none';
 });
+</script>
 
 </x-layout>

@@ -402,4 +402,140 @@ class DailyReportController extends Controller
             'server_now' => now()->toDateTimeString(),
         ]);
     }
+
+    /** Sequence Tracker — page view. */
+    public function sequenceTracker()
+    {
+        return view('reports.sequence-tracker');
+    }
+
+    /** Sequence Tracker — list of all nodes with teardown progress summary. */
+    public function sequenceNodes()
+    {
+        // Single aggregated query instead of N+1 per-node poles fetch
+        $poleCounts = \Illuminate\Support\Facades\DB::table('poles')
+            ->select('node_id', 'status', \Illuminate\Support\Facades\DB::raw('count(*) as cnt'))
+            ->groupBy('node_id', 'status')
+            ->get()
+            ->groupBy('node_id');
+
+        $nodes = \App\Models\Node::with(['project:id,project_name'])
+            ->withCount('spans')
+            ->get()
+            ->map(function ($node) use ($poleCounts) {
+                $rows      = $poleCounts->get($node->id, collect());
+                $total     = (int) $rows->sum('cnt');
+                $completed = (int)($rows->firstWhere('status', 'completed')?->cnt ?? 0);
+                $pending   = (int) $rows->whereIn('status', ['active', 'pending'])->sum('cnt');
+
+                return [
+                    'id'          => $node->id,
+                    'node_id'     => $node->node_id,
+                    'node_name'   => $node->node_name,
+                    'city'        => $node->city,
+                    'province'    => $node->province,
+                    'project'     => $node->project?->project_name,
+                    'total_poles' => $total,
+                    'completed'   => $completed,
+                    'pending'     => $pending,
+                    'not_started' => max(0, $total - $completed - $pending),
+                    'spans_count' => $node->spans_count,
+                    'pct'         => $total > 0 ? round(($completed / $total) * 100) : 0,
+                    'status'      => $node->status,
+                ];
+            })
+            ->sortByDesc('pct')
+            ->values();
+
+        return response()->json($nodes);
+    }
+
+    /** Sequence Tracker — poles + spans map data for a single node. */
+    public function sequenceNodeMap(\App\Models\Node $node)
+    {
+        $polesRaw = $node->poles()
+            ->get(['id','pole_code','pole_name','status','completed_at','map_latitude','map_longitude']);
+
+        $spans = $node->spans()
+            ->with(['fromPole:id,pole_code,pole_name,map_latitude,map_longitude',
+                    'toPole:id,pole_code,pole_name,map_latitude,map_longitude',
+                    'teardownLogs:id,pole_span_id,collected_cable,collected_node,collected_amplifier,collected_extender,collected_tsc,status,submitted_by,finished_at'])
+            ->get()
+            ->map(function ($s) {
+                $log = $s->teardownLogs->sortByDesc('finished_at')->first();
+                $spanStatus = 'not_started';
+                if ($s->completed_at) $spanStatus = 'completed';
+                elseif ($s->teardownLogs->isNotEmpty()) $spanStatus = 'pending';
+
+                return [
+                    'id'            => $s->id,
+                    'code'          => $s->pole_span_code ?? ('SP-'.$s->id),
+                    'from_pole_id'  => $s->from_pole_id,
+                    'to_pole_id'    => $s->to_pole_id,
+                    'from_lat'      => (float)($s->fromPole?->map_latitude  ?? 0),
+                    'from_lng'      => (float)($s->fromPole?->map_longitude ?? 0),
+                    'to_lat'        => (float)($s->toPole?->map_latitude    ?? 0),
+                    'to_lng'        => (float)($s->toPole?->map_longitude   ?? 0),
+                    'len'           => (float)$s->length_meters,
+                    'status'        => $spanStatus,
+                    'completed_at'  => $s->completed_at?->format('M d, Y g:i A'),
+                    'finished_at_raw' => $log?->finished_at?->toIso8601String(),
+                    'submitted_by'  => $log?->submitted_by,
+                    'collected'     => (float)($log?->collected_cable ?? 0),
+                    'col_node'      => (int)($log?->collected_node ?? 0),
+                    'col_amp'       => (int)($log?->collected_amplifier ?? 0),
+                    'col_ext'       => (int)($log?->collected_extender ?? 0),
+                    'col_tsc'       => (int)($log?->collected_tsc ?? 0),
+                    'exp_node'      => (int)($s->expected_node ?? 0),
+                    'exp_amp'       => (int)($s->expected_amplifier ?? 0),
+                    'exp_ext'       => (int)($s->expected_extender ?? 0),
+                    'exp_tsc'       => (int)($s->expected_tsc ?? 0),
+                ];
+            });
+
+        // Assign sequence numbers per-pole:
+        // Completed spans sorted by finished_at → span #1: from_pole=1, to_pole=2; span #2: from_pole=3, to_pole=4 …
+        $poleSeq = [];  // pole_id => sequence number
+        $counter = 1;
+        $spans->sortBy(fn($s) => $s['finished_at_raw'] ?? 'zzz')->values()
+            ->each(function ($s) use (&$poleSeq, &$counter) {
+                if ($s['status'] !== 'completed' || !$s['finished_at_raw']) return;
+                if ($s['from_pole_id'] && !isset($poleSeq[$s['from_pole_id']])) {
+                    $poleSeq[$s['from_pole_id']] = $counter++;
+                }
+                if ($s['to_pole_id'] && !isset($poleSeq[$s['to_pole_id']])) {
+                    $poleSeq[$s['to_pole_id']] = $counter++;
+                }
+            });
+
+        $spans = $spans->sortBy(fn($s) => $poleSeq[$s['from_pole_id']] ?? 9999)->values()
+            ->map(function ($s) {
+                $s['seq'] = null;
+                return $s;
+            });
+
+        // Build poles array now that poleSeq is ready
+        $poles = $polesRaw->map(fn($p) => [
+            'id'           => $p->id,
+            'code'         => $p->pole_name ?: $p->pole_code,
+            'raw_code'     => $p->pole_code,
+            'status'       => $p->status ?? 'not_started',
+            'completed_at' => $p->completed_at?->format('M d, Y g:i A'),
+            'lat'          => (float)($p->map_latitude  ?? 0),
+            'lng'          => (float)($p->map_longitude ?? 0),
+            'seq'          => $poleSeq[$p->id] ?? null,
+        ]);
+
+        return response()->json([
+            'node'  => [
+                'id'       => $node->id,
+                'node_id'  => $node->node_id,
+                'name'     => $node->node_name,
+                'city'     => $node->city,
+                'province' => $node->province,
+            ],
+            'poles' => $poles->values(),
+            'spans' => $spans->values(),
+        ]);
+    }
 }

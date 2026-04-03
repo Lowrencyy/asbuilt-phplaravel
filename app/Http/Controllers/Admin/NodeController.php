@@ -13,9 +13,14 @@ class NodeController extends Controller
 {
     public function index(Project $project)
     {
-        $nodes = $project->nodes()->with('subcontractor')->get()->map(fn ($n) => $this->transform($n));
+        $nodes = $project->nodes()
+            ->with('subcontractor')
+            ->withCount(['poleSpans', 'poleSpans as completed_spans_count' => fn ($q) => $q->where('status', 'completed')])
+            ->get()
+            ->map(fn ($n) => $this->transform($n));
         $subcontractors = Subcontractor::orderBy('name')->get();
-        $teams = Team::orderBy('team_name')->get();
+        // Teams grouped by subcontractor_id so the view can filter by selected subcon
+        $teams = Team::orderBy('team_name')->get()->groupBy('subcon_id');
         $sites = Node::whereNotNull('sites')->distinct()->orderBy('sites')->pluck('sites');
 
         return view('dashboards.admin.projects.nodes.addnodes', compact('project', 'nodes', 'subcontractors', 'teams', 'sites'));
@@ -67,7 +72,7 @@ class NodeController extends Controller
             'amplifier'            => $data['amp_count'] ?? 0,
         ]);
 
-        return response()->json(['success' => true, 'node' => $this->transform($node->load('subcontractor'))]);
+        return response()->json(['success' => true, 'node' => $this->transform($this->withSpanCounts($node))]);
     }
 
     public function update(Request $request, Project $project, Node $node)
@@ -116,7 +121,7 @@ class NodeController extends Controller
             'amplifier'            => $data['amp_count'] ?? 0,
         ]);
 
-        return response()->json(['success' => true, 'node' => $this->transform($node->fresh()->load('subcontractor'))]);
+        return response()->json(['success' => true, 'node' => $this->transform($this->withSpanCounts($node->fresh()))]);
     }
 
     public function destroy(Project $project, Node $node)
@@ -124,6 +129,14 @@ class NodeController extends Controller
         $node->delete();
 
         return response()->json(['success' => true]);
+    }
+
+    private function withSpanCounts(Node $n): Node
+    {
+        return Node::where('id', $n->id)
+            ->with('subcontractor')
+            ->withCount(['poleSpans', 'poleSpans as completed_spans_count' => fn ($q) => $q->where('status', 'completed')])
+            ->first();
     }
 
     private function transform(Node $n): array
@@ -150,7 +163,9 @@ class NodeController extends Controller
             'tsc_count'         => (int) $n->tsc,
             'node_device_count' => (int) $n->node_count,
             'amp_count'         => (int) $n->amplifier,
-            'progress'          => (float) $n->progress_percentage,
+            'progress'          => $n->pole_spans_count > 0
+                                    ? round(($n->completed_spans_count / $n->pole_spans_count) * 100, 1)
+                                    : (float) $n->progress_percentage,
         ];
     }
 }

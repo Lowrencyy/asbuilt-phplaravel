@@ -13,6 +13,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 
+// ── Helper Chatbot ────────────────────────────────────────────────────────────
+Route::middleware(['auth', 'verified'])
+    ->post('/helper/chat', [\App\Http\Controllers\HelperChatController::class, 'chat'])
+    ->name('helper.chat');
+
 // ── Authenticated routes ──────────────────────────────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
 
@@ -34,6 +39,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/new-submissions-count',                   [DailyReportController::class, 'newSubmissionsCount'])->name('new-submissions-count');
         Route::get('/teardown-logs',                           [DailyReportController::class, 'teardownLogs'])->name('teardown-logs.index');
         Route::get('/teardown-logs/{teardownLog}',             [DailyReportController::class, 'showLog'])->name('teardown-log.show');
+        Route::get('/lineman-locations',                       [\App\Http\Controllers\LinemanLocationWebController::class, 'index'])->name('lineman-locations');
+        Route::get('/sequence-tracker',                        [DailyReportController::class, 'sequenceTracker'])->name('sequence-tracker');
+        Route::get('/sequence-nodes',                          [DailyReportController::class, 'sequenceNodes'])->name('sequence-nodes');
+        Route::get('/sequence-nodes/{node}',                   [DailyReportController::class, 'sequenceNodeMap'])->name('sequence-node-map');
+        Route::get('/rtd',                                         [\App\Http\Controllers\RtdReportController::class, 'index'])->name('rtd.index');
+        Route::get('/rtd/{node}/excel',                            [\App\Http\Controllers\RtdReportController::class, 'exportExcel'])->name('rtd.excel');
+        Route::get('/rtd/{node}',                                  [\App\Http\Controllers\RtdReportController::class, 'show'])->name('rtd.show');
+        Route::get('/pole-reports',                            [\App\Http\Controllers\PoleReportController::class, 'index'])->name('pole-reports.index');
+        Route::get('/pole-reports/{node}/word',                [\App\Http\Controllers\PoleReportController::class, 'exportWord'])->name('pole-reports.word');
+        Route::get('/pole-reports/{node}/pdf',                 [\App\Http\Controllers\PoleReportController::class, 'exportPdf'])->name('pole-reports.pdf');
+        Route::get('/pole-reports/{node}',                     [\App\Http\Controllers\PoleReportController::class, 'show'])->name('pole-reports.show');
+        Route::get('/live-map',                                fn () => view('live-map'))->name('live-map');
         Route::get('/{submission}',                            [DailyReportController::class, 'show'])->name('show');
         Route::post('/{submission}/approve',                   [DailyReportController::class, 'approve'])->name('approve');
         Route::post('/{submission}/reject',                    [DailyReportController::class, 'reject'])->name('reject');
@@ -91,6 +108,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware('admin')->prefix('admin')->name('admin.')->group(function () {
 
     
+
+      Route::get('/declare-span',    [\App\Http\Controllers\Admin\SpanController::class, 'nodeList'])->name('declare-span.index');
+      Route::get('/pole-planner',    [\App\Http\Controllers\PolePlannerController::class, 'index'])->name('pole-planner.index');
+      Route::get('/pole-planner/{node}', [\App\Http\Controllers\PolePlannerController::class, 'show'])->name('pole-planner.show');
+      Route::post('/pole-planner/{node}/save', [\App\Http\Controllers\PolePlannerController::class, 'save'])->name('pole-planner.save');
+      Route::delete('/pole-planner/{node}/clear', [\App\Http\Controllers\PolePlannerController::class, 'clear'])->name('pole-planner.clear');
 
       Route::prefix('projects/{project}/nodes/{node}/spans')->name('projects.nodes.spans.')->group(function () {
         Route::get('/create',      [SpanController::class, 'create'])->name('create');

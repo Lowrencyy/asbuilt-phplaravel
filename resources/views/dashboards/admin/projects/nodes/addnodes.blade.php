@@ -322,9 +322,6 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
           <label class="lbl" for="fTeam">Assigned Team</label>
           <select id="fTeam" class="inp">
             <option value="">— No Team —</option>
-            @foreach($teams as $team)
-              <option value="{{ $team->team_name }}">{{ $team->team_name }}</option>
-            @endforeach
           </select>
         </div>
         <div>
@@ -436,6 +433,7 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
 <script>
 (function(){
   const NODES     = @json($nodes);
+  const TEAMS_BY_SUBCON = @json($teams);   // { subcon_id: [{id, team_name, ...}, ...] }
   const STORE_URL = "{{ auth()->user()->role === 'admin' ? route('admin.projects.nodes.store', $project) : route('pm.projects.nodes.store', $project) }}";
   const BASE_URL  = "{{ auth()->user()->role === 'admin' ? url('admin/projects/' . $project->id . '/nodes') : url('pm/projects/' . $project->id . '/nodes') }}";
   const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
@@ -443,6 +441,19 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
   let rows = JSON.parse(JSON.stringify(NODES));
   let pendingDelId = null;
   const $ = id => document.getElementById(id);
+
+  function populateTeams(subconId, selectedTeam) {
+    const sel = $('fTeam');
+    const teams = subconId ? (TEAMS_BY_SUBCON[subconId] || []) : [];
+    sel.innerHTML = '<option value="">— No Team —</option>';
+    teams.forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.team_name;
+      opt.textContent = t.team_name;
+      if (selectedTeam && t.team_name === selectedTeam) opt.selected = true;
+      sel.appendChild(opt);
+    });
+  }
 
   function toast(msg, type='ok'){
     const w=$('toastWrap');
@@ -544,7 +555,18 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     $('modalTitle').textContent='Add Node ID';$('saveLbl').textContent='Save Node';
     $('fPfill').style.width='0%';$('fPpct').textContent='0%';
     $('fNodeId').classList.remove('inp-e');
+    populateTeams('', '');   // clear team list when no subcon selected
   }
+
+  // Filter teams whenever subcon changes
+  document.addEventListener('DOMContentLoaded', function(){
+    const subconSel = $('fSubcon2');
+    if(subconSel){
+      subconSel.addEventListener('change', function(){
+        populateTeams(this.value, '');
+      });
+    }
+  });
   function loadEdit(id){
     const n=rows.find(x=>x.id==id); if(!n) return;
     resetForm();
@@ -556,7 +578,7 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
     $('fRegion2').value=n.region||'';
     $('fCity').value=n.city||'';
     $('fSubcon2').value=n.subcon_id||'';
-    $('fTeam').value=n.team||'';
+    populateTeams(n.subcon_id, n.team||'');
     $('fStatus').value=n.status||'ON GOING IMPLEMENTATION';
     $('fApprovedBy').value=n.approved_by||'';
     $('fDueDate').value=(n.due_date||'').slice(0,10);

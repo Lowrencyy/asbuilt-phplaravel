@@ -13,16 +13,16 @@ class ProjectController extends Controller
     {
         $user = $request->user();
 
-        if ($user->role === 'subcon' && $user->subcontractor_id) {
-            $projects = Project::whereHas('nodes', function ($q) use ($user) {
-                $q->where('subcontractor_id', $user->subcontractor_id);
-            })->get();
+        if ($user->role === 'subcon') {
+            $team = $user->team_id ? \App\Models\Team::find($user->team_id) : null;
 
-            // If no projects matched (nodes not yet assigned to this subcon),
-            // fall back to all projects so the app isn't blank
-            if ($projects->isEmpty()) {
-                $projects = Project::all();
+            if (!$team) {
+                return response()->json([]);
             }
+
+            $projects = Project::whereHas('nodes', function ($q) use ($team) {
+                $q->where('team', $team->team_name);
+            })->get();
 
             return response()->json($projects);
         }

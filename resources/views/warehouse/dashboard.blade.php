@@ -219,8 +219,8 @@ body{font-family:var(--ff);}
 
 {{-- Leaflet map --}}
 @if($activeDeliveries->count())
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="/assets/libs/leaflet/leaflet.css"/>
+    <script src="/assets/libs/leaflet/leaflet.js"></script>
     @php
         $dashMapData = $activeDeliveries->map(function($d) {
             return [

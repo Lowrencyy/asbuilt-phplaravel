@@ -50,6 +50,11 @@ class NodeController extends Controller
                 $node->poles_bounds = null;
             }
 
+            $node->poles_progress = [
+                'total'     => $node->poles->count(),
+                'completed' => $node->poles->where('status', 'completed')->count(),
+            ];
+
             unset($node->poles); // don't bloat the response
         });
 

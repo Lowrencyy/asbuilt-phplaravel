@@ -75,9 +75,19 @@ class PoleController extends Controller
 
     public function spans(Pole $pole): JsonResponse
     {
-        $outgoing = $pole->outgoingSpans()->with(['fromPole', 'toPole'])->get();
+        // Outgoing: skip spans that have already been torn down (span status = completed)
+        $outgoing = $pole->outgoingSpans()
+            ->with(['fromPole', 'toPole'])
+            ->where('status', '!=', 'completed')
+            ->get();
 
-        return response()->json($outgoing->values());
+        // Incoming: skip spans that have already been torn down (span status = completed)
+        $incoming = $pole->incomingSpans()
+            ->with(['fromPole', 'toPole'])
+            ->where('status', '!=', 'completed')
+            ->get();
+
+        return response()->json($outgoing->merge($incoming)->unique('id')->values());
     }
 
     public function completeTeardown(Request $request, Pole $pole): JsonResponse

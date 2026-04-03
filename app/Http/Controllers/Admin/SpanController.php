@@ -10,6 +10,29 @@ use Illuminate\Http\Request;
 
 class SpanController extends Controller
 {
+    public function nodeList()
+    {
+        $nodes = Node::with('project:id,project_name')
+            ->withCount(['poles', 'spans'])
+            ->orderBy('node_id')
+            ->get()
+            ->map(fn($n) => [
+                'id'          => $n->id,
+                'node_id'     => $n->node_id,
+                'node_name'   => $n->node_name,
+                'city'        => $n->city,
+                'province'    => $n->province,
+                'project'     => $n->project?->project_name,
+                'project_id'  => $n->project_id,
+                'poles_count' => $n->poles_count,
+                'spans_count' => $n->spans_count,
+                'status'      => $n->status,
+            ])
+            ->values();
+
+        return view('dashboards.admin.projects.nodes.spans.node-list', compact('nodes'));
+    }
+
     public function create(Project $project, Node $node)
     {
         $poles = $node->poles()->orderBy('pole_code')->get();

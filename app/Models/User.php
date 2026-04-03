@@ -64,6 +64,17 @@ class User extends Authenticatable
         return $this->belongsTo(\App\Models\Subcontractor::class);
     }
 
+    /** Alias used by live location map */
+    public function subcon(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Subcontractor::class, 'subcontractor_id');
+    }
+
+    public function team(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Team::class);
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

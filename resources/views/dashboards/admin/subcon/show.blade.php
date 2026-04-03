@@ -3,9 +3,6 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-/* ================================
-   KONRIX / SUBCON SHOW - REFINED
-================================ */
 :root {
   --ff: 'Outfit', sans-serif;
   --fm: 'IBM Plex Mono', monospace;
@@ -88,7 +85,6 @@ body.dark {
   --shadow-lg: 0 30px 90px rgba(0,0,0,.42);
 }
 
-/* Base */
 *,
 *::before,
 *::after { box-sizing: border-box; }
@@ -102,15 +98,9 @@ body {
   color: var(--text);
 }
 
-.page-content {
-  background: transparent;
-}
+.page-content { background: transparent; }
+.col-span-full { padding: 8px; }
 
-.col-span-full {
-  padding: 8px;
-}
-
-/* Layout */
 .sc-shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) minmax(0,1fr);
@@ -119,9 +109,7 @@ body {
 }
 
 @media (max-width: 1080px) {
-  .sc-shell {
-    grid-template-columns: 1fr;
-  }
+  .sc-shell { grid-template-columns: 1fr; }
 }
 
 .sc-sidebar {
@@ -139,7 +127,6 @@ body {
   min-width: 0;
 }
 
-/* Shared glass card */
 .sc-glass {
   background: var(--card);
   border: 1px solid var(--line);
@@ -148,7 +135,6 @@ body {
   -webkit-backdrop-filter: blur(14px);
 }
 
-/* Sidebar brand card */
 .sc-brand {
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -163,9 +149,7 @@ body {
     linear-gradient(135deg, var(--blue) 0%, #4f46e5 45%, var(--violet) 100%);
 }
 
-.sc-brand-body {
-  padding: 0 20px 20px;
-}
+.sc-brand-body { padding: 0 20px 20px; }
 
 .sc-logo-wrap {
   margin-top: -34px;
@@ -265,9 +249,7 @@ body.dark .sc-logo {
   border-bottom: 1px solid var(--line);
 }
 
-.sc-side-row:last-child {
-  border-bottom: none;
-}
+.sc-side-row:last-child { border-bottom: none; }
 
 .sc-side-icon {
   width: 30px;
@@ -309,7 +291,6 @@ body.dark .sc-logo {
   font-style: italic;
 }
 
-/* Top bar */
 .sc-topbar {
   display: flex;
   justify-content: space-between;
@@ -341,9 +322,7 @@ body.dark .sc-logo {
   color: var(--blue);
 }
 
-.sc-breadcrumb a:hover {
-  color: var(--violet);
-}
+.sc-breadcrumb a:hover { color: var(--violet); }
 
 .sc-hero {
   display: flex;
@@ -377,9 +356,7 @@ body.dark .sc-logo {
 }
 
 @media (max-width: 900px) {
-  .sc-stats {
-    grid-template-columns: repeat(2, minmax(0,1fr));
-  }
+  .sc-stats { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
 .sc-stat {
@@ -413,7 +390,6 @@ body.dark .sc-logo {
   font-family: var(--fm);
 }
 
-/* Section card */
 .sc-card {
   border-radius: var(--radius-xl);
   overflow: hidden;
@@ -460,7 +436,6 @@ body.dark .sc-logo {
   color: var(--violet);
 }
 
-/* Buttons */
 .sc-btn {
   appearance: none;
   border: none;
@@ -478,9 +453,7 @@ body.dark .sc-logo {
   white-space: nowrap;
 }
 
-.sc-btn:hover {
-  transform: translateY(-1px);
-}
+.sc-btn:hover { transform: translateY(-1px); }
 
 .sc-btn:disabled {
   opacity: .65;
@@ -506,9 +479,7 @@ body.dark .sc-logo {
   border: 1px solid var(--line-2);
 }
 
-.sc-btn-ghost:hover {
-  color: var(--text);
-}
+.sc-btn-ghost:hover { color: var(--text); }
 
 .sc-btn-danger {
   color: #fff;
@@ -516,14 +487,11 @@ body.dark .sc-logo {
   box-shadow: 0 12px 28px rgba(225,29,72,.18);
 }
 
-/* Members */
-.sc-members-wrap {
-  padding: 10px 14px 14px;
-}
+.sc-members-wrap { padding: 10px 14px 14px; }
 
 .sc-member-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.2fr) 160px 120px 54px;
+  grid-template-columns: minmax(0, 1.2fr) 160px 170px 54px 54px;
   align-items: center;
   gap: 10px;
   padding: 14px 12px;
@@ -532,19 +500,12 @@ body.dark .sc-logo {
   transition: background .16s ease, transform .16s ease;
 }
 
-.sc-member-row:hover {
-  background: rgba(37,99,235,.04);
-}
+.sc-member-row:hover { background: rgba(37,99,235,.04); }
 
-.sc-member-row:last-child {
-  border-bottom: none;
-}
+.sc-member-row:last-child { border-bottom: none; }
 
-@media (max-width: 820px) {
-  .sc-member-row {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
+@media (max-width: 920px) {
+  .sc-member-row { grid-template-columns: 1fr; gap: 8px; }
 }
 
 .sc-person {
@@ -569,9 +530,7 @@ body.dark .sc-logo {
   box-shadow: 0 10px 22px rgba(37,99,235,.18);
 }
 
-.sc-person-copy {
-  min-width: 0;
-}
+.sc-person-copy { min-width: 0; }
 
 .sc-person-name {
   font-size: 14px;
@@ -637,6 +596,12 @@ body.dark .sc-logo {
 }
 
 .sc-icon-btn:hover {
+  border-color: rgba(37,99,235,.18);
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+.sc-icon-btn.danger:hover {
   color: var(--rose);
   border-color: rgba(225,29,72,.18);
   background: var(--rose-soft);
@@ -649,7 +614,6 @@ body.dark .sc-logo {
   font-size: 12px;
 }
 
-/* Empty */
 .sc-empty {
   padding: 46px 20px;
   text-align: center;
@@ -681,7 +645,6 @@ body.dark .sc-logo {
   color: var(--text-3);
 }
 
-/* Teams */
 .sc-teams-wrap {
   padding: 16px;
   display: grid;
@@ -742,6 +705,7 @@ body.dark .sc-logo {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .sc-assign-btn {
@@ -776,9 +740,7 @@ body.dark .sc-logo {
   border-top: 1px dashed var(--line);
 }
 
-.sc-team-member:first-child {
-  border-top: none;
-}
+.sc-team-member:first-child { border-top: none; }
 
 .sc-team-avatar {
   width: 30px;
@@ -815,7 +777,6 @@ body.dark .sc-logo {
   color: var(--text-3);
 }
 
-/* Overlay / modal */
 .sc-ov {
   position: fixed;
   inset: 0;
@@ -852,9 +813,8 @@ body.dark .sc-logo {
   -webkit-backdrop-filter: blur(18px);
 }
 
-.sc-modal.sm {
-  max-width: 400px;
-}
+.sc-modal.lg { max-width: 760px; }
+.sc-modal.sm { max-width: 400px; }
 
 .sc-ov.open .sc-modal {
   transform: translateY(0) scale(1);
@@ -931,9 +891,7 @@ body.dark .sc-logo {
   border-color: rgba(225,29,72,.18);
 }
 
-.sc-modal-body {
-  padding: 18px 20px;
-}
+.sc-modal-body { padding: 18px 20px; }
 
 .sc-modal-foot {
   padding: 14px 20px 20px;
@@ -955,9 +913,7 @@ body.dark .sc-logo {
 }
 
 @media (max-width: 640px) {
-  .sc-grid-2 {
-    grid-template-columns: 1fr;
-  }
+  .sc-grid-2 { grid-template-columns: 1fr; }
 }
 
 .sc-field label {
@@ -970,9 +926,7 @@ body.dark .sc-logo {
   color: var(--text-3);
 }
 
-.sc-field label span {
-  color: var(--rose);
-}
+.sc-field label span { color: var(--rose); }
 
 .sc-input {
   width: 100%;
@@ -987,9 +941,7 @@ body.dark .sc-logo {
   transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
 }
 
-.sc-input::placeholder {
-  color: var(--text-3);
-}
+.sc-input::placeholder { color: var(--text-3); }
 
 .sc-input:focus {
   border-color: rgba(37,99,235,.35);
@@ -1012,9 +964,7 @@ body.dark .sc-logo {
 }
 
 @media (max-width: 640px) {
-  .sc-inline-stat {
-    grid-template-columns: repeat(2, minmax(0,1fr));
-  }
+  .sc-inline-stat { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
 .sc-inline-box {
@@ -1040,9 +990,8 @@ body.dark .sc-logo {
   letter-spacing: -.03em;
 }
 
-/* Assign list */
 .sc-assign-list {
-  max-height: 340px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
@@ -1054,11 +1003,8 @@ body.dark .sc-logo {
   border-bottom: 1px solid var(--line);
 }
 
-.sc-assign-item:last-child {
-  border-bottom: none;
-}
+.sc-assign-item:last-child { border-bottom: none; }
 
-/* Toast */
 .sc-toast {
   position: fixed;
   right: 18px;
@@ -1084,20 +1030,14 @@ body.dark .sc-logo {
   opacity: 1;
 }
 
-.sc-toast.ok {
-  background: linear-gradient(135deg, var(--green), #34d399);
-}
-
-.sc-toast.err {
-  background: linear-gradient(135deg, var(--rose), #fb7185);
-}
+.sc-toast.ok { background: linear-gradient(135deg, var(--green), #34d399); }
+.sc-toast.err { background: linear-gradient(135deg, var(--rose), #fb7185); }
 </style>
 @endpush
 
 <div class="col-span-full">
   <div class="sc-shell">
 
-    {{-- SIDEBAR --}}
     <aside class="sc-sidebar">
       <div class="sc-brand sc-glass">
         <div class="sc-brand-top"></div>
@@ -1188,7 +1128,6 @@ body.dark .sc-logo {
       </div>
     </aside>
 
-    {{-- MAIN --}}
     <section class="sc-main">
 
       <div class="sc-topbar">
@@ -1204,7 +1143,7 @@ body.dark .sc-logo {
       <div class="sc-hero sc-glass">
         <div class="sc-hero-copy">
           <h1>{{ $subcon->name }}</h1>
-          <p>Manage members and teams in one place. Clean, focused, and modal-driven for a more minimalist workflow.</p>
+          <p>Manage members, teams, and team assignments in one place. One member can belong to multiple teams, and team details can be edited anytime.</p>
         </div>
 
         <div class="sc-stats">
@@ -1231,7 +1170,6 @@ body.dark .sc-logo {
         </div>
       </div>
 
-      {{-- MEMBERS --}}
       <div class="sc-card sc-glass">
         <div class="sc-card-head">
           <div class="sc-card-title">
@@ -1247,8 +1185,13 @@ body.dark .sc-logo {
 
         <div class="sc-members-wrap" id="membersBody">
           @forelse($members as $member)
-            <div class="sc-member-row" id="row-{{ $member->id }}"
-                 data-role="{{ $member->subcon_role }}">
+            <div class="sc-member-row"
+                 id="row-{{ $member->id }}"
+                 data-role="{{ $member->subcon_role }}"
+                 data-name="{{ $member->name }}"
+                 data-email="{{ $member->email }}"
+                 data-phone="{{ $member->contact_number ?? '' }}"
+                 data-roleval="{{ $member->subcon_role }}">
               <div class="sc-person">
                 <div class="sc-avatar">{{ strtoupper(substr($member->name, 0, 2)) }}</div>
                 <div class="sc-person-copy">
@@ -1268,7 +1211,16 @@ body.dark .sc-logo {
               <div class="sc-joined">{{ $member->created_at->format('M d, Y') }}</div>
 
               <div style="text-align:right;">
-                <button class="sc-icon-btn remove-member"
+                <button class="sc-icon-btn edit-member"
+                  type="button"
+                  data-id="{{ $member->id }}"
+                  title="Edit member">
+                  <i class="mgc_edit_2_line"></i>
+                </button>
+              </div>
+
+              <div style="text-align:right;">
+                <button class="sc-icon-btn danger remove-member"
                   type="button"
                   data-id="{{ $member->id }}"
                   data-name="{{ $member->name }}"
@@ -1289,7 +1241,6 @@ body.dark .sc-logo {
         </div>
       </div>
 
-      {{-- TEAMS --}}
       <div class="sc-card sc-glass">
         <div class="sc-card-head">
           <div class="sc-card-title">
@@ -1326,7 +1277,15 @@ body.dark .sc-logo {
                     Assign
                   </button>
 
-                  <button class="sc-icon-btn del-team-btn"
+                  <button class="sc-icon-btn edit-team-btn"
+                    type="button"
+                    data-id="{{ $team->id }}"
+                    data-name="{{ $team->team_name }}"
+                    title="Edit team">
+                    <i class="mgc_edit_2_line"></i>
+                  </button>
+
+                  <button class="sc-icon-btn danger del-team-btn"
                     type="button"
                     data-id="{{ $team->id }}"
                     data-name="{{ $team->team_name }}"
@@ -1343,14 +1302,16 @@ body.dark .sc-logo {
 
                     <div style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                       <span class="sc-team-member-name">{{ $member->name }}</span>
-                      @if($member->subcon_role === 'pm')
-                        <span class="sc-badge pm"><i class="mgc_briefcase_line"></i> PM</span>
-                      @else
-                        <span class="sc-badge lineman"><i class="mgc_tool_line"></i> Lineman</span>
-                      @endif
+                      <span data-role-holder>
+                        @if($member->subcon_role === 'pm')
+                          <span class="sc-badge pm"><i class="mgc_briefcase_line"></i> PM</span>
+                        @else
+                          <span class="sc-badge lineman"><i class="mgc_tool_line"></i> Lineman</span>
+                        @endif
+                      </span>
                     </div>
 
-                    <button class="sc-icon-btn sm remove-team-member"
+                    <button class="sc-icon-btn sm danger remove-team-member"
                       type="button"
                       data-team="{{ $team->id }}"
                       data-user="{{ $member->id }}"
@@ -1377,14 +1338,13 @@ body.dark .sc-logo {
   </div>
 </div>
 
-{{-- ADD MEMBER --}}
 <div id="addOv" class="sc-ov">
   <div class="sc-modal">
     <div class="sc-modal-head">
       <div class="sc-modal-icon blue"><i class="mgc_user_add_line"></i></div>
       <div>
         <div class="sc-modal-title">Add Member</div>
-        <div class="sc-modal-sub">Everything stays minimal here — add member details and track totals in one modal.</div>
+        <div class="sc-modal-sub">Add a new subcontractor member.</div>
       </div>
       <button class="sc-modal-close" id="btnCloseAdd" type="button">
         <i class="mgc_close_line"></i>
@@ -1434,6 +1394,11 @@ body.dark .sc-logo {
 
         <div class="sc-grid-2">
           <div class="sc-field">
+            <label for="mContact">Contact Number</label>
+            <input id="mContact" name="contact_number" class="sc-input" type="text" placeholder="e.g. 0917-xxx-xxxx" value="{{ old('contact_number') }}">
+          </div>
+
+          <div class="sc-field">
             <label for="mRole">Role <span>*</span></label>
             <select id="mRole" name="subcon_role" class="sc-input" required>
               <option value="" disabled {{ old('subcon_role') ? '' : 'selected' }}>Select role…</option>
@@ -1442,12 +1407,12 @@ body.dark .sc-logo {
             </select>
             @error('subcon_role') <div class="sc-err">{{ $message }}</div> @enderror
           </div>
+        </div>
 
-          <div class="sc-field">
-            <label for="mPassword">Password <span>*</span></label>
-            <input id="mPassword" name="password" class="sc-input" type="password" placeholder="Minimum 8 characters" required>
-            @error('password') <div class="sc-err">{{ $message }}</div> @enderror
-          </div>
+        <div class="sc-field">
+          <label for="mPassword">Password <span>*</span></label>
+          <input id="mPassword" name="password" class="sc-input" type="password" placeholder="Minimum 8 characters" required>
+          @error('password') <div class="sc-err">{{ $message }}</div> @enderror
         </div>
       </form>
     </div>
@@ -1462,7 +1427,67 @@ body.dark .sc-logo {
   </div>
 </div>
 
-{{-- REMOVE MEMBER --}}
+<div id="editMemberOv" class="sc-ov">
+  <div class="sc-modal">
+    <div class="sc-modal-head">
+      <div class="sc-modal-icon blue"><i class="mgc_edit_2_line"></i></div>
+      <div>
+        <div class="sc-modal-title">Edit Member</div>
+        <div class="sc-modal-sub">Update member details and role.</div>
+      </div>
+      <button class="sc-modal-close" id="btnCloseEditMember" type="button"><i class="mgc_close_line"></i></button>
+    </div>
+
+    <div class="sc-modal-body">
+      <form id="editMemberForm" class="sc-form" novalidate>
+        <input type="hidden" id="emId">
+
+        <div class="sc-grid-2">
+          <div class="sc-field">
+            <label for="emName">Full Name <span>*</span></label>
+            <input id="emName" class="sc-input" type="text" placeholder="e.g. Juan dela Cruz">
+            <div id="emNameErr" class="sc-err" style="display:none;"></div>
+          </div>
+
+          <div class="sc-field">
+            <label for="emEmail">Email <span>*</span></label>
+            <input id="emEmail" class="sc-input" type="email" placeholder="e.g. juan@subcon.com">
+            <div id="emEmailErr" class="sc-err" style="display:none;"></div>
+          </div>
+        </div>
+
+        <div class="sc-grid-2">
+          <div class="sc-field">
+            <label for="emContact">Contact Number</label>
+            <input id="emContact" class="sc-input" type="text" placeholder="e.g. 0917-xxx-xxxx">
+          </div>
+
+          <div class="sc-field">
+            <label for="emRole">Role <span>*</span></label>
+            <select id="emRole" class="sc-input">
+              <option value="pm">Project Manager</option>
+              <option value="lineman">Lineman</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sc-field">
+          <label for="emPassword">New Password</label>
+          <input id="emPassword" class="sc-input" type="password" placeholder="Leave blank to keep current password">
+        </div>
+      </form>
+    </div>
+
+    <div class="sc-modal-foot">
+      <button class="sc-btn sc-btn-ghost" id="btnCancelEditMember" type="button">Cancel</button>
+      <button class="sc-btn sc-btn-blue" id="btnUpdateMember" type="button">
+        <i class="mgc_save_line"></i>
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="delOv" class="sc-ov">
   <div class="sc-modal sm">
     <div class="sc-modal-head">
@@ -1484,14 +1509,13 @@ body.dark .sc-logo {
   </div>
 </div>
 
-{{-- ADD TEAM --}}
 <div id="addTeamOv" class="sc-ov">
   <div class="sc-modal sm">
     <div class="sc-modal-head">
       <div class="sc-modal-icon violet"><i class="mgc_group_line"></i></div>
       <div>
         <div class="sc-modal-title">Create Team</div>
-        <div class="sc-modal-sub">Keep team setup simple and clean.</div>
+        <div class="sc-modal-sub">Create a new team for this subcontractor.</div>
       </div>
       <button class="sc-modal-close" id="btnCloseAddTeam" type="button"><i class="mgc_close_line"></i></button>
     </div>
@@ -1514,14 +1538,42 @@ body.dark .sc-logo {
   </div>
 </div>
 
-{{-- ASSIGN MEMBER --}}
+<div id="editTeamOv" class="sc-ov">
+  <div class="sc-modal sm">
+    <div class="sc-modal-head">
+      <div class="sc-modal-icon blue"><i class="mgc_edit_2_line"></i></div>
+      <div>
+        <div class="sc-modal-title">Edit Team</div>
+        <div class="sc-modal-sub">Update team name and details.</div>
+      </div>
+      <button class="sc-modal-close" id="btnCloseEditTeam" type="button"><i class="mgc_close_line"></i></button>
+    </div>
+
+    <div class="sc-modal-body">
+      <div class="sc-field">
+        <label for="eTeamName">Team Name <span>*</span></label>
+        <input id="eTeamName" class="sc-input" type="text" placeholder="e.g. Alpha Team">
+        <div id="eTeamErr" class="sc-err" style="display:none;"></div>
+      </div>
+    </div>
+
+    <div class="sc-modal-foot">
+      <button class="sc-btn sc-btn-ghost" id="btnCancelEditTeam" type="button">Cancel</button>
+      <button class="sc-btn sc-btn-blue" id="btnUpdateTeam" type="button">
+        <i class="mgc_save_line"></i>
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
 <div id="assignOv" class="sc-ov">
-  <div class="sc-modal">
+  <div class="sc-modal lg">
     <div class="sc-modal-head">
       <div class="sc-modal-icon violet"><i class="mgc_user_add_line"></i></div>
       <div>
-        <div class="sc-modal-title">Assign Member</div>
-        <div class="sc-modal-sub" id="assignSubtitle">Pick an unassigned member</div>
+        <div class="sc-modal-title">Assign Members</div>
+        <div class="sc-modal-sub" id="assignSubtitle">Assign members to this team</div>
       </div>
       <button class="sc-modal-close" id="btnCloseAssign" type="button"><i class="mgc_close_line"></i></button>
     </div>
@@ -1536,14 +1588,13 @@ body.dark .sc-logo {
   </div>
 </div>
 
-{{-- DELETE TEAM --}}
 <div id="delTeamOv" class="sc-ov">
   <div class="sc-modal sm">
     <div class="sc-modal-head">
       <div class="sc-modal-icon rose"><i class="mgc_delete_2_line"></i></div>
       <div>
         <div class="sc-modal-title">Delete Team?</div>
-        <div class="sc-modal-sub" id="delTeamMsg">All members will be unassigned from this team.</div>
+        <div class="sc-modal-sub" id="delTeamMsg">All memberships under this team will be removed.</div>
       </div>
       <button class="sc-modal-close" id="btnDelTeamClose" type="button"><i class="mgc_close_line"></i></button>
     </div>
@@ -1558,16 +1609,43 @@ body.dark .sc-logo {
   </div>
 </div>
 
-{{-- TOAST --}}
 <div id="scToast" class="sc-toast">
   <i id="scToastIco"></i>
   <span id="scToastMsg"></span>
 </div>
 
+@php
+  $teamMembersMap = $teams->mapWithKeys(function ($team) {
+      return [
+          $team->id => $team->members->map(function ($m) {
+              return [
+                  'id' => $m->id,
+                  'name' => $m->name,
+                  'email' => $m->email,
+                  'subcon_role' => $m->subcon_role,
+                  'contact_number' => $m->contact_number ?? null,
+              ];
+          })->values()->toArray(),
+      ];
+  })->toArray();
+
+  $allMembersData = $members->map(function ($m) {
+      return [
+          'id' => $m->id,
+          'name' => $m->name,
+          'email' => $m->email,
+          'subcon_role' => $m->subcon_role,
+          'contact_number' => $m->contact_number ?? null,
+      ];
+  })->values()->toArray();
+@endphp
+
 @push('scripts')
 <script>
 (function(){
   const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const teamMembersMap = @json($teamMembersMap);
+  const allMembers = @json($allMembersData);
 
   const $toast = {
     wrap: document.getElementById('scToast'),
@@ -1585,11 +1663,13 @@ body.dark .sc-logo {
   }
 
   function openModal(el){
+    if(!el) return;
     el.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closeModal(el){
+    if(!el) return;
     el.classList.remove('open');
     document.body.style.overflow = '';
   }
@@ -1620,331 +1700,15 @@ body.dark .sc-logo {
       if(role === 'lineman') lineman++;
     });
 
-    document.getElementById('statMembers').textContent = total;
-    document.getElementById('statPm').textContent = pm;
-    document.getElementById('statLineman').textContent = lineman;
-    document.getElementById('statTeams').textContent = document.querySelectorAll('.sc-team').length;
-  }
+    const statMembers = document.getElementById('statMembers');
+    const statPm = document.getElementById('statPm');
+    const statLineman = document.getElementById('statLineman');
+    const statTeams = document.getElementById('statTeams');
 
-  /* ADD MEMBER */
-  const addOv = document.getElementById('addOv');
-  const addForm = document.getElementById('addForm');
-
-  document.getElementById('btnAddMember').onclick = () => openModal(addOv);
-  ['btnCloseAdd','btnCancelAdd'].forEach(id => {
-    document.getElementById(id).onclick = () => closeModal(addOv);
-  });
-  addOv.addEventListener('click', e => {
-    if(e.target === addOv) closeModal(addOv);
-  });
-  document.getElementById('btnSaveMember').onclick = () => addForm.submit();
-
-  @if($errors->any())
-    openModal(addOv);
-  @endif
-
-  /* REMOVE MEMBER */
-  const delOv = document.getElementById('delOv');
-  let pendingDelId = null;
-  let pendingDelUrl = null;
-
-  function openDel(id, name, url){
-    pendingDelId = id;
-    pendingDelUrl = url;
-    document.getElementById('delMsg').textContent = `Remove "${name}" from this subcontractor?`;
-    openModal(delOv);
-  }
-
-  function closeDel(){
-    closeModal(delOv);
-    pendingDelId = null;
-    pendingDelUrl = null;
-  }
-
-  ['btnDelCancel','btnDelClose'].forEach(id => {
-    document.getElementById(id).onclick = closeDel;
-  });
-
-  delOv.addEventListener('click', e => {
-    if(e.target === delOv) closeDel();
-  });
-
-  document.getElementById('btnDelConfirm').addEventListener('click', async () => {
-    if(!pendingDelUrl) return;
-
-    try {
-      const res = await fetch(pendingDelUrl, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': CSRF,
-          'Accept': 'application/json'
-        }
-      });
-
-      if(!res.ok) throw new Error();
-
-      document.getElementById('row-' + pendingDelId)?.remove();
-
-      document.querySelectorAll(`.remove-team-member[data-user="${pendingDelId}"]`).forEach(btn => {
-        document.getElementById(`tm-${btn.dataset.team}-${pendingDelId}`)?.remove();
-        updateTeamCount(btn.dataset.team);
-        ensureNoMembersLabel(btn.dataset.team);
-      });
-
-      localUnassigned = localUnassigned.filter(x => x.id != pendingDelId);
-
-      if(!document.querySelector('.sc-member-row[id^="row-"]')){
-        document.getElementById('membersBody').innerHTML = `
-          <div id="emptyMembers">
-            <div class="sc-empty">
-              <div class="sc-empty-ico"><i class="mgc_user_x_line"></i></div>
-              <div class="sc-empty-title">No members yet</div>
-              <div class="sc-empty-sub">Add a PM or Lineman to get started.</div>
-            </div>
-          </div>`;
-      }
-
-      closeDel();
-      updateTopStats();
-      toast('Member removed.');
-    } catch (e) {
-      toast('Could not remove member.', false);
-      closeDel();
-    }
-  });
-
-  function bindRemoveMemberButtons(scope = document){
-    scope.querySelectorAll('.remove-member').forEach(btn => {
-      btn.onclick = () => openDel(
-        btn.dataset.id,
-        btn.dataset.name,
-        `{{ url('admin/subcons/members') }}/${btn.dataset.id}`
-      );
-    });
-  }
-
-  bindRemoveMemberButtons();
-
-  /* ADD TEAM */
-  const addTeamOv = document.getElementById('addTeamOv');
-
-  document.getElementById('btnAddTeam').onclick = () => openModal(addTeamOv);
-
-  ['btnCloseAddTeam','btnCancelAddTeam'].forEach(id => {
-    document.getElementById(id).onclick = () => {
-      closeModal(addTeamOv);
-      document.getElementById('tTeamName').value = '';
-      document.getElementById('tTeamErr').style.display = 'none';
-    };
-  });
-
-  addTeamOv.addEventListener('click', e => {
-    if(e.target === addTeamOv) closeModal(addTeamOv);
-  });
-
-  document.getElementById('btnSaveTeam').addEventListener('click', async () => {
-    const name = document.getElementById('tTeamName').value.trim();
-    const errEl = document.getElementById('tTeamErr');
-    const btn = document.getElementById('btnSaveTeam');
-
-    if(!name){
-      errEl.textContent = 'Team name is required.';
-      errEl.style.display = 'block';
-      return;
-    }
-
-    errEl.style.display = 'none';
-    btn.disabled = true;
-
-    try {
-      const res = await fetch(`{{ route('admin.subcons.teams.store', $subcon) }}`, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': CSRF,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({ team_name: name })
-      });
-
-      const data = await res.json();
-
-      if(!res.ok || !data.success){
-        toast(data.message || 'Failed to create team.', false);
-        return;
-      }
-
-      document.getElementById('teamsEmpty')?.remove();
-
-      const t = data.team;
-      const card = document.createElement('div');
-      card.className = 'sc-team';
-      card.id = `tc-${t.id}`;
-      card.innerHTML = `
-        <div class="sc-team-head">
-          <div class="sc-team-left">
-            <div class="sc-team-icon"><i class="mgc_group_line"></i></div>
-            <div>
-              <div class="sc-team-name">${t.team_name}</div>
-              <div class="sc-team-meta">
-                <span class="team-count-label">0 members</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="sc-team-actions">
-            <button class="sc-assign-btn assign-team-btn" type="button" data-id="${t.id}" data-name="${t.team_name}">
-              <i class="mgc_user_add_line"></i>
-              Assign
-            </button>
-            <button class="sc-icon-btn del-team-btn" type="button" data-id="${t.id}" data-name="${t.team_name}" title="Delete team">
-              <i class="mgc_delete_2_line"></i>
-            </button>
-          </div>
-        </div>
-        <div class="sc-team-body team-members-${t.id}">
-          <div class="sc-team-no no-members-${t.id}">No members assigned yet.</div>
-        </div>
-      `;
-
-      document.getElementById('teamsContainer').appendChild(card);
-      bindTeamButtons(card);
-      updateTopStats();
-
-      closeModal(addTeamOv);
-      document.getElementById('tTeamName').value = '';
-      toast('Team created.');
-    } catch (e) {
-      toast('Network error.', false);
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  /* ASSIGN MEMBER */
-  const assignOv = document.getElementById('assignOv');
-  let activeTeamId = null;
-  let activeTeamName = null;
-  let localUnassigned = @json($members->whereNull('team_id')->values());
-  const allMembers = @json($members->values());
-
-  function openAssign(id, name){
-    activeTeamId = id;
-    activeTeamName = name;
-    document.getElementById('assignSubtitle').textContent = `Assign to "${name}"`;
-    openModal(assignOv);
-    renderAssignList();
-  }
-
-  function closeAssign(){
-    closeModal(assignOv);
-    activeTeamId = null;
-    activeTeamName = null;
-  }
-
-  ['btnCloseAssign','btnCancelAssign'].forEach(id => {
-    document.getElementById(id).onclick = closeAssign;
-  });
-
-  assignOv.addEventListener('click', e => {
-    if(e.target === assignOv) closeAssign();
-  });
-
-  function renderAssignList(){
-    const list = document.getElementById('assignList');
-
-    if(!localUnassigned.length){
-      list.innerHTML = `<div style="color:var(--text-3);font-family:var(--fm);font-size:12px;text-align:center;padding:24px 0;">No unassigned members available.</div>`;
-      return;
-    }
-
-    list.innerHTML = localUnassigned.map(u => `
-      <div class="sc-assign-item" id="al-${u.id}">
-        <div class="sc-avatar">${initialLetters(u.name)}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="sc-person-name">${u.name}</div>
-          <div class="sc-person-mail">${u.email || (u.subcon_role === 'pm' ? 'Project Manager' : 'Lineman')}</div>
-        </div>
-        <button class="sc-btn sc-btn-violet do-assign-btn"
-          type="button"
-          data-uid="${u.id}"
-          data-uname="${u.name}"
-          data-urole="${u.subcon_role}"
-          style="padding:7px 12px;font-size:11px;">
-          <i class="mgc_user_add_line"></i>
-          Add
-        </button>
-      </div>
-    `).join('');
-
-    list.querySelectorAll('.do-assign-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const uid = btn.dataset.uid;
-        const uname = btn.dataset.uname;
-        const urole = btn.dataset.urole;
-
-        btn.disabled = true;
-        btn.innerHTML = '...';
-
-        try {
-          const res = await fetch(`{{ url('admin/subcons/teams') }}/${activeTeamId}/members`, {
-            method: 'POST',
-            headers: {
-              'X-CSRF-TOKEN': CSRF,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            },
-            body: JSON.stringify({ user_id: uid })
-          });
-
-          const data = await res.json();
-
-          if(!res.ok || !data.success){
-            toast('Failed to assign.', false);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="mgc_user_add_line"></i> Add';
-            return;
-          }
-
-          localUnassigned = localUnassigned.filter(x => x.id != uid);
-          document.getElementById(`al-${uid}`)?.remove();
-
-          const body = document.querySelector(`.team-members-${activeTeamId}`);
-          if(body){
-            body.querySelector('.sc-team-no')?.remove();
-
-            const row = document.createElement('div');
-            row.className = 'sc-team-member';
-            row.id = `tm-${activeTeamId}-${uid}`;
-            row.innerHTML = `
-              <div class="sc-team-avatar">${initialLetters(uname)}</div>
-              <div style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <span class="sc-team-member-name">${uname}</span>
-                ${roleBadge(urole, true)}
-              </div>
-              <button class="sc-icon-btn sm remove-team-member"
-                type="button"
-                data-team="${activeTeamId}"
-                data-user="${uid}"
-                data-name="${uname}"
-                title="Remove from team">
-                <i class="mgc_close_line"></i>
-              </button>
-            `;
-            body.appendChild(row);
-            bindRemoveTeamMember(row.querySelector('.remove-team-member'));
-          }
-
-          updateTeamCount(activeTeamId);
-          renderAssignList();
-          toast(`${uname} assigned to ${activeTeamName}.`);
-        } catch (e) {
-          toast('Network error.', false);
-          btn.disabled = false;
-          btn.innerHTML = '<i class="mgc_user_add_line"></i> Add';
-        }
-      });
-    });
+    if(statMembers) statMembers.textContent = total;
+    if(statPm) statPm.textContent = pm;
+    if(statLineman) statLineman.textContent = lineman;
+    if(statTeams) statTeams.textContent = document.querySelectorAll('.sc-team').length;
   }
 
   function updateTeamCount(teamId){
@@ -1971,7 +1735,624 @@ body.dark .sc-logo {
     }
   }
 
-  /* REMOVE TEAM MEMBER */
+  function removeNoMembersLabel(teamId){
+    const el = document.querySelector(`.team-members-${teamId} .sc-team-no`);
+    if(el) el.remove();
+  }
+
+  const addOv = document.getElementById('addOv');
+  const addForm = document.getElementById('addForm');
+
+  const btnAddMember = document.getElementById('btnAddMember');
+  if(btnAddMember) btnAddMember.onclick = () => openModal(addOv);
+
+  ['btnCloseAdd','btnCancelAdd'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.onclick = () => closeModal(addOv);
+  });
+
+  if(addOv){
+    addOv.addEventListener('click', e => {
+      if(e.target === addOv) closeModal(addOv);
+    });
+  }
+
+  const btnSaveMember = document.getElementById('btnSaveMember');
+  if(btnSaveMember && addForm) btnSaveMember.onclick = () => addForm.submit();
+
+  @if($errors->any())
+    openModal(addOv);
+  @endif
+
+  const editMemberOv = document.getElementById('editMemberOv');
+  let activeEditMemberId = null;
+
+  function clearEditMemberErrors(){
+    ['emNameErr','emEmailErr'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el){
+        el.textContent = '';
+        el.style.display = 'none';
+      }
+    });
+  }
+
+  function openEditMember(id){
+    const row = document.getElementById(`row-${id}`);
+    if(!row) return;
+
+    activeEditMemberId = id;
+    document.getElementById('emId').value = id;
+    document.getElementById('emName').value = row.dataset.name || '';
+    document.getElementById('emEmail').value = row.dataset.email || '';
+    document.getElementById('emContact').value = row.dataset.phone || '';
+    document.getElementById('emRole').value = row.dataset.roleval || 'lineman';
+    document.getElementById('emPassword').value = '';
+    clearEditMemberErrors();
+    openModal(editMemberOv);
+  }
+
+  function closeEditMember(){
+    closeModal(editMemberOv);
+    activeEditMemberId = null;
+  }
+
+  ['btnCloseEditMember','btnCancelEditMember'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.onclick = closeEditMember;
+  });
+
+  if(editMemberOv){
+    editMemberOv.addEventListener('click', e => {
+      if(e.target === editMemberOv) closeEditMember();
+    });
+  }
+
+  const btnUpdateMember = document.getElementById('btnUpdateMember');
+  if(btnUpdateMember){
+    btnUpdateMember.addEventListener('click', async () => {
+      if(!activeEditMemberId) return;
+
+      clearEditMemberErrors();
+
+      const payload = {
+        name: document.getElementById('emName').value.trim(),
+        email: document.getElementById('emEmail').value.trim(),
+        contact_number: document.getElementById('emContact').value.trim(),
+        subcon_role: document.getElementById('emRole').value,
+        password: document.getElementById('emPassword').value
+      };
+
+      if(!payload.name){
+        const el = document.getElementById('emNameErr');
+        if(el){
+          el.textContent = 'Name is required.';
+          el.style.display = 'block';
+        }
+        return;
+      }
+
+      if(!payload.email){
+        const el = document.getElementById('emEmailErr');
+        if(el){
+          el.textContent = 'Email is required.';
+          el.style.display = 'block';
+        }
+        return;
+      }
+
+      btnUpdateMember.disabled = true;
+
+      try {
+        const res = await fetch(`{{ url('admin/subcons/members') }}/${activeEditMemberId}`, {
+          method: 'PUT',
+          headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if(!res.ok || !data.success){
+          if(data.errors){
+            if(data.errors.name){
+              const el = document.getElementById('emNameErr');
+              if(el){
+                el.textContent = data.errors.name[0];
+                el.style.display = 'block';
+              }
+            }
+            if(data.errors.email){
+              const el = document.getElementById('emEmailErr');
+              if(el){
+                el.textContent = data.errors.email[0];
+                el.style.display = 'block';
+              }
+            }
+          } else {
+            toast(data.message || 'Failed to update member.', false);
+          }
+          return;
+        }
+
+        const user = data.user;
+        const row = document.getElementById(`row-${user.id}`);
+        if(row){
+          row.dataset.name = user.name;
+          row.dataset.email = user.email;
+          row.dataset.phone = user.contact_number || '';
+          row.dataset.role = user.subcon_role;
+          row.dataset.roleval = user.subcon_role;
+
+          const avatar = row.querySelector('.sc-avatar');
+          const nameEl = row.querySelector('.sc-person-name');
+          const mailEl = row.querySelector('.sc-person-mail');
+          const removeBtn = row.querySelector('.remove-member');
+
+          if(avatar) avatar.textContent = initialLetters(user.name);
+          if(nameEl) nameEl.textContent = user.name;
+          if(mailEl) mailEl.textContent = user.email;
+          if(removeBtn) removeBtn.dataset.name = user.name;
+
+          const badgeWrap = row.children[1];
+          if(badgeWrap){
+            badgeWrap.innerHTML = user.subcon_role === 'pm'
+              ? `<span class="sc-badge pm"><i class="mgc_briefcase_line"></i> Project Manager</span>`
+              : `<span class="sc-badge lineman"><i class="mgc_tool_line"></i> Lineman</span>`;
+          }
+        }
+
+        Object.keys(teamMembersMap).forEach(teamId => {
+          teamMembersMap[teamId] = (teamMembersMap[teamId] || []).map(m => {
+            if(String(m.id) === String(user.id)) return user;
+            return m;
+          });
+
+          const teamRow = document.getElementById(`tm-${teamId}-${user.id}`);
+          if(teamRow){
+            const avatar = teamRow.querySelector('.sc-team-avatar');
+            const nameEl = teamRow.querySelector('.sc-team-member-name');
+            const badgeHolder = teamRow.querySelector('[data-role-holder]');
+            const removeBtn = teamRow.querySelector('.remove-team-member');
+
+            if(avatar) avatar.textContent = initialLetters(user.name);
+            if(nameEl) nameEl.textContent = user.name;
+            if(badgeHolder) badgeHolder.innerHTML = roleBadge(user.subcon_role, true);
+            if(removeBtn) removeBtn.dataset.name = user.name;
+          }
+        });
+
+        updateTopStats();
+        closeEditMember();
+        toast('Member updated.');
+      } catch (e) {
+        toast('Network error.', false);
+      } finally {
+        btnUpdateMember.disabled = false;
+      }
+    });
+  }
+
+  function bindEditMemberButtons(scope = document){
+    scope.querySelectorAll('.edit-member').forEach(btn => {
+      btn.onclick = () => openEditMember(btn.dataset.id);
+    });
+  }
+
+  bindEditMemberButtons();
+
+  const delOv = document.getElementById('delOv');
+  let pendingDelId = null;
+  let pendingDelUrl = null;
+
+  function openDel(id, name, url){
+    pendingDelId = id;
+    pendingDelUrl = url;
+    const msg = document.getElementById('delMsg');
+    if(msg) msg.textContent = `Remove "${name}" from this subcontractor?`;
+    openModal(delOv);
+  }
+
+  function closeDel(){
+    closeModal(delOv);
+    pendingDelId = null;
+    pendingDelUrl = null;
+  }
+
+  ['btnDelCancel','btnDelClose'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.onclick = closeDel;
+  });
+
+  if(delOv){
+    delOv.addEventListener('click', e => {
+      if(e.target === delOv) closeDel();
+    });
+  }
+
+  const btnDelConfirm = document.getElementById('btnDelConfirm');
+  if(btnDelConfirm){
+    btnDelConfirm.addEventListener('click', async () => {
+      if(!pendingDelUrl) return;
+
+      try {
+        const res = await fetch(pendingDelUrl, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json'
+          }
+        });
+
+        if(!res.ok) throw new Error();
+
+        document.getElementById('row-' + pendingDelId)?.remove();
+
+        Object.keys(teamMembersMap).forEach(teamId => {
+          teamMembersMap[teamId] = (teamMembersMap[teamId] || []).filter(x => String(x.id) !== String(pendingDelId));
+          document.getElementById(`tm-${teamId}-${pendingDelId}`)?.remove();
+          updateTeamCount(teamId);
+          ensureNoMembersLabel(teamId);
+        });
+
+        if(!document.querySelector('.sc-member-row[id^="row-"]')){
+          document.getElementById('membersBody').innerHTML = `
+            <div id="emptyMembers">
+              <div class="sc-empty">
+                <div class="sc-empty-ico"><i class="mgc_user_x_line"></i></div>
+                <div class="sc-empty-title">No members yet</div>
+                <div class="sc-empty-sub">Add a PM or Lineman to get started.</div>
+              </div>
+            </div>`;
+        }
+
+        closeDel();
+        updateTopStats();
+        toast('Member removed.');
+      } catch (e) {
+        toast('Could not remove member.', false);
+        closeDel();
+      }
+    });
+  }
+
+  function bindRemoveMemberButtons(scope = document){
+    scope.querySelectorAll('.remove-member').forEach(btn => {
+      btn.onclick = () => openDel(
+        btn.dataset.id,
+        btn.dataset.name,
+        `{{ url('admin/subcons/members') }}/${btn.dataset.id}`
+      );
+    });
+  }
+
+  bindRemoveMemberButtons();
+
+  const addTeamOv = document.getElementById('addTeamOv');
+
+  const btnAddTeam = document.getElementById('btnAddTeam');
+  if(btnAddTeam) btnAddTeam.onclick = () => openModal(addTeamOv);
+
+  ['btnCloseAddTeam','btnCancelAddTeam'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.onclick = () => {
+        closeModal(addTeamOv);
+        document.getElementById('tTeamName').value = '';
+        document.getElementById('tTeamErr').style.display = 'none';
+      };
+    }
+  });
+
+  if(addTeamOv){
+    addTeamOv.addEventListener('click', e => {
+      if(e.target === addTeamOv) closeModal(addTeamOv);
+    });
+  }
+
+  const btnSaveTeam = document.getElementById('btnSaveTeam');
+  if(btnSaveTeam){
+    btnSaveTeam.addEventListener('click', async () => {
+      const name = document.getElementById('tTeamName').value.trim();
+      const errEl = document.getElementById('tTeamErr');
+
+      if(!name){
+        errEl.textContent = 'Team name is required.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      errEl.style.display = 'none';
+      btnSaveTeam.disabled = true;
+
+      try {
+        const res = await fetch(`{{ route('admin.subcons.teams.store', $subcon) }}`, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ team_name: name })
+        });
+
+        const data = await res.json();
+
+        if(!res.ok || !data.success){
+          toast(data.message || 'Failed to create team.', false);
+          return;
+        }
+
+        document.getElementById('teamsEmpty')?.remove();
+
+        const t = data.team;
+        teamMembersMap[t.id] = [];
+
+        const card = document.createElement('div');
+        card.className = 'sc-team';
+        card.id = `tc-${t.id}`;
+        card.innerHTML = `
+          <div class="sc-team-head">
+            <div class="sc-team-left">
+              <div class="sc-team-icon"><i class="mgc_group_line"></i></div>
+              <div>
+                <div class="sc-team-name">${t.team_name}</div>
+                <div class="sc-team-meta">
+                  <span class="team-count-label">0 members</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="sc-team-actions">
+              <button class="sc-assign-btn assign-team-btn" type="button" data-id="${t.id}" data-name="${t.team_name}">
+                <i class="mgc_user_add_line"></i>
+                Assign
+              </button>
+              <button class="sc-icon-btn edit-team-btn" type="button" data-id="${t.id}" data-name="${t.team_name}" title="Edit team">
+                <i class="mgc_edit_2_line"></i>
+              </button>
+              <button class="sc-icon-btn danger del-team-btn" type="button" data-id="${t.id}" data-name="${t.team_name}" title="Delete team">
+                <i class="mgc_delete_2_line"></i>
+              </button>
+            </div>
+          </div>
+          <div class="sc-team-body team-members-${t.id}">
+            <div class="sc-team-no no-members-${t.id}">No members assigned yet.</div>
+          </div>
+        `;
+
+        document.getElementById('teamsContainer').appendChild(card);
+        bindTeamButtons(card);
+        updateTopStats();
+
+        closeModal(addTeamOv);
+        document.getElementById('tTeamName').value = '';
+        toast('Team created.');
+      } catch (e) {
+        toast('Network error.', false);
+      } finally {
+        btnSaveTeam.disabled = false;
+      }
+    });
+  }
+
+  const editTeamOv = document.getElementById('editTeamOv');
+  let activeEditTeamId = null;
+
+  function openEditTeam(id, name){
+    activeEditTeamId = id;
+    document.getElementById('eTeamName').value = name || '';
+    document.getElementById('eTeamErr').style.display = 'none';
+    openModal(editTeamOv);
+  }
+
+  function closeEditTeam(){
+    closeModal(editTeamOv);
+    activeEditTeamId = null;
+  }
+
+  ['btnCloseEditTeam','btnCancelEditTeam'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.onclick = closeEditTeam;
+  });
+
+  if(editTeamOv){
+    editTeamOv.addEventListener('click', e => {
+      if(e.target === editTeamOv) closeEditTeam();
+    });
+  }
+
+  const btnUpdateTeam = document.getElementById('btnUpdateTeam');
+  if(btnUpdateTeam){
+    btnUpdateTeam.addEventListener('click', async () => {
+      const name = document.getElementById('eTeamName').value.trim();
+      const errEl = document.getElementById('eTeamErr');
+
+      if(!name){
+        errEl.textContent = 'Team name is required.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      errEl.style.display = 'none';
+      btnUpdateTeam.disabled = true;
+
+      try {
+        const res = await fetch(`{{ url('admin/subcons/teams') }}/${activeEditTeamId}`, {
+          method: 'PUT',
+          headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({ team_name: name })
+        });
+
+        const data = await res.json();
+
+        if(!res.ok || !data.success){
+          errEl.textContent = data.message || 'Failed to update team.';
+          errEl.style.display = 'block';
+          return;
+        }
+
+        const card = document.getElementById(`tc-${activeEditTeamId}`);
+        if(card){
+          card.querySelector('.sc-team-name').textContent = data.team.team_name;
+          const assignBtn = card.querySelector('.assign-team-btn');
+          const editBtn = card.querySelector('.edit-team-btn');
+          const delBtn = card.querySelector('.del-team-btn');
+          if(assignBtn) assignBtn.dataset.name = data.team.team_name;
+          if(editBtn) editBtn.dataset.name = data.team.team_name;
+          if(delBtn) delBtn.dataset.name = data.team.team_name;
+        }
+
+        closeEditTeam();
+        toast('Team updated.');
+      } catch (e) {
+        errEl.textContent = 'Network error.';
+        errEl.style.display = 'block';
+      } finally {
+        btnUpdateTeam.disabled = false;
+      }
+    });
+  }
+
+  const assignOv = document.getElementById('assignOv');
+  let activeTeamId = null;
+  let activeTeamName = null;
+
+  function openAssign(id, name){
+    activeTeamId = String(id);
+    activeTeamName = name;
+    document.getElementById('assignSubtitle').textContent = `Assign members to "${name}"`;
+    openModal(assignOv);
+    renderAssignList();
+  }
+
+  function closeAssign(){
+    closeModal(assignOv);
+    activeTeamId = null;
+    activeTeamName = null;
+  }
+
+  ['btnCloseAssign','btnCancelAssign'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.onclick = closeAssign;
+  });
+
+  if(assignOv){
+    assignOv.addEventListener('click', e => {
+      if(e.target === assignOv) closeAssign();
+    });
+  }
+
+  function renderAssignList(){
+    const list = document.getElementById('assignList');
+    const assignedIds = new Set((teamMembersMap[activeTeamId] || []).map(x => String(x.id)));
+    const assignable = allMembers.filter(u => !assignedIds.has(String(u.id)));
+
+    if(!assignable.length){
+      list.innerHTML = `<div style="color:var(--text-3);font-family:var(--fm);font-size:12px;text-align:center;padding:24px 0;">All available members are already in this team.</div>`;
+      return;
+    }
+
+    list.innerHTML = assignable.map(u => `
+      <div class="sc-assign-item" id="al-${u.id}">
+        <div class="sc-avatar">${initialLetters(u.name)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="sc-person-name">${u.name}</div>
+          <div class="sc-person-mail">${u.email || (u.subcon_role === 'pm' ? 'Project Manager' : 'Lineman')}</div>
+        </div>
+        <div>${roleBadge(u.subcon_role, true)}</div>
+        <button class="sc-btn sc-btn-violet do-assign-btn"
+          type="button"
+          data-uid="${u.id}"
+          style="padding:7px 12px;font-size:11px;">
+          <i class="mgc_user_add_line"></i>
+          Add
+        </button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.do-assign-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const uid = btn.dataset.uid;
+        const user = allMembers.find(x => String(x.id) === String(uid));
+        if(!user) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '...';
+
+        try {
+          const res = await fetch(`{{ url('admin/subcons/teams') }}/${activeTeamId}/members`, {
+            method: 'POST',
+            headers: {
+              'X-CSRF-TOKEN': CSRF,
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            body: JSON.stringify({ user_id: uid })
+          });
+
+          const data = await res.json();
+
+          if(!res.ok || !data.success){
+            toast(data.message || 'Failed to assign.', false);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="mgc_user_add_line"></i> Add';
+            return;
+          }
+
+          if(!teamMembersMap[activeTeamId]) teamMembersMap[activeTeamId] = [];
+          if(!teamMembersMap[activeTeamId].find(x => String(x.id) === String(uid))){
+            teamMembersMap[activeTeamId].push(user);
+          }
+
+          const body = document.querySelector(`.team-members-${activeTeamId}`);
+          if(body){
+            removeNoMembersLabel(activeTeamId);
+
+            const exists = document.getElementById(`tm-${activeTeamId}-${uid}`);
+            if(!exists){
+              const row = document.createElement('div');
+              row.className = 'sc-team-member';
+              row.id = `tm-${activeTeamId}-${uid}`;
+              row.innerHTML = `
+                <div class="sc-team-avatar">${initialLetters(user.name)}</div>
+                <div style="flex:1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <span class="sc-team-member-name">${user.name}</span>
+                  <span data-role-holder>${roleBadge(user.subcon_role, true)}</span>
+                </div>
+                <button class="sc-icon-btn sm danger remove-team-member"
+                  type="button"
+                  data-team="${activeTeamId}"
+                  data-user="${uid}"
+                  data-name="${user.name}"
+                  title="Remove from team">
+                  <i class="mgc_close_line"></i>
+                </button>
+              `;
+              body.appendChild(row);
+              bindRemoveTeamMember(row.querySelector('.remove-team-member'));
+            }
+          }
+
+          updateTeamCount(activeTeamId);
+          renderAssignList();
+          toast(`${user.name} assigned to ${activeTeamName}.`);
+        } catch (e) {
+          toast('Network error.', false);
+          btn.disabled = false;
+          btn.innerHTML = '<i class="mgc_user_add_line"></i> Add';
+        }
+      });
+    });
+  }
+
   function bindRemoveTeamMember(btn){
     btn.addEventListener('click', async () => {
       const tid = btn.dataset.team;
@@ -1990,17 +2371,17 @@ body.dark .sc-logo {
         const data = await res.json();
 
         if(!res.ok || !data.success){
-          toast('Failed to remove.', false);
+          toast(data.message || 'Failed to remove.', false);
           return;
         }
 
         document.getElementById(`tm-${tid}-${uid}`)?.remove();
+        teamMembersMap[tid] = (teamMembersMap[tid] || []).filter(x => String(x.id) !== String(uid));
         updateTeamCount(tid);
         ensureNoMembersLabel(tid);
 
-        const member = allMembers.find(x => x.id == uid);
-        if(member && !localUnassigned.find(x => x.id == uid)){
-          localUnassigned.push(member);
+        if(activeTeamId && String(activeTeamId) === String(tid)){
+          renderAssignList();
         }
 
         toast(`${name} removed from team.`);
@@ -2012,13 +2393,13 @@ body.dark .sc-logo {
 
   document.querySelectorAll('.remove-team-member').forEach(btn => bindRemoveTeamMember(btn));
 
-  /* DELETE TEAM */
   const delTeamOv = document.getElementById('delTeamOv');
   let pendingDelTeamId = null;
 
   function openDelTeam(id, name){
     pendingDelTeamId = id;
-    document.getElementById('delTeamMsg').textContent = `Delete team "${name}"? All members will be unassigned.`;
+    const msg = document.getElementById('delTeamMsg');
+    if(msg) msg.textContent = `Delete team "${name}"? All memberships under this team will be removed.`;
     openModal(delTeamOv);
   }
 
@@ -2028,58 +2409,68 @@ body.dark .sc-logo {
   }
 
   ['btnDelTeamCancel','btnDelTeamClose'].forEach(id => {
-    document.getElementById(id).onclick = closeDelTeam;
+    const el = document.getElementById(id);
+    if(el) el.onclick = closeDelTeam;
   });
 
-  delTeamOv.addEventListener('click', e => {
-    if(e.target === delTeamOv) closeDelTeam();
-  });
+  if(delTeamOv){
+    delTeamOv.addEventListener('click', e => {
+      if(e.target === delTeamOv) closeDelTeam();
+    });
+  }
 
-  document.getElementById('btnDelTeamConfirm').addEventListener('click', async () => {
-    if(!pendingDelTeamId) return;
+  const btnDelTeamConfirm = document.getElementById('btnDelTeamConfirm');
+  if(btnDelTeamConfirm){
+    btnDelTeamConfirm.addEventListener('click', async () => {
+      if(!pendingDelTeamId) return;
 
-    const btn = document.getElementById('btnDelTeamConfirm');
-    btn.disabled = true;
+      btnDelTeamConfirm.disabled = true;
 
-    try {
-      const res = await fetch(`{{ url('admin/subcons/teams') }}/${pendingDelTeamId}`, {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-TOKEN': CSRF,
-          'Accept': 'application/json'
+      try {
+        const res = await fetch(`{{ url('admin/subcons/teams') }}/${pendingDelTeamId}`, {
+          method: 'DELETE',
+          headers: {
+            'X-CSRF-TOKEN': CSRF,
+            'Accept': 'application/json'
+          }
+        });
+
+        const data = await res.json();
+
+        if(!res.ok || !data.success){
+          toast(data.message || 'Failed to delete team.', false);
+          return;
         }
-      });
 
-      const data = await res.json();
+        delete teamMembersMap[pendingDelTeamId];
+        document.getElementById(`tc-${pendingDelTeamId}`)?.remove();
 
-      if(!res.ok || !data.success){
-        toast('Failed to delete team.', false);
-        return;
+        if(!document.querySelector('.sc-team')){
+          const div = document.createElement('div');
+          div.id = 'teamsEmpty';
+          div.className = 'sc-teams-empty';
+          div.innerHTML = `<i class="mgc_group_line" style="font-size:24px;display:block;margin-bottom:10px;"></i>No teams yet. Create one above.`;
+          document.getElementById('teamsContainer').appendChild(div);
+        }
+
+        updateTopStats();
+        closeDelTeam();
+        toast('Team deleted.');
+      } catch (e) {
+        toast('Network error.', false);
+      } finally {
+        btnDelTeamConfirm.disabled = false;
       }
-
-      document.getElementById(`tc-${pendingDelTeamId}`)?.remove();
-
-      if(!document.querySelector('.sc-team')){
-        const div = document.createElement('div');
-        div.id = 'teamsEmpty';
-        div.className = 'sc-teams-empty';
-        div.innerHTML = `<i class="mgc_group_line" style="font-size:24px;display:block;margin-bottom:10px;"></i>No teams yet. Create one above.`;
-        document.getElementById('teamsContainer').appendChild(div);
-      }
-
-      updateTopStats();
-      closeDelTeam();
-      toast('Team deleted.');
-    } catch (e) {
-      toast('Network error.', false);
-    } finally {
-      btn.disabled = false;
-    }
-  });
+    });
+  }
 
   function bindTeamButtons(scope){
     scope.querySelectorAll('.assign-team-btn').forEach(btn => {
       btn.onclick = () => openAssign(btn.dataset.id, btn.dataset.name);
+    });
+
+    scope.querySelectorAll('.edit-team-btn').forEach(btn => {
+      btn.onclick = () => openEditTeam(btn.dataset.id, btn.dataset.name);
     });
 
     scope.querySelectorAll('.del-team-btn').forEach(btn => {
@@ -2089,13 +2480,14 @@ body.dark .sc-logo {
 
   document.querySelectorAll('.sc-team').forEach(team => bindTeamButtons(team));
 
-  /* ESC */
   document.addEventListener('keydown', e => {
     if(e.key !== 'Escape') return;
-    [addOv, delOv, addTeamOv, assignOv, delTeamOv]
-      .find(m => m.classList.contains('open'))
-      ?.classList.remove('open');
-    document.body.style.overflow = '';
+    const modals = [addOv, editMemberOv, delOv, addTeamOv, editTeamOv, assignOv, delTeamOv];
+    const openOne = modals.find(m => m.classList.contains('open'));
+    if(openOne){
+      openOne.classList.remove('open');
+      document.body.style.overflow = '';
+    }
   });
 
   @if(session('success'))
