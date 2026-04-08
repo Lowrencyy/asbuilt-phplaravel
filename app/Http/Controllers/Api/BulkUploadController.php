@@ -85,6 +85,23 @@ class BulkUploadController extends Controller
                 $polesResult = [];
                 $untaggedCodes = ['NPT', 'NT'];
 
+                // Auto-generate sitemap_x/y for poles missing coordinates so
+                // spans can still be created even without DXF geometry.
+                // Uses a simple sequential grid (100 units apart).
+                $gridIndex = 0;
+                $gridSpacing = 100;
+
+                foreach ($polesData as &$poleData) {
+                    if (empty($poleData['sitemap_x']) && empty($poleData['sitemap_y'])) {
+                        $col = $gridIndex % 10;
+                        $row = intdiv($gridIndex, 10);
+                        $poleData['sitemap_x'] = ($col + 1) * $gridSpacing;
+                        $poleData['sitemap_y'] = ($row + 1) * $gridSpacing;
+                        $gridIndex++;
+                    }
+                }
+                unset($poleData);
+
                 foreach ($polesData as $poleData) {
                     $poleData['node_id'] = $node->id;
                     $code = strtoupper($poleData['pole_code']);

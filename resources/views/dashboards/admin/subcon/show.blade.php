@@ -1193,9 +1193,14 @@ body.dark .sc-logo {
                  data-phone="{{ $member->contact_number ?? '' }}"
                  data-roleval="{{ $member->subcon_role }}">
               <div class="sc-person">
-                <div class="sc-avatar">{{ strtoupper(substr($member->name, 0, 2)) }}</div>
+                <div class="sc-avatar" style="{{ $member->is_active ? '' : 'opacity:.45;filter:grayscale(1);' }}">{{ strtoupper(substr($member->name, 0, 2)) }}</div>
                 <div class="sc-person-copy">
-                  <div class="sc-person-name">{{ $member->name }}</div>
+                  <div class="sc-person-name">
+                    {{ $member->name }}
+                    @if(! $member->is_active)
+                      <span style="display:inline-flex;align-items:center;gap:.2rem;font-size:.62rem;font-weight:800;padding:.1rem .45rem;border-radius:999px;background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.25);margin-left:.4rem;">INACTIVE</span>
+                    @endif
+                  </div>
                   <div class="sc-person-mail">{{ $member->email }}</div>
                 </div>
               </div>
@@ -1209,6 +1214,17 @@ body.dark .sc-logo {
               </div>
 
               <div class="sc-joined">{{ $member->created_at->format('M d, Y') }}</div>
+
+              <div style="text-align:right;">
+                <button class="sc-icon-btn toggle-active-btn"
+                  type="button"
+                  data-id="{{ $member->id }}"
+                  data-active="{{ $member->is_active ? '1' : '0' }}"
+                  title="{{ $member->is_active ? 'Deactivate account' : 'Activate account' }}"
+                  style="color:{{ $member->is_active ? '#16a34a' : '#dc2626' }};">
+                  <i class="{{ $member->is_active ? 'mgc_check_circle_line' : 'mgc_close_circle_line' }}"></i>
+                </button>
+              </div>
 
               <div style="text-align:right;">
                 <button class="sc-icon-btn edit-member"
@@ -2030,6 +2046,62 @@ body.dark .sc-logo {
   }
 
   bindRemoveMemberButtons();
+
+  // ── Active / Inactive toggle ─────────────────────────────────────────────
+  function bindToggleActiveButtons(scope = document) {
+    scope.querySelectorAll('.toggle-active-btn').forEach(btn => {
+      btn.onclick = async () => {
+        const id       = btn.dataset.id;
+        const isActive = btn.dataset.active === '1';
+        const row      = document.getElementById(`row-${id}`);
+        const name     = row?.dataset.name || 'this member';
+        const action   = isActive ? 'Deactivate' : 'Activate';
+
+        if (! confirm(`${action} account of "${name}"?`)) return;
+
+        btn.disabled = true;
+        try {
+          const res = await fetch(`{{ url('admin/subcons/members') }}/${id}/toggle-active`, {
+            method: 'PATCH',
+            headers: { 'X-CSRF-TOKEN': CSRF, 'Accept': 'application/json' },
+          });
+          const data = await res.json();
+          if (! res.ok || ! data.success) { toast('Failed to update status.', false); return; }
+
+          const nowActive = data.is_active;
+          btn.dataset.active = nowActive ? '1' : '0';
+          btn.title  = nowActive ? 'Deactivate account' : 'Activate account';
+          btn.style.color = nowActive ? '#16a34a' : '#dc2626';
+          btn.innerHTML = `<i class="${nowActive ? 'mgc_check_circle_line' : 'mgc_close_circle_line'}"></i>`;
+
+          // Update avatar opacity + badge
+          const avatar = row?.querySelector('.sc-avatar');
+          if (avatar) { avatar.style.opacity = nowActive ? '' : '.45'; avatar.style.filter = nowActive ? '' : 'grayscale(1)'; }
+
+          const nameEl = row?.querySelector('.sc-person-name');
+          if (nameEl) {
+            const badge = nameEl.querySelector('.inactive-badge');
+            if (nowActive && badge) badge.remove();
+            if (! nowActive && ! badge) {
+              const b = document.createElement('span');
+              b.className = 'inactive-badge';
+              b.style.cssText = 'display:inline-flex;align-items:center;gap:.2rem;font-size:.62rem;font-weight:800;padding:.1rem .45rem;border-radius:999px;background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.25);margin-left:.4rem;';
+              b.textContent = 'INACTIVE';
+              nameEl.appendChild(b);
+            }
+          }
+
+          toast(nowActive ? `${name} activated.` : `${name} deactivated — login blocked.`);
+        } catch (e) {
+          toast('Network error.', false);
+        } finally {
+          btn.disabled = false;
+        }
+      };
+    });
+  }
+
+  bindToggleActiveButtons();
 
   const addTeamOv = document.getElementById('addTeamOv');
 

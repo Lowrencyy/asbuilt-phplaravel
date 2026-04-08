@@ -68,6 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/projects/{project}/nodes',              [AdminNodeController::class, 'store'])->name('projects.nodes.store');
         Route::post('/projects/{project}/nodes/{node}',       [AdminNodeController::class, 'update'])->name('projects.nodes.update');
         Route::delete('/projects/{project}/nodes/{node}',     [AdminNodeController::class, 'destroy'])->name('projects.nodes.destroy');
+        Route::get('/projects/{project}/nodes/{node}/vicinity-map', [AdminNodeController::class, 'vicinityMap'])->name('projects.nodes.vicinity-map');
 
         Route::get('/projects/{project}/nodes/{node}/poles',               [AdminPoleController::class, 'index'])->name('projects.nodes.poles.index');
         Route::post('/projects/{project}/nodes/{node}/poles',              [AdminPoleController::class, 'store'])->name('projects.nodes.poles.store');
@@ -143,6 +144,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
         // Subcon members (lineman/pm)
         Route::post('/subcons/{subcon}/members',                    [SubcontractorController::class, 'storeMember'])->name('subcons.members.store');
+        Route::put('/subcons/members/{user}',                       [SubcontractorController::class, 'updateMember'])->name('subcons.members.update');
+        Route::patch('/subcons/members/{user}/toggle-active',       [SubcontractorController::class, 'toggleMemberActive'])->name('subcons.members.toggle-active');
         Route::delete('/subcons/members/{user}',                    [SubcontractorController::class, 'destroyMember'])->name('subcons.members.destroy');
 
         // Subcon teams
@@ -162,6 +165,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/projects/{project}/nodes',              [AdminNodeController::class, 'store'])->name('projects.nodes.store');
         Route::post('/projects/{project}/nodes/{node}',       [AdminNodeController::class, 'update'])->name('projects.nodes.update');
         Route::delete('/projects/{project}/nodes/{node}',     [AdminNodeController::class, 'destroy'])->name('projects.nodes.destroy');
+        Route::get('/projects/{project}/nodes/{node}/vicinity-map', [AdminNodeController::class, 'vicinityMap'])->name('projects.nodes.vicinity-map');
 
         // Poles (under a node)
         Route::get('/projects/{project}/nodes/{node}/poles',               [AdminPoleController::class, 'index'])->name('projects.nodes.poles.index');

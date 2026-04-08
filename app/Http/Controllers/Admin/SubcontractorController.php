@@ -133,7 +133,7 @@ class SubcontractorController extends Controller
         return response()->json(['success' => true, 'user' => $user]);
     }
 
-    public function removeTeamMember(Team $team, User $user)
+    public function removeTeamMember(Team $_team, User $user)
     {
         $user->update(['team_id' => null]);
         return response()->json(['success' => true]);
@@ -177,9 +177,43 @@ class SubcontractorController extends Controller
         return back()->with('success', 'Subcon member added.');
     }
 
+    public function updateMember(Request $request, User $user)
+    {
+        $request->validate([
+            'name'        => ['required', 'string', 'max:255'],
+            'email'       => ['required', 'email', Rule::unique('users')->ignore($user->id)],
+            'subcon_role' => ['required', Rule::in([User::SUBCON_PM, User::SUBCON_LINEMAN])],
+            'contact_number' => ['nullable', 'string', 'max:50'],
+        ]);
+
+        $user->update([
+            'name'           => $request->name,
+            'email'          => $request->email,
+            'subcon_role'    => $request->subcon_role,
+            'contact_number' => $request->contact_number ?? null,
+        ]);
+
+        return response()->json(['success' => true, 'user' => $user->fresh()]);
+    }
+
+    public function toggleMemberActive(User $user)
+    {
+        $user->update(['is_active' => ! $user->is_active]);
+
+        // Revoke all tokens so inactive user is immediately kicked out
+        if (! $user->is_active) {
+            $user->tokens()->delete();
+        }
+
+        return response()->json([
+            'success'   => true,
+            'is_active' => $user->is_active,
+        ]);
+    }
+
     public function destroyMember(User $user)
     {
         $user->delete();
-        return back()->with('success', 'Member removed.');
+        return response()->json(['success' => true]);
     }
 }

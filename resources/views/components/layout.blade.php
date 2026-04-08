@@ -482,7 +482,7 @@
                     <span></span>
                     <span></span>
                 </span>
-                <span>Helper is typing...</span>
+                <span>Asbuilt Iq Is Typing</span>
             </div>
 
             <div class="helper-input-wrap">

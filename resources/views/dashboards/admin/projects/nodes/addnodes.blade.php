@@ -1,213 +1,293 @@
+```blade
 <x-layout>
 
 @push('title')Nodes — {{ $project->name }}@endpush
 
 @push('styles')
-{{-- <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700;9..40,800;9..40,900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/> --}}
 <style>
 *,*::before,*::after{box-sizing:border-box;}
 :root{
-  --p:#3b82f6;--p2:#2563eb;--pg:rgba(59,130,246,.12);--pg2:rgba(59,130,246,.06);
-  --ok:#22c55e;--err:#ef4444;--s:#8b5cf6;--teal:#14b8a6;--amber:#f59e0b;
-  --bg:#f0f4f9;--surf:#fff;--surf2:#f7f9fc;
-  --bdr:#e2e8f0;--bdr2:#cbd5e1;
-  --txt:#0f172a;--txt2:#475569;--txt3:#64748b;--muted:#94a3b8;
-  --r:14px;--r-sm:8px;
-  --sh:0 1px 2px rgba(15,23,42,.04),0 4px 16px rgba(15,23,42,.05);
-  --sh-md:0 4px 20px rgba(15,23,42,.09);
-  --sh-lg:0 12px 48px rgba(15,23,42,.16);
-  --ff:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+  --bg:#f5f7fb;
+  --surface:#ffffff;
+  --surface-soft:#f8fafc;
+  --line:#e2e8f0;
+  --line-strong:#cbd5e1;
+  --text:#0f172a;
+  --text-soft:#475569;
+  --text-muted:#64748b;
+  --primary:#2563eb;
+  --primary-soft:rgba(37,99,235,.08);
+  --success:#16a34a;
+  --warning:#d97706;
+  --danger:#dc2626;
+  --shadow:0 1px 2px rgba(15,23,42,.04), 0 10px 28px rgba(15,23,42,.06);
+  --radius:18px;
+  --radius-sm:12px;
 }
-.dark{--bg:#070f1e;--surf:#0f172a;--surf2:#111827;--bdr:#1e2d45;--bdr2:#263954;--txt:#e2e8f0;--txt2:#94a3b8;--txt3:#64748b;--muted:#3f5471;}
-body{font-family:var(--ff);background:var(--bg);color:var(--txt);}
-.page-content{background:var(--bg);}
+.dark{
+  --bg:#0b1220;
+  --surface:#0f172a;
+  --surface-soft:#111c31;
+  --line:#22324d;
+  --line-strong:#30415f;
+  --text:#e2e8f0;
+  --text-soft:#cbd5e1;
+  --text-muted:#94a3b8;
+  --primary:#60a5fa;
+  --primary-soft:rgba(96,165,250,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.22), 0 16px 38px rgba(0,0,0,.30);
+}
+body,.page-content{background:var(--bg);color:var(--text);}
 
-.ph{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem;margin-bottom:1.25rem;}
-.ph h2{font-size:1.15rem;font-weight:900;color:var(--txt);display:flex;align-items:center;gap:.5rem;margin:0;}
-.ph p{font-size:.76rem;color:var(--txt3);margin:.14rem 0 0;}
-.h-ico{display:inline-flex;align-items:center;justify-content:center;height:34px;width:34px;border-radius:10px;background:var(--pg);color:var(--p);font-size:.95rem;flex-shrink:0;}
+a{text-decoration:none;}
+button,input,select{font:inherit;}
 
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:.85rem;margin:0 0 1.25rem;}
-.sc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);padding:1rem 1.1rem;display:flex;align-items:flex-start;gap:.75rem;transition:box-shadow .18s,transform .18s;}
-.sc:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
-.si{height:40px;width:40px;border-radius:10px;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;font-size:1.05rem;}
-.sv{font-size:1.35rem;font-weight:900;color:var(--txt);line-height:1.1;letter-spacing:-.03em;font-family:var(--fm);}
-.sl{font-size:.63rem;font-weight:700;color:var(--txt3);text-transform:uppercase;letter-spacing:.07em;margin-top:.2rem;}
-.unit{font-size:.66rem;font-weight:700;color:var(--txt3);margin-left:.18rem;}
+.nodes-shell{display:grid;gap:1rem;}
 
-.fc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);padding:.85rem 1.1rem;margin-bottom:1rem;}
-.frow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;}
-.fi-wrap{position:relative;}
-.fi-ico{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.82rem;pointer-events:none;}
-.fi{height:36px;padding:0 .75rem 0 2.25rem;border:1px solid var(--bdr);border-radius:var(--r-sm);background:var(--surf2);color:var(--txt);font-size:.8rem;font-family:var(--ff);outline:none;transition:border-color .15s,box-shadow .15s;min-width:210px;}
-.fi:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
-.fsel{height:36px;padding:0 2rem 0 .75rem;border:1px solid var(--bdr);border-radius:var(--r-sm);background:var(--surf2);color:var(--txt);font-size:.8rem;font-family:var(--ff);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .55rem center;transition:border-color .15s;}
-.fsel:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
-.cpill{display:inline-flex;align-items:center;gap:.3rem;font-size:.72rem;color:var(--txt3);font-weight:600;background:var(--surf2);border:1px solid var(--bdr);padding:.22rem .7rem;border-radius:999px;white-space:nowrap;}
-.cpill strong{color:var(--p);font-family:var(--fm);font-weight:900;}
-.fgrp{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;justify-content:flex-end;margin-left:auto;}
-.fdate{height:36px;padding:0 .75rem;border:1px solid var(--bdr);border-radius:var(--r-sm);background:var(--surf2);color:var(--txt);font-size:.8rem;font-family:var(--ff);outline:none;transition:border-color .15s,box-shadow .15s;min-width:170px;}
-.fdate:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
+.page-header{
+  display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+.page-title{display:flex;align-items:flex-start;gap:.9rem;}
+.page-title-badge{
+  width:42px;height:42px;border-radius:14px;background:linear-gradient(180deg,var(--primary-soft),transparent);
+  border:1px solid rgba(37,99,235,.16);display:grid;place-items:center;color:var(--primary);font-size:1rem;flex:none;
+}
+.page-title h2{margin:0;font-size:1.15rem;font-weight:800;letter-spacing:-.02em;}
+.page-title p{margin:.25rem 0 0;font-size:.82rem;color:var(--text-muted);}
+.page-title p a{color:var(--primary);font-weight:700;}
 
-.tv-card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;}
-.table-wrap{max-height:calc(100vh - 380px);overflow:auto;scrollbar-width:thin;scrollbar-color:var(--bdr2) transparent;}
-.table-wrap::-webkit-scrollbar{width:5px;height:5px;}
-.table-wrap::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:99px;}
+.btn-primary{
+  height:42px;padding:0 1rem;border:none;border-radius:12px;background:var(--text);color:#fff;
+  display:inline-flex;align-items:center;gap:.55rem;font-weight:700;box-shadow:var(--shadow);cursor:pointer;
+  transition:transform .18s ease,opacity .18s ease,background .18s ease;
+}
+.btn-primary:hover{transform:translateY(-1px);opacity:.95;}
+.dark .btn-primary{background:var(--primary);color:#081120;}
 
-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.8rem;min-width:1100px;}
-thead th{position:sticky;top:0;z-index:5;background:var(--surf2);border-bottom:2px solid var(--bdr);padding:0 13px;height:36px;text-align:center;white-space:nowrap;font-size:.61rem;font-weight:800;color:var(--txt3);letter-spacing:.07em;text-transform:uppercase;}
-thead th.thl{text-align:left;}
-thead th.col-act{position:sticky;right:0;z-index:6;background:var(--surf2);border-left:1px solid var(--bdr);}
-tbody tr:hover td{background:rgba(59,130,246,.03);}
-tbody td{padding:0 13px;height:48px;border-bottom:1px solid var(--bdr);vertical-align:middle;text-align:center;white-space:nowrap;}
-tbody tr:last-child td{border-bottom:none;}
-tbody td.tdl{text-align:left;}
-td.col-act,th.col-act{position:sticky;right:0;z-index:4;background:var(--surf);border-left:1px solid var(--bdr);min-width:104px;}
-tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.9rem;}
+.stat-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1rem 1.05rem;
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:.85rem;
+}
+.stat-icon{
+  width:42px;height:42px;border-radius:14px;background:var(--surface-soft);border:1px solid var(--line);
+  display:grid;place-items:center;color:var(--text-soft);font-size:1rem;flex:none;
+}
+.stat-value{font-size:1.4rem;font-weight:800;letter-spacing:-.03em;line-height:1;}
+.stat-label{margin-top:.2rem;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);font-weight:700;}
+.stat-unit{font-size:.78rem;color:var(--text-muted);margin-left:.2rem;}
 
-.c-idx{color:var(--muted);font-size:.67rem;font-family:var(--fm);width:40px;}
-.c-nlink a{font-family:var(--fm);font-size:.78rem;font-weight:800;color:var(--p);text-decoration:none;display:inline-flex;align-items:center;gap:.28rem;padding:.24rem .58rem;border-radius:7px;background:var(--pg2);border:1px solid rgba(59,130,246,.15);transition:all .13s;}
-.c-nlink a:hover{background:var(--pg);border-color:rgba(59,130,246,.35);transform:translateY(-1px);}
-.c-txt{font-size:.76rem;color:var(--txt2);}
-.c-num{font-family:var(--fm);font-size:.75rem;font-weight:700;color:var(--txt);}
-.cm{font-size:.63rem;color:var(--muted);margin-left:.15rem;}
+.toolbar{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:1rem;display:grid;gap:.8rem;
+}
+.toolbar-row{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;}
+.field-wrap{position:relative;}
+.field-icon{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;}
+.input,.select,.date-input{
+  height:42px;background:var(--surface-soft);border:1px solid var(--line);border-radius:12px;color:var(--text);
+  padding:0 .9rem;font-size:.86rem;outline:none;transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.input{padding-left:2.45rem;min-width:240px;}
+.select,.date-input{min-width:170px;}
+.input:focus,.select:focus,.date-input:focus,.form-input:focus{
+  border-color:rgba(37,99,235,.5);box-shadow:0 0 0 4px rgba(37,99,235,.10);
+}
+.pill-count{
+  margin-left:auto;display:inline-flex;align-items:center;gap:.45rem;height:42px;padding:0 .95rem;border-radius:999px;
+  background:var(--surface-soft);border:1px solid var(--line);font-size:.82rem;color:var(--text-muted);font-weight:700;
+}
+.pill-count strong{color:var(--text);font-size:.92rem;}
 
-.sbadge{display:inline-flex;align-items:center;gap:.28rem;font-size:.62rem;font-weight:800;padding:.18rem .5rem;border-radius:999px;white-space:nowrap;letter-spacing:.02em;}
-.s-ongoing{background:rgba(245,158,11,.1);color:#92400e;border:1px solid rgba(245,158,11,.22);}
-.s-completed{background:rgba(34,197,94,.1);color:#166534;border:1px solid rgba(34,197,94,.22);}
-.s-review{background:rgba(59,130,246,.1);color:var(--p2);border:1px solid rgba(59,130,246,.22);}
-.s-pending{background:rgba(239,68,68,.08);color:#991b1b;border:1px solid rgba(239,68,68,.18);}
-.s-hold{background:rgba(148,163,184,.12);color:var(--txt3);border:1px solid var(--bdr);}
-.dark .s-ongoing{color:#fcd34d;}.dark .s-completed{color:#86efac;}.dark .s-review{color:#93c5fd;}.dark .s-pending{color:#fca5a5;}
+.nodes-board{
+  background:var(--surface);border:1px solid var(--line);border-radius:calc(var(--radius) + 2px);box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.table-scroll{overflow:auto;padding:.35rem;}
 
-.pwrap{display:flex;align-items:center;gap:.5rem;justify-content:center;}
-.pbar{height:7px;width:76px;border-radius:999px;background:rgba(148,163,184,.2);overflow:hidden;}
-.pbf{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--p),#60a5fa);transition:width .4s;}
-.pct{font-family:var(--fm);font-size:.68rem;font-weight:900;color:var(--txt2);min-width:28px;}
+table{width:100%;border-collapse:separate;border-spacing:0 .42rem;min-width:980px;}
+thead th{
+  background:transparent;border:none;padding:0 .7rem .1rem;font-size:.62rem;font-weight:800;letter-spacing:.08em;
+  color:var(--text-muted);text-transform:uppercase;text-align:left;white-space:nowrap;
+}
+thead th.center{text-align:center;}
 
-.ar{display:flex;gap:.3rem;justify-content:center;align-items:center;}
-.ab{display:inline-flex;align-items:center;justify-content:center;height:28px;width:28px;border-radius:50%;border:1px solid var(--bdr);background:var(--surf);cursor:pointer;font-size:.8rem;color:var(--txt2);transition:all .15s;flex-shrink:0;}
-.ab:hover{transform:scale(1.1);}
-.ab-e:hover{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.35);color:var(--p);}
-.ab-d:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.35);color:var(--err);}
-.empty-st{text-align:center;padding:3rem 1rem;color:var(--muted);font-size:.83rem;}
-.empty-st i{font-size:2rem;display:block;margin-bottom:.6rem;}
+tbody td{
+  background:var(--surface-soft);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  padding:.62rem .7rem;vertical-align:middle;font-size:.76rem;color:var(--text-soft);white-space:nowrap;
+  transition:background .18s ease,border-color .18s ease,transform .18s ease, box-shadow .18s ease;
+}
+tbody tr td:first-child{border-left:1px solid var(--line);border-top-left-radius:12px;border-bottom-left-radius:12px;}
+tbody tr td:last-child{border-right:1px solid var(--line);border-top-right-radius:12px;border-bottom-right-radius:12px;}
+tbody tr.row-card{cursor:pointer;}
+tbody tr.row-card:hover td{
+  background:#ffffff;border-color:rgba(37,99,235,.18);box-shadow:0 8px 20px rgba(15,23,42,.05);
+}
+.dark tbody tr.row-card:hover td{background:#13203a;}
 
-.btn-p{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;background:var(--p);color:#fff;border:none;border-radius:var(--r-sm);font-size:.81rem;font-weight:900;font-family:var(--ff);cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,.28);transition:all .15s;}
-.btn-p:hover{background:var(--p2);transform:translateY(-1px);}
+.index-badge{
+  width:26px;height:26px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;
+  color:var(--text-muted);font-weight:700;background:var(--surface);font-size:.7rem;
+}
+.node-anchor{
+  display:inline-flex;align-items:center;gap:.42rem;padding:.32rem .56rem;border-radius:10px;
+  background:var(--primary-soft);border:1px solid rgba(37,99,235,.16);color:var(--primary);font-weight:800;font-size:.73rem;
+}
+.node-sub{display:block;margin-top:.2rem;font-size:.66rem;color:var(--text-muted);font-weight:600;}
 
-#nodeOv{position:fixed;inset:0;z-index:900;background:rgba(7,15,30,.65);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .22s;}
-#nodeOv.open{opacity:1;pointer-events:all;}
-#nmc{background:var(--surf);border:1px solid var(--bdr);border-radius:18px;box-shadow:var(--sh-lg);width:100%;max-width:860px;max-height:calc(100vh - 2rem);display:flex;flex-direction:column;transform:translateY(20px) scale(.97);opacity:0;transition:transform .28s cubic-bezier(.34,1.18,.64,1),opacity .22s;}
-#nodeOv.open #nmc{transform:translateY(0) scale(1);opacity:1;}
-.mhd{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.2rem;border-bottom:1px solid var(--bdr);gap:.7rem;}
-.mico{height:40px;width:40px;border-radius:10px;flex-shrink:0;background:var(--pg);display:inline-flex;align-items:center;justify-content:center;color:var(--p);font-size:1.1rem;}
-.mt{font-size:1rem;font-weight:900;color:var(--txt);}
-.ms{font-size:.7rem;color:var(--txt3);margin-top:.1rem;}
-.mb{padding:1.2rem;overflow-y:auto;flex:1;}
-.mc{height:30px;width:30px;border-radius:7px;border:1px solid var(--bdr);background:var(--surf2);display:inline-flex;align-items:center;justify-content:center;color:var(--txt2);font-size:.95rem;cursor:pointer;transition:all .15s;}
-.mc:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:var(--err);}
-.mft{padding:.85rem 1.2rem;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:flex-end;gap:.6rem;}
-.btn-c{padding:.42rem .9rem;border-radius:var(--r-sm);border:1px solid var(--bdr);background:var(--surf2);color:var(--txt2);font-size:.8rem;font-weight:800;font-family:var(--ff);cursor:pointer;transition:all .15s;}
-.btn-c:hover{background:var(--bdr);}
-.btn-s{padding:.42rem 1.1rem;border-radius:var(--r-sm);border:none;background:var(--p);color:#fff;font-size:.8rem;font-weight:900;font-family:var(--ff);cursor:pointer;box-shadow:0 2px 8px rgba(59,130,246,.3);transition:all .15s;display:inline-flex;align-items:center;gap:.35rem;}
-.btn-s:hover{background:var(--p2);}
+.text-main{color:var(--text);font-weight:700;}
+.text-soft{color:var(--text-soft);}
+.text-muted{color:var(--text-muted);}
+.ellipsis{max-width:130px;overflow:hidden;text-overflow:ellipsis;}
+.center{text-align:center;}
+.mono{font-variant-numeric:tabular-nums;}
 
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;}
-.c3{grid-column:span 2;}
-@media(max-width:580px){.fg{grid-template-columns:1fr;}.c3{grid-column:span 1;}}
-.lbl{display:block;font-size:.72rem;font-weight:900;color:var(--txt2);letter-spacing:.02em;margin-bottom:.3rem;}
-.lbl span{color:var(--err);}
-.inp{width:100%;padding:.45rem .68rem;border:1px solid var(--bdr);border-radius:var(--r-sm);background:var(--surf);color:var(--txt);font-size:.82rem;font-family:var(--ff);outline:none;transition:border-color .15s,box-shadow .15s;}
-.inp:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(59,130,246,.1);}
-.inp::placeholder{color:var(--muted);}
-.inp-e{border-color:rgba(239,68,68,.6)!important;box-shadow:0 0 0 3px rgba(239,68,68,.1)!important;}
+.status-pill{
+  display:inline-flex;align-items:center;justify-content:center;min-width:88px;padding:.3rem .52rem;border-radius:999px;
+  font-size:.64rem;font-weight:800;letter-spacing:.03em;border:1px solid transparent;
+}
+.status-ongoing{background:rgba(217,119,6,.08);color:var(--warning);border-color:rgba(217,119,6,.14);}
+.status-completed{background:rgba(22,163,74,.08);color:var(--success);border-color:rgba(22,163,74,.14);}
+.status-billing{background:rgba(37,99,235,.08);color:var(--primary);border-color:rgba(37,99,235,.14);}
+.status-pending{background:rgba(220,38,38,.08);color:var(--danger);border-color:rgba(220,38,38,.14);}
+.status-default{background:rgba(148,163,184,.10);color:var(--text-muted);border-color:var(--line);}
 
-.sdiv{grid-column:span 2;display:flex;align-items:center;gap:.6rem;margin:.2rem 0 -.1rem;}
-.sdiv .t{font-size:.73rem;font-weight:900;color:var(--txt2);text-transform:uppercase;letter-spacing:.08em;white-space:nowrap;}
-.sdiv .line{flex:1;height:1px;background:var(--bdr);}
-.sdiv .sub{font-size:.68rem;color:var(--muted);white-space:nowrap;}
+.progress-stack{display:flex;align-items:center;gap:.45rem;justify-content:center;}
+.progress-track{
+  width:64px;height:7px;border-radius:999px;background:rgba(148,163,184,.18);overflow:hidden;
+}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),#93c5fd);}
+.progress-value{min-width:28px;font-weight:800;color:var(--text);font-size:.7rem;}
 
-.totinp{grid-column:span 2;display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;}
-@media(max-width:580px){.totinp{grid-template-columns:1fr 1fr;}}
-.inpwrap{position:relative;}
-.pad-unit{padding-right:2.5rem!important;}
-.unitr{position:absolute;right:.65rem;top:50%;transform:translateY(-50%);font-size:.68rem;font-weight:700;color:var(--muted);pointer-events:none;}
+.action-group{display:flex;align-items:center;justify-content:flex-end;gap:.3rem;position:relative;z-index:2;}
+.icon-btn{
+  width:28px;height:28px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--text-soft);
+  display:grid;place-items:center;cursor:pointer;transition:all .18s ease;font-size:.76rem;
+}
+.icon-btn:hover{transform:translateY(-1px);}
+.icon-btn.edit:hover{color:var(--primary);border-color:rgba(37,99,235,.26);background:var(--primary-soft);}
+.icon-btn.delete:hover{color:var(--danger);border-color:rgba(220,38,38,.22);background:rgba(220,38,38,.06);}
+.icon-btn.map:hover{color:var(--success);border-color:rgba(22,163,74,.22);background:rgba(22,163,74,.06);}
 
+.empty-state{padding:4rem 1rem;text-align:center;color:var(--text-muted);}
+.empty-state i{font-size:2rem;display:block;margin-bottom:.7rem;color:var(--primary);}
 
-.prog-field{display:flex;align-items:center;gap:.75rem;margin-top:.4rem;}
-.pb{height:10px;flex:1;border-radius:999px;background:rgba(148,163,184,.2);overflow:hidden;}
-.pbf{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--p),#60a5fa);transition:width .35s;}
-.pct{font-family:var(--fm);font-size:.82rem;font-weight:900;color:var(--txt2);min-width:36px;text-align:right;}
+#nodeOv,#delOv{position:fixed;inset:0;z-index:1000;background:rgba(15,23,42,.55);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s ease;}
+#nodeOv.open,#delOv.open{opacity:1;pointer-events:auto;}
 
-#delOv{position:fixed;inset:0;z-index:950;background:rgba(7,15,30,.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s;}
-#delOv.open{opacity:1;pointer-events:all;}
-#delCard{background:var(--surf);border:1px solid var(--bdr);border-radius:16px;box-shadow:var(--sh-lg);max-width:370px;width:100%;padding:1.4rem;transform:scale(.95);opacity:0;transition:transform .22s cubic-bezier(.34,1.18,.64,1),opacity .2s;}
-#delOv.open #delCard{transform:scale(1);opacity:1;}
-.delib{height:46px;width:46px;border-radius:11px;background:rgba(239,68,68,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--err);font-size:1.2rem;margin-bottom:.85rem;}
-.btn-del{padding:.42rem 1rem;border-radius:var(--r-sm);border:none;background:var(--err);color:#fff;font-size:.8rem;font-weight:900;font-family:var(--ff);cursor:pointer;box-shadow:0 2px 8px rgba(239,68,68,.3);transition:all .15s;}
-.btn-del:hover{background:#dc2626;}
+.modal-card,.confirm-card{
+  width:100%;background:var(--surface);border:1px solid var(--line);box-shadow:0 24px 60px rgba(15,23,42,.16);
+  border-radius:24px;transform:translateY(10px) scale(.98);opacity:0;transition:all .22s ease;
+}
+#nodeOv.open .modal-card,#delOv.open .confirm-card{transform:translateY(0) scale(1);opacity:1;}
+.modal-card{max-width:900px;max-height:calc(100vh - 2rem);display:flex;flex-direction:column;overflow:hidden;}
+.confirm-card{max-width:400px;padding:1.35rem;}
+.modal-head,.modal-foot{padding:1rem 1.15rem;border-color:var(--line);}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:.8rem;border-bottom:1px solid var(--line);}
+.modal-foot{display:flex;align-items:center;justify-content:flex-end;gap:.65rem;border-top:1px solid var(--line);}
+.modal-body{padding:1.15rem;overflow:auto;}
+.modal-title{font-size:1rem;font-weight:800;margin:0;color:var(--text);}
+.modal-note{font-size:.78rem;color:var(--text-muted);margin-top:.25rem;}
+.close-btn,.btn-secondary,.btn-danger,.btn-save{
+  height:40px;border-radius:12px;cursor:pointer;font-weight:700;transition:all .18s ease;
+}
+.close-btn{
+  width:40px;border:1px solid var(--line);background:var(--surface-soft);color:var(--text-soft);
+}
+.btn-secondary{border:1px solid var(--line);background:var(--surface-soft);color:var(--text-soft);padding:0 1rem;}
+.btn-danger{border:none;background:var(--danger);color:#fff;padding:0 1rem;}
+.btn-save{border:none;background:var(--text);color:#fff;padding:0 1.1rem;display:inline-flex;align-items:center;gap:.55rem;}
+.dark .btn-save{background:var(--primary);color:#081120;}
 
-.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;pointer-events:none;}
-.toast{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;border-radius:10px;background:var(--surf);border:1px solid var(--bdr);box-shadow:var(--sh-lg);font-size:.8rem;font-weight:700;color:var(--txt);min-width:240px;transform:translateX(120%);opacity:0;transition:transform .3s cubic-bezier(.34,1.3,.64,1),opacity .25s;pointer-events:all;}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.95rem;}
+.form-full{grid-column:1 / -1;}
+.form-section{
+  grid-column:1 / -1;display:flex;align-items:center;gap:.8rem;margin:.2rem 0 -.1rem;
+}
+.form-section span{
+  white-space:nowrap;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted);
+}
+.form-section::after{content:"";height:1px;background:var(--line);flex:1;}
+.form-label{display:block;margin-bottom:.4rem;font-size:.75rem;font-weight:800;color:var(--text-soft);}
+.form-input{
+  width:100%;height:42px;padding:0 .9rem;border:1px solid var(--line);border-radius:12px;background:var(--surface-soft);color:var(--text);
+}
+.form-input.error{border-color:rgba(220,38,38,.5);box-shadow:0 0 0 4px rgba(220,38,38,.08);}
+.unit-field{position:relative;}
+.unit-field .form-input{padding-right:3rem;}
+.unit-tag{position:absolute;right:.85rem;top:50%;transform:translateY(-50%);font-size:.72rem;font-weight:700;color:var(--text-muted);pointer-events:none;}
+.progress-readonly{display:flex;align-items:center;gap:.8rem;padding-top:.2rem;}
+.progress-readonly .progress-track{flex:1;width:auto;height:10px;}
+.progress-readonly .progress-value{text-align:right;min-width:42px;}
+
+.toast-wrap{position:fixed;right:1.25rem;bottom:1.25rem;display:flex;flex-direction:column;gap:.6rem;z-index:1200;}
+.toast{
+  min-width:240px;padding:.8rem .95rem;border-radius:14px;background:var(--surface);border:1px solid var(--line);
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:.65rem;font-size:.84rem;font-weight:700;
+  transform:translateX(120%);opacity:0;transition:all .24s ease;
+}
 .toast.show{transform:translateX(0);opacity:1;}
-.toast.t-ok{border-color:rgba(34,197,94,.25);background:rgba(240,253,244,1);}
-.toast.t-err{border-color:rgba(239,68,68,.25);background:rgba(254,242,242,1);}
-.dark .toast.t-ok{background:#0f2918;}.dark .toast.t-err{background:#2d0909;}
+.toast.t-ok{border-color:rgba(22,163,74,.18);}
+.toast.t-err{border-color:rgba(220,38,38,.18);}
+
+@media (max-width: 900px){
+  .toolbar-row{align-items:stretch;}
+  .pill-count{margin-left:0;}
+}
+@media (max-width: 720px){
+  .form-grid{grid-template-columns:1fr;}
+}
 </style>
 @endpush
 
 <div class="col-span-full">
+  <div class="nodes-shell">
 
-  {{-- PAGE HEADER --}}
-  <div class="ph">
-    <div>
-      <h2>
-        <div class="h-ico"><i class="mgc_router_line"></i></div>
-        Nodes
-      </h2>
-      <p>
-        Project: <strong>{{ $project->name }}</strong>
-        <span style="margin:0 .4rem;color:var(--bdr2)">·</span>
-        <a href="{{ auth()->user()->role === 'admin' ? route('admin.projects.index') : route('pm.projects.index') }}" style="color:var(--p);font-size:.76rem;">← Back to Projects</a>
-      </p>
-    </div>
-    <button class="btn-p" id="btnOpenAdd"><i class="mgc_add_line"></i> Add Node ID</button>
-  </div>
-
-  {{-- STATS --}}
-  <div class="sg">
-    <div class="sc">
-      <div class="si" style="background:rgba(59,130,246,.1);color:var(--p);"><i class="mgc_router_line"></i></div>
-      <div><div class="sv" id="statTotal">0</div><div class="sl">Total Nodes</div></div>
-    </div>
-    <div class="sc">
-      <div class="si" style="background:rgba(245,158,11,.1);color:#b45309;"><i class="mgc_calendar_line"></i></div>
-      <div><div class="sv" id="statOngoing">0</div><div class="sl">Ongoing</div></div>
-    </div>
-    <div class="sc">
-      <div class="si" style="background:rgba(34,197,94,.1);color:#16a34a;"><i class="mgc_check_circle_line"></i></div>
-      <div><div class="sv" id="statDone">0</div><div class="sl">Completed</div></div>
-    </div>
-    <div class="sc">
-      <div class="si" style="background:rgba(148,163,184,.1);color:var(--txt3);"><i class="mgc_pause_circle_line"></i></div>
-      <div><div class="sv" id="statHold">0</div><div class="sl">On Hold</div></div>
-    </div>
-    <div class="sc">
-      <div class="si" style="background:rgba(139,92,246,.1);color:#7c3aed;"><i class="mgc_cable_line"></i></div>
-      <div><div class="sv"><span id="statStrand">0</span><span class="unit">m</span></div><div class="sl">Total Strand</div></div>
-    </div>
-  </div>
-
-  {{-- FILTERS --}}
-  <div class="fc">
-    <div class="frow">
-      <div class="fi-wrap">
-        <i class="mgc_search_line fi-ico"></i>
-        <input id="fSearch" type="text" placeholder="Search Node ID, province, city…" class="fi" />
+    <div class="page-header">
+      <div class="page-title">
+        <div class="page-title-badge"><i class="mgc_router_line"></i></div>
+        <div>
+          <h2>Nodes</h2>
+          <p>
+            Project: <strong>{{ $project->name }}</strong>
+            <span style="margin:0 .45rem;">·</span>
+            <a href="{{ auth()->user()->role === 'admin' ? route('admin.projects.index') : route('pm.projects.index') }}">Back to Projects</a>
+          </p>
+        </div>
       </div>
-      <div class="fgrp">
-        <select id="fRegion" class="fsel">
+      <button class="btn-primary" id="btnOpenAdd"><i class="mgc_add_line"></i> Add Node ID</button>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="mgc_router_line"></i></div>
+        <div><div class="stat-value" id="statTotal">0</div><div class="stat-label">Total Nodes</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="mgc_calendar_line"></i></div>
+        <div><div class="stat-value" id="statOngoing">0</div><div class="stat-label">Ongoing</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="mgc_check_circle_line"></i></div>
+        <div><div class="stat-value" id="statDone">0</div><div class="stat-label">Completed</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="mgc_pause_circle_line"></i></div>
+        <div><div class="stat-value" id="statHold">0</div><div class="stat-label">Billing in Process</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="mgc_cable_line"></i></div>
+        <div><div class="stat-value"><span id="statStrand">0</span><span class="stat-unit">m</span></div><div class="stat-label">Total Strand</div></div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <div class="toolbar-row">
+        <div class="field-wrap">
+          <i class="mgc_search_line field-icon"></i>
+          <input id="fSearch" type="text" placeholder="Search node, city, province..." class="input" />
+        </div>
+        <select id="fRegion" class="select">
           <option value="">All Provinces</option>
           <option>SOUTH LUZON</option>
           <option>NORTH LUZON</option>
@@ -215,92 +295,91 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
           <option>VISAYAS</option>
           <option>MINDANAO</option>
         </select>
-        <select id="fStatusF" class="fsel">
+        <select id="fStatusF" class="select">
           <option value="">All Status</option>
-          <option value="GOING">Ongoing</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="HOLD">On Hold</option>
-          <option value="REVIEW">Under Review</option>
+          <option value="ON GOING">On Going</option>
           <option value="PENDING">Pending</option>
+          <option value="COMPLETED">Completed</option>
+          <option value="BILLING">Billing in Process</option>
         </select>
-        <select id="fSubconF" class="fsel">
+        <select id="fSubconF" class="select">
           <option value="">All Subcon</option>
           @foreach($subcontractors as $sc)
             <option value="{{ $sc->id }}">{{ $sc->name }}</option>
           @endforeach
         </select>
-        <input id="fDueFilter" type="date" class="fdate" title="Filter by due date" />
-        <div class="cpill"><strong id="showCount">0</strong>&nbsp;node(s)</div>
+        <input id="fDueFilter" type="date" class="date-input" title="Filter by due date" />
+        <div class="pill-count"><strong id="showCount">0</strong> visible</div>
+      </div>
+    </div>
+
+    <div class="nodes-board">
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Node</th>
+              <th>Name</th>
+              <th>Province</th>
+              <th>City / District</th>
+              <th>Sites</th>
+              <th>Subcon</th>
+              <th>Team</th>
+              <th class="center">Status</th>
+              <th class="center">Strand</th>
+              <th class="center">Expected</th>
+              <th class="center">Actual</th>
+              <th class="center">Extender</th>
+              <th class="center">TSC</th>
+              <th class="center">Node</th>
+              <th class="center">Amp</th>
+              <th class="center">Due</th>
+              <th class="center">Progress</th>
+              <th class="center">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="nodeTbody"></tbody>
+        </table>
       </div>
     </div>
   </div>
+</div>
 
-  {{-- TABLE --}}
-  <div class="tv-card">
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th class="thl" style="width:40px;">#</th>
-            <th class="thl">Node ID</th>
-            <th class="thl">Node Name</th>
-            <th>Province</th>
-            <th>City / District</th>
-            <th>Sites</th>
-            <th>Subcon</th>
-            <th>Team</th>
-            <th>Status</th>
-            <th>Total Strand</th>
-            <th>Exp. Cable</th>
-            <th>Actual Cable</th>
-            <th>Extender</th>
-            <th>TSC</th>
-            <th>Node</th>
-            <th>Amplifier</th>
-            <th>Due Date</th>
-            <th>Progress</th>
-            <th class="col-act">Actions</th>
-          </tr>
-        </thead>
-        <tbody id="nodeTbody"></tbody>
-      </table>
-    </div>
-  </div>
-
-</div><!-- end col-span-full -->
-
-{{-- ADD / EDIT MODAL --}}
 <div id="nodeOv">
-  <div id="nmc">
-    <div class="mhd">
-      <div class="mico"><i class="mgc_router_line"></i></div>
-      <div style="flex:1;"><div class="mt" id="modalTitle">Add Node ID</div><div class="ms">Fields marked <span style="color:var(--err)">*</span> are required.</div></div>
-      <button class="mc" id="btnClose"><i class="mgc_close_line"></i></button>
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <div class="modal-title" id="modalTitle">Add Node ID</div>
+        <div class="modal-note">Fields marked with * are required.</div>
+      </div>
+      <button class="close-btn" id="btnClose"><i class="mgc_close_line"></i></button>
     </div>
-    <div class="mb">
-      <form id="nodeForm" class="fg" novalidate>
+    <div class="modal-body">
+      <form id="nodeForm" class="form-grid" novalidate>
         <input type="hidden" id="editId"/>
 
-        <div class="sdiv"><div class="t">Basic Information</div><div class="line"></div></div>
+        <div class="form-section"><span>Basic Information</span></div>
+
         <div>
-          <label class="lbl" for="fNodeId">Node ID <span>*</span></label>
-          <input id="fNodeId" class="inp" type="text" placeholder="e.g. QC-1104" required/>
+          <label class="form-label" for="fNodeId">Node ID *</label>
+          <input id="fNodeId" class="form-input" type="text" placeholder="e.g. QC-1104" required/>
         </div>
         <div>
-          <label class="lbl" for="fNodeName">Node Name</label>
-          <input id="fNodeName" class="inp" type="text" placeholder="e.g. Bagong Silang Exchange"/>
+          <label class="form-label" for="fNodeName">Node Name</label>
+          <input id="fNodeName" class="form-input" type="text" placeholder="e.g. Bagong Silang Exchange"/>
         </div>
         <div>
-          <label class="lbl" for="fRegion2">Province</label>
-          <input id="fRegion2" class="inp" type="text" placeholder="e.g. Metro Manila"/>
+          <label class="form-label" for="fRegion2">Province</label>
+          <input id="fRegion2" class="form-input" type="text" placeholder="e.g. Metro Manila"/>
         </div>
         <div>
-          <label class="lbl" for="fCity">City / District</label>
-          <input id="fCity" class="inp" type="text" placeholder="e.g. Quezon City, District 2"/>
+          <label class="form-label" for="fCity">City / District</label>
+          <input id="fCity" class="form-input" type="text" placeholder="e.g. Quezon City, District 2"/>
         </div>
-        <div class="c3">
-          <label class="lbl" for="fSites">Sites <span>*</span></label>
-          <select id="fSites" class="inp">
+        <div class="form-full">
+          <label class="form-label" for="fSites">Sites *</label>
+          <select id="fSites" class="form-input">
             <option value="">— Select Site —</option>
             <option>South Luzon</option>
             <option>North Luzon</option>
@@ -310,8 +389,8 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
           </select>
         </div>
         <div>
-          <label class="lbl" for="fSubcon2">Subcontractor</label>
-          <select id="fSubcon2" class="inp">
+          <label class="form-label" for="fSubcon2">Subcontractor</label>
+          <select id="fSubcon2" class="form-input">
             <option value="">— None —</option>
             @foreach($subcontractors as $sc)
               <option value="{{ $sc->id }}">{{ $sc->name }}</option>
@@ -319,124 +398,118 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
           </select>
         </div>
         <div>
-          <label class="lbl" for="fTeam">Assigned Team</label>
-          <select id="fTeam" class="inp">
+          <label class="form-label" for="fTeam">Assigned Team</label>
+          <select id="fTeam" class="form-input">
             <option value="">— No Team —</option>
           </select>
         </div>
         <div>
-          <label class="lbl" for="fStatus">Status <span>*</span></label>
-          <select id="fStatus" class="inp">
-            <option>ON GOING IMPLEMENTATION</option>
-            <option>ON GOING DOCUMENTATION</option>
-            <option>UNDER REVIEW BY CLIENT</option>
-            <option>UNDER REVIEW TELCOVANTAGE</option>
-            <option>PENDING DOCUMENTS</option>
-            <option>COMPLETED</option>
-            <option>ON HOLD</option>
+          <label class="form-label" for="fStatus">Status *</label>
+          <select id="fStatus" class="form-input">
+            <option value="ON GOING">On Going</option>
+            <option value="PENDING">Pending</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="BILLING ON PROCESS">Billing in Process</option>
           </select>
         </div>
         <div>
-          <label class="lbl" for="fApprovedBy">Approved By</label>
-          <input id="fApprovedBy" class="inp" type="text" placeholder="Name / Client / Team"/>
+          <label class="form-label" for="fApprovedBy">Approved By</label>
+          <input id="fApprovedBy" class="form-input" type="text" placeholder="Name / Client / Team"/>
         </div>
 
-        <div class="sdiv"><div class="t">Dates</div><div class="line"></div></div>
+        <div class="form-section"><span>Dates</span></div>
         <div>
-          <label class="lbl" for="fDueDate">Due Date</label>
-          <input id="fDueDate" class="inp" type="date"/>
+          <label class="form-label" for="fDueDate">Due Date</label>
+          <input id="fDueDate" class="form-input" type="date"/>
         </div>
         <div>
-          <label class="lbl" for="fDateStart">Date Start</label>
-          <input id="fDateStart" class="inp" type="date"/>
+          <label class="form-label" for="fDateStart">Date Start</label>
+          <input id="fDateStart" class="form-input" type="date"/>
         </div>
         <div>
-          <label class="lbl" for="fDateFinished">Date Finished</label>
-          <input id="fDateFinished" class="inp" type="date"/>
+          <label class="form-label" for="fDateFinished">Date Finished</label>
+          <input id="fDateFinished" class="form-input" type="date"/>
         </div>
 
-        <div class="sdiv c3"><div class="t">Node Totals</div><div class="line"></div><span class="sub">manual entry</span></div>
-        <div class="totinp" id="totalsInputWrap">
-          <div class="inpwrap">
-            <label class="lbl" for="fTotStrand">Total Strand Length</label>
-            <input id="fTotStrand" class="inp pad-unit" type="number" step="0.1" min="0" placeholder="0.0"/>
-            <span class="unitr">m</span>
-          </div>
-          <div class="inpwrap">
-            <label class="lbl" for="fTotActual">Expected Cable</label>
-            <input id="fTotActual" class="inp pad-unit" type="number" step="0.1" min="0" placeholder="0.0"/>
-            <span class="unitr">m</span>
-          </div>
-          <div class="inpwrap">
-            <label class="lbl" for="fActualCable">Actual Cable</label>
-            <input id="fActualCable" class="inp pad-unit" type="number" step="0.1" min="0" placeholder="0.0"/>
-            <span class="unitr">m</span>
-          </div>
-          <div class="inpwrap">
-            <label class="lbl" for="fTotExt">Extender</label>
-            <input id="fTotExt" class="inp pad-unit" type="number" step="1" min="0" placeholder="0"/>
-            <span class="unitr">pcs</span>
-          </div>
-          <div class="inpwrap">
-            <label class="lbl" for="fTotTsc">TSC</label>
-            <input id="fTotTsc" class="inp pad-unit" type="number" step="1" min="0" placeholder="0"/>
-            <span class="unitr">pcs</span>
-          </div>
-          <div class="inpwrap">
-            <label class="lbl" for="fTotNode">Node Devices</label>
-            <input id="fTotNode" class="inp pad-unit" type="number" step="1" min="0" placeholder="0"/>
-            <span class="unitr">pcs</span>
-          </div>
-          <div class="inpwrap">
-            <label class="lbl" for="fTotAmp">Amplifier</label>
-            <input id="fTotAmp" class="inp pad-unit" type="number" step="1" min="0" placeholder="0"/>
-            <span class="unitr">pcs</span>
-          </div>
+        <div class="form-section"><span>Node Totals</span></div>
+        <div class="unit-field">
+          <label class="form-label" for="fTotStrand">Total Strand Length</label>
+          <input id="fTotStrand" class="form-input" type="number" step="0.1" min="0" placeholder="0.0"/>
+          <span class="unit-tag">m</span>
+        </div>
+        <div class="unit-field">
+          <label class="form-label" for="fTotActual">Expected Cable</label>
+          <input id="fTotActual" class="form-input" type="number" step="0.1" min="0" placeholder="0.0"/>
+          <span class="unit-tag">m</span>
+        </div>
+        <div class="unit-field">
+          <label class="form-label" for="fActualCable">Actual Cable</label>
+          <input id="fActualCable" class="form-input" type="number" step="0.1" min="0" placeholder="0.0"/>
+          <span class="unit-tag">m</span>
+        </div>
+        <div class="unit-field">
+          <label class="form-label" for="fTotExt">Extender</label>
+          <input id="fTotExt" class="form-input" type="number" step="1" min="0" placeholder="0"/>
+          <span class="unit-tag">pcs</span>
+        </div>
+        <div class="unit-field">
+          <label class="form-label" for="fTotTsc">TSC</label>
+          <input id="fTotTsc" class="form-input" type="number" step="1" min="0" placeholder="0"/>
+          <span class="unit-tag">pcs</span>
+        </div>
+        <div class="unit-field">
+          <label class="form-label" for="fTotNode">Node Devices</label>
+          <input id="fTotNode" class="form-input" type="number" step="1" min="0" placeholder="0"/>
+          <span class="unit-tag">pcs</span>
+        </div>
+        <div class="unit-field">
+          <label class="form-label" for="fTotAmp">Amplifier</label>
+          <input id="fTotAmp" class="form-input" type="number" step="1" min="0" placeholder="0"/>
+          <span class="unit-tag">pcs</span>
         </div>
 
-        <div class="sdiv c3"><div class="t">Progress</div><div class="line"></div><span class="sub">from daily reports</span></div>
-        <div class="c3">
-          <label class="lbl">Progress Bar (Read Only)</label>
+        <div class="form-section"><span>Progress</span></div>
+        <div class="form-full">
+          <label class="form-label">Progress Bar (Read Only)</label>
           <input type="hidden" id="fProgress" value="0"/>
-          <div class="prog-field">
-            <div class="pb"><div class="pbf" id="fPfill" style="width:0%"></div></div>
-            <div class="pct" id="fPpct">0%</div>
+          <div class="progress-readonly">
+            <div class="progress-track"><div class="progress-fill" id="fPfill" style="width:0%"></div></div>
+            <div class="progress-value" id="fPpct">0%</div>
           </div>
         </div>
-
       </form>
     </div>
-    <div class="mft">
-      <button class="btn-c" id="btnCancel" type="button">Cancel</button>
-      <button class="btn-s" id="btnSave" type="button"><i class="mgc_save_line"></i> <span id="saveLbl">Save Node</span></button>
+    <div class="modal-foot">
+      <button class="btn-secondary" id="btnCancel" type="button">Cancel</button>
+      <button class="btn-save" id="btnSave" type="button"><i class="mgc_save_line"></i> <span id="saveLbl">Save Node</span></button>
     </div>
   </div>
 </div>
 
-{{-- DELETE MODAL --}}
 <div id="delOv">
-  <div id="delCard">
-    <div class="delib"><i class="mgc_delete_2_line"></i></div>
-    <div style="font-size:.9rem;font-weight:900;color:var(--txt);margin-bottom:.3rem;">Delete Node?</div>
-    <p style="font-size:.79rem;color:var(--txt2);margin-bottom:1.1rem;" id="delMsg">This cannot be undone.</p>
-    <div style="display:flex;gap:.5rem;justify-content:flex-end;">
-      <button class="btn-c" id="btnDelCancel">Cancel</button>
-      <button class="btn-del" id="btnDelConfirm"><i class="mgc_delete_2_line"></i> Delete</button>
+  <div class="confirm-card">
+    <div style="width:48px;height:48px;border-radius:14px;background:rgba(220,38,38,.08);color:var(--danger);display:grid;place-items:center;font-size:1.2rem;margin-bottom:1rem;">
+      <i class="mgc_delete_2_line"></i>
+    </div>
+    <div style="font-size:1rem;font-weight:800;color:var(--text);margin-bottom:.3rem;">Delete Node?</div>
+    <p style="font-size:.84rem;color:var(--text-muted);margin:0 0 1.1rem;" id="delMsg">This cannot be undone.</p>
+    <div style="display:flex;justify-content:flex-end;gap:.65rem;">
+      <button class="btn-secondary" id="btnDelCancel">Cancel</button>
+      <button class="btn-danger" id="btnDelConfirm"><i class="mgc_delete_2_line"></i> Delete</button>
     </div>
   </div>
 </div>
 
-{{-- TOAST --}}
 <div class="toast-wrap" id="toastWrap"></div>
 
 @push('scripts')
 <script>
 (function(){
-  const NODES     = @json($nodes);
-  const TEAMS_BY_SUBCON = @json($teams);   // { subcon_id: [{id, team_name, ...}, ...] }
+  const NODES = @json($nodes);
+  const TEAMS_BY_SUBCON = @json($teams);
   const STORE_URL = "{{ auth()->user()->role === 'admin' ? route('admin.projects.nodes.store', $project) : route('pm.projects.nodes.store', $project) }}";
-  const BASE_URL  = "{{ auth()->user()->role === 'admin' ? url('admin/projects/' . $project->id . '/nodes') : url('pm/projects/' . $project->id . '/nodes') }}";
-  const CSRF      = document.querySelector('meta[name="csrf-token"]').content;
+  const BASE_URL = "{{ auth()->user()->role === 'admin' ? url('admin/projects/' . $project->id . '/nodes') : url('pm/projects/' . $project->id . '/nodes') }}";
+  const CSRF = document.querySelector('meta[name="csrf-token"]').content;
 
   let rows = JSON.parse(JSON.stringify(NODES));
   let pendingDelId = null;
@@ -456,221 +529,308 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
   }
 
   function toast(msg, type='ok'){
-    const w=$('toastWrap');
-    const el=document.createElement('div');
-    el.className=`toast t-${type}`;
-    el.innerHTML=`<i class="mgc_${type==='ok'?'check_circle_line':'close_circle_line'}" style="font-size:1rem;color:${type==='ok'?'#16a34a':'var(--err)'}"></i><span>${msg}</span>`;
-    w.appendChild(el);
-    requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
-    setTimeout(()=>{el.classList.remove('show');setTimeout(()=>el.remove(),350);},3200);
+    const wrap = $('toastWrap');
+    const el = document.createElement('div');
+    el.className = `toast t-${type}`;
+    el.innerHTML = `<i class="mgc_${type==='ok'?'check_circle_line':'close_circle_line'}" style="font-size:1rem;color:${type==='ok'?'#16a34a':'#dc2626'}"></i><span>${msg}</span>`;
+    wrap.appendChild(el);
+    requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+    setTimeout(() => {
+      el.classList.remove('show');
+      setTimeout(() => el.remove(), 260);
+    }, 2800);
   }
 
   function renderStats(list){
-    $('statTotal').textContent   = list.length;
-    $('statOngoing').textContent = list.filter(n=>/going|implementation|documentation/i.test(n.status)).length;
-    $('statDone').textContent    = list.filter(n=>/completed/i.test(n.status)).length;
-    $('statHold').textContent    = list.filter(n=>/hold/i.test(n.status)).length;
-    $('statStrand').textContent  = list.reduce((s,n)=>s+(parseFloat(n.strand_m)||0),0).toFixed(1);
+    $('statTotal').textContent = list.length;
+    $('statOngoing').textContent = list.filter(n => /on going/i.test(n.status)).length;
+    $('statDone').textContent = list.filter(n => /complete/i.test(n.status)).length;
+    $('statHold').textContent = list.filter(n => /billing/i.test(n.status)).length;
+    $('statStrand').textContent = list.reduce((sum, n) => sum + (parseFloat(n.strand_m) || 0), 0).toFixed(1);
   }
 
-  function statusBadge(s){
-    let cls='s-hold';
-    if(/going|implement|documentation/i.test(s)) cls='s-ongoing';
-    else if(/completed/i.test(s)) cls='s-completed';
-    else if(/review/i.test(s)) cls='s-review';
-    else if(/pending/i.test(s)) cls='s-pending';
-    return `<span class="sbadge ${cls}">${s||'—'}</span>`;
+  function statusBadge(status){
+    const value = status || '—';
+    if (/on going/i.test(value)) return `<span class="status-pill status-ongoing">${value}</span>`;
+    if (/complete/i.test(value)) return `<span class="status-pill status-completed">${value}</span>`;
+    if (/billing/i.test(value)) return `<span class="status-pill status-billing">${value}</span>`;
+    if (/pending/i.test(value)) return `<span class="status-pill status-pending">${value}</span>`;
+    return `<span class="status-pill status-default">${value}</span>`;
   }
 
   function getFiltered(){
-    const q  =($('fSearch').value||'').toLowerCase();
-    const reg=$('fRegion').value.toLowerCase();
-    const st =$('fStatusF').value.toLowerCase();
-    const sc =$('fSubconF').value;
-    const due=$('fDueFilter').value;
-    return rows.filter(n=>{
-      if(q  && ![(n.node_code||''),(n.node_name||''),(n.region||''),(n.city||'')].join(' ').toLowerCase().includes(q)) return false;
-      if(reg && !(n.region||'').toLowerCase().includes(reg)) return false;
-      if(st  && !(n.status||'').toLowerCase().includes(st)) return false;
-      if(sc  && String(n.subcon_id)!==sc) return false;
-      if(due && n.due_date && n.due_date.slice(0,10)!==due) return false;
+    const q = ($('fSearch').value || '').toLowerCase();
+    const reg = $('fRegion').value.toLowerCase();
+    const st = $('fStatusF').value.toLowerCase();
+    const sc = $('fSubconF').value;
+    const due = $('fDueFilter').value;
+
+    return rows.filter(n => {
+      if (q && ![(n.node_code||''),(n.node_name||''),(n.region||''),(n.city||''),(n.sites||'')].join(' ').toLowerCase().includes(q)) return false;
+      if (reg && !(n.region || '').toLowerCase().includes(reg)) return false;
+      if (st && !(n.status || '').toLowerCase().includes(st)) return false;
+      if (sc && String(n.subcon_id) !== sc) return false;
+      if (due && n.due_date && n.due_date.slice(0,10) !== due) return false;
       return true;
     });
   }
 
   function renderTable(){
-    const list=getFiltered();
+    const list = getFiltered();
     renderStats(list);
-    $('showCount').textContent=list.length;
+    $('showCount').textContent = list.length;
 
-    if(!list.length){
-      $('nodeTbody').innerHTML=`<tr><td colspan="19"><div class="empty-st"><i class="mgc_router_line"></i>No nodes found. Click "Add Node ID" to get started.</div></td></tr>`;
+    if (!list.length){
+      $('nodeTbody').innerHTML = `
+        <tr>
+          <td colspan="19">
+            <div class="empty-state">
+              <i class="mgc_router_line"></i>
+              No nodes found. Click “Add Node ID” to create your first record.
+            </div>
+          </td>
+        </tr>`;
       return;
     }
 
-    $('nodeTbody').innerHTML=list.map((n,i)=>{
-      const subName=n.subcontractor?n.subcontractor.name:'—';
-      const prog=n.progress||0;
-      const due=n.due_date?n.due_date.slice(0,10):'—';
-      const polesUrl=`${BASE_URL}/${n.id}/poles`;
-      return `<tr>
-        <td class="c-idx tdl">${i+1}</td>
-        <td class="c-nlink tdl"><a href="${polesUrl}"><i class="mgc_router_line" style="font-size:.7rem"></i> ${n.node_code}</a></td>
-        <td class="c-txt tdl" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${n.node_name||''}">${n.node_name||'—'}</td>
-        <td class="c-txt">${n.region||'—'}</td>
-        <td class="c-txt" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${n.city||''}">${n.city||'—'}</td>
-        <td class="c-txt" style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${n.sites||''}">${n.sites||'—'}</td>
-        <td class="c-txt">${subName}</td>
-        <td class="c-txt">${n.team||'—'}</td>
-        <td>${statusBadge(n.status)}</td>
-        <td class="c-num">${(+n.strand_m||0).toFixed(1)}<span class="cm">m</span></td>
-        <td class="c-num">${(+n.cable_m||0).toFixed(1)}<span class="cm">m</span></td>
-        <td class="c-num">${(+n.actual_cable_m||0).toFixed(1)}<span class="cm">m</span></td>
-        <td class="c-num">${n.extender_count||0}</td>
-        <td class="c-num">${n.tsc_count||0}</td>
-        <td class="c-num">${n.node_device_count||0}</td>
-        <td class="c-num">${n.amp_count||0}</td>
-        <td class="c-txt">${due}</td>
-        <td><div class="pwrap"><div class="pbar"><div class="pbf" style="width:${prog}%"></div></div><div class="pct">${prog}%</div></div></td>
-        <td class="col-act"><div class="ar">
-          <button class="ab ab-e" data-act="edit" data-id="${n.id}" type="button" title="Edit"><i class="mgc_edit_2_line"></i></button>
-          <button class="ab ab-d" data-act="del"  data-id="${n.id}" type="button" title="Delete"><i class="mgc_delete_2_line"></i></button>
-        </div></td>
-      </tr>`;
+    $('nodeTbody').innerHTML = list.map((n, i) => {
+      const subName = n.subcontractor ? n.subcontractor.name : '—';
+      const prog = Number(n.progress || 0);
+      const due = n.due_date ? n.due_date.slice(0,10) : '—';
+      const polesUrl = `${BASE_URL}/${n.id}/poles`;
+      const mapUrl = `${BASE_URL}/${n.id}/vicinity-map`;
+
+      return `
+        <tr class="row-card" data-row-link="${polesUrl}">
+          <td><div class="index-badge">${i + 1}</div></td>
+          <td>
+            <a class="node-anchor" href="${polesUrl}">
+              <i class="mgc_router_line"></i>
+              <span>${n.node_code || '—'}</span>
+            </a>
+            
+          </td>
+          <td><div class="text-main ellipsis" title="${n.node_name || ''}">${n.node_name || '—'}</div></td>
+          <td><div class="text-soft">${n.region || '—'}</div></td>
+          <td><div class="text-soft ellipsis" title="${n.city || ''}">${n.city || '—'}</div></td>
+          <td><div class="text-soft ellipsis" title="${n.sites || ''}">${n.sites || '—'}</div></td>
+          <td><div class="text-soft">${subName}</div></td>
+          <td><div class="text-soft">${n.team || '—'}</div></td>
+          <td class="center">${statusBadge(n.status)}</td>
+          <td class="center mono">${(+n.strand_m || 0).toFixed(1)} m</td>
+          <td class="center mono">${(+n.cable_m || 0).toFixed(1)} m</td>
+          <td class="center mono">${(+n.actual_cable_m || 0).toFixed(1)} m</td>
+          <td class="center mono">${n.extender_count || 0}</td>
+          <td class="center mono">${n.tsc_count || 0}</td>
+          <td class="center mono">${n.node_device_count || 0}</td>
+          <td class="center mono">${n.amp_count || 0}</td>
+          <td class="center text-soft">${due}</td>
+          <td class="center">
+            <div class="progress-stack">
+              <div class="progress-track"><div class="progress-fill" style="width:${prog}%"></div></div>
+              <div class="progress-value">${prog}%</div>
+            </div>
+          </td>
+          <td>
+            <div class="action-group">
+              <a class="icon-btn map no-row-link" href="${mapUrl}" target="_blank" title="Vicinity Map"><i class="mgc_map_line"></i></a>
+              <button class="icon-btn edit no-row-link" data-act="edit" data-id="${n.id}" type="button" title="Edit"><i class="mgc_edit_2_line"></i></button>
+              <button class="icon-btn delete no-row-link" data-act="del" data-id="${n.id}" type="button" title="Delete"><i class="mgc_delete_2_line"></i></button>
+            </div>
+          </td>
+        </tr>`;
     }).join('');
   }
 
   function openModal(){ $('nodeOv').classList.add('open'); document.body.style.overflow='hidden'; }
   function closeModal(){ $('nodeOv').classList.remove('open'); document.body.style.overflow=''; }
   function openDel(id){
-    const n=rows.find(x=>x.id==id); if(!n) return;
-    pendingDelId=id;
-    $('delMsg').textContent=`Delete node "${n.node_code}"? All poles in this node will also be deleted.`;
-    $('delOv').classList.add('open'); document.body.style.overflow='hidden';
+    const node = rows.find(x => x.id == id);
+    if (!node) return;
+    pendingDelId = id;
+    $('delMsg').textContent = `Delete node "${node.node_code}"? All poles in this node will also be deleted.`;
+    $('delOv').classList.add('open');
+    document.body.style.overflow='hidden';
   }
-  function closeDel(){ $('delOv').classList.remove('open'); document.body.style.overflow=''; pendingDelId=null; }
+  function closeDel(){ $('delOv').classList.remove('open'); document.body.style.overflow=''; pendingDelId = null; }
 
   function resetForm(){
-    $('nodeForm').reset();$('editId').value='';
-    $('modalTitle').textContent='Add Node ID';$('saveLbl').textContent='Save Node';
-    $('fPfill').style.width='0%';$('fPpct').textContent='0%';
-    $('fNodeId').classList.remove('inp-e');
-    populateTeams('', '');   // clear team list when no subcon selected
+    $('nodeForm').reset();
+    $('editId').value = '';
+    $('modalTitle').textContent = 'Add Node ID';
+    $('saveLbl').textContent = 'Save Node';
+    $('fPfill').style.width = '0%';
+    $('fPpct').textContent = '0%';
+    $('fNodeId').classList.remove('error');
+    populateTeams('', '');
   }
 
-  // Filter teams whenever subcon changes
-  document.addEventListener('DOMContentLoaded', function(){
-    const subconSel = $('fSubcon2');
-    if(subconSel){
-      subconSel.addEventListener('change', function(){
-        populateTeams(this.value, '');
-      });
-    }
-  });
   function loadEdit(id){
-    const n=rows.find(x=>x.id==id); if(!n) return;
+    const n = rows.find(x => x.id == id);
+    if (!n) return;
     resetForm();
-    $('editId').value=n.id;
-    $('modalTitle').textContent='Edit Node ID';$('saveLbl').textContent='Update Node';
-    $('fNodeId').value=n.node_code||'';
-    $('fNodeName').value=n.node_name||'';
-    $('fSites').value=n.sites||'';
-    $('fRegion2').value=n.region||'';
-    $('fCity').value=n.city||'';
-    $('fSubcon2').value=n.subcon_id||'';
-    populateTeams(n.subcon_id, n.team||'');
-    $('fStatus').value=n.status||'ON GOING IMPLEMENTATION';
-    $('fApprovedBy').value=n.approved_by||'';
-    $('fDueDate').value=(n.due_date||'').slice(0,10);
-    $('fDateStart').value=(n.start_date||'').slice(0,10);
-    $('fDateFinished').value=(n.completed_date||'').slice(0,10);
-    $('fTotStrand').value=n.strand_m||0;
-    $('fTotActual').value=n.cable_m||0;
-    $('fActualCable').value=n.actual_cable_m||0;
-    $('fTotExt').value=n.extender_count||0;
-    $('fTotTsc').value=n.tsc_count||0;
-    $('fTotNode').value=n.node_device_count||0;
-    $('fTotAmp').value=n.amp_count||0;
-    const prog=n.progress||0;
-    $('fProgress').value=prog;$('fPfill').style.width=prog+'%';$('fPpct').textContent=prog+'%';
+
+    $('editId').value = n.id;
+    $('modalTitle').textContent = 'Edit Node ID';
+    $('saveLbl').textContent = 'Update Node';
+    $('fNodeId').value = n.node_code || '';
+    $('fNodeName').value = n.node_name || '';
+    $('fSites').value = n.sites || '';
+    $('fRegion2').value = n.region || '';
+    $('fCity').value = n.city || '';
+    $('fSubcon2').value = n.subcon_id || '';
+    populateTeams(n.subcon_id, n.team || '');
+    $('fStatus').value = n.status || 'ON GOING';
+    $('fApprovedBy').value = n.approved_by || '';
+    $('fDueDate').value = (n.due_date || '').slice(0,10);
+    $('fDateStart').value = (n.start_date || '').slice(0,10);
+    $('fDateFinished').value = (n.completed_date || '').slice(0,10);
+    $('fTotStrand').value = n.strand_m || 0;
+    $('fTotActual').value = n.cable_m || 0;
+    $('fActualCable').value = n.actual_cable_m || 0;
+    $('fTotExt').value = n.extender_count || 0;
+    $('fTotTsc').value = n.tsc_count || 0;
+    $('fTotNode').value = n.node_device_count || 0;
+    $('fTotAmp').value = n.amp_count || 0;
+
+    const prog = Number(n.progress || 0);
+    $('fProgress').value = prog;
+    $('fPfill').style.width = `${prog}%`;
+    $('fPpct').textContent = `${prog}%`;
     openModal();
   }
 
   async function saveNode(){
-    const code=$('fNodeId').value.trim();
-    if(!code){$('fNodeId').classList.add('inp-e');return;}
-    $('fNodeId').classList.remove('inp-e');
-    const editId=$('editId').value;
-    const url=editId?`${BASE_URL}/${editId}`:STORE_URL;
-    const fd=new FormData();
-    fd.append('_token',CSRF);
-    fd.append('node_code',code);
-    fd.append('node_name',$('fNodeName').value.trim());
-    fd.append('sites',$('fSites').value.trim());
-    fd.append('region',$('fRegion2').value.trim());
-    fd.append('city',$('fCity').value.trim());
-    fd.append('subcon_id',$('fSubcon2').value);
-    fd.append('team',$('fTeam').value);
-    fd.append('status',$('fStatus').value);
-    fd.append('approved_by',$('fApprovedBy').value.trim());
-    fd.append('due_date',$('fDueDate').value);
-    fd.append('start_date',$('fDateStart').value);
-    fd.append('completed_date',$('fDateFinished').value);
-    fd.append('strand_m',$('fTotStrand').value||0);
-    fd.append('cable_m',$('fTotActual').value||0);
-    fd.append('actual_cable_m',$('fActualCable').value||0);
-    fd.append('extender_count',$('fTotExt').value||0);
-    fd.append('tsc_count',$('fTotTsc').value||0);
-    fd.append('node_device_count',$('fTotNode').value||0);
-    fd.append('amp_count',$('fTotAmp').value||0);
-    const btn=$('btnSave');
-    btn.disabled=true;btn.innerHTML='<i class="mgc_loading_4_line"></i> Saving…';
+    const code = $('fNodeId').value.trim();
+    if (!code){
+      $('fNodeId').classList.add('error');
+      return;
+    }
+
+    $('fNodeId').classList.remove('error');
+    const editId = $('editId').value;
+    const url = editId ? `${BASE_URL}/${editId}` : STORE_URL;
+    const fd = new FormData();
+
+    fd.append('_token', CSRF);
+    fd.append('node_code', code);
+    fd.append('node_name', $('fNodeName').value.trim());
+    fd.append('sites', $('fSites').value.trim());
+    fd.append('region', $('fRegion2').value.trim());
+    fd.append('city', $('fCity').value.trim());
+    fd.append('subcon_id', $('fSubcon2').value);
+    fd.append('team', $('fTeam').value);
+    fd.append('status', $('fStatus').value);
+    fd.append('approved_by', $('fApprovedBy').value.trim());
+    fd.append('due_date', $('fDueDate').value);
+    fd.append('start_date', $('fDateStart').value);
+    fd.append('completed_date', $('fDateFinished').value);
+    fd.append('strand_m', $('fTotStrand').value || 0);
+    fd.append('cable_m', $('fTotActual').value || 0);
+    fd.append('actual_cable_m', $('fActualCable').value || 0);
+    fd.append('extender_count', $('fTotExt').value || 0);
+    fd.append('tsc_count', $('fTotTsc').value || 0);
+    fd.append('node_device_count', $('fTotNode').value || 0);
+    fd.append('amp_count', $('fTotAmp').value || 0);
+
+    const btn = $('btnSave');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mgc_loading_4_line"></i> Saving...';
+
     try{
-      const res=await fetch(url,{method:'POST',headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'},body:fd});
-      const data=await res.json();
-      if(!res.ok||!data.success){toast(data.message||'Something went wrong.','err');return;}
-      if(editId){const idx=rows.findIndex(x=>x.id==editId);if(idx>=0)rows[idx]=data.node;}
-      else rows.unshift(data.node);
-      closeModal();renderTable();toast(editId?'Node updated.':'Node added.');
-    }catch(e){toast('Network error.','err');}
-    finally{btn.disabled=false;btn.innerHTML='<i class="mgc_save_line"></i> <span id="saveLbl">Save Node</span>';}
+      const res = await fetch(url, {
+        method:'POST',
+        headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'},
+        body:fd
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success){
+        toast(data.message || 'Something went wrong.', 'err');
+        return;
+      }
+
+      if (editId){
+        const idx = rows.findIndex(x => String(x.id) === String(editId));
+        if (idx >= 0) rows[idx] = data.node;
+      } else {
+        rows.unshift(data.node);
+      }
+
+      closeModal();
+      renderTable();
+      toast(editId ? 'Node updated.' : 'Node added.');
+    } catch (e){
+      toast('Network error.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="mgc_save_line"></i> <span id="saveLbl">Save Node</span>';
+    }
   }
 
   async function confirmDel(){
-    if(!pendingDelId) return;
-    const btn=$('btnDelConfirm');
-    btn.disabled=true;btn.innerHTML='<i class="mgc_loading_4_line"></i> Deleting…';
+    if (!pendingDelId) return;
+    const btn = $('btnDelConfirm');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="mgc_loading_4_line"></i> Deleting...';
+
     try{
-      const res=await fetch(`${BASE_URL}/${pendingDelId}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'}});
-      const data=await res.json();
-      if(!res.ok||!data.success){toast(data.message||'Delete failed.','err');return;}
-      rows=rows.filter(x=>x.id!=pendingDelId);
-      closeDel();renderTable();toast('Node deleted.');
-    }catch(e){toast('Network error.','err');}
-    finally{btn.disabled=false;btn.innerHTML='<i class="mgc_delete_2_line"></i> Delete';}
+      const res = await fetch(`${BASE_URL}/${pendingDelId}`, {
+        method:'DELETE',
+        headers:{'X-CSRF-TOKEN':CSRF,'Accept':'application/json'}
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success){
+        toast(data.message || 'Delete failed.', 'err');
+        return;
+      }
+      rows = rows.filter(x => x.id != pendingDelId);
+      closeDel();
+      renderTable();
+      toast('Node deleted.');
+    } catch (e){
+      toast('Network error.', 'err');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="mgc_delete_2_line"></i> Delete';
+    }
   }
 
-  $('btnOpenAdd').addEventListener('click',()=>{resetForm();openModal();});
-  $('btnClose').addEventListener('click',closeModal);
-  $('btnCancel').addEventListener('click',closeModal);
-  $('btnSave').addEventListener('click',saveNode);
-  $('nodeOv').addEventListener('click',e=>{if(e.target===$('nodeOv'))closeModal();});
-  $('btnDelConfirm').addEventListener('click',confirmDel);
-  $('btnDelCancel').addEventListener('click',closeDel);
-  $('delOv').addEventListener('click',e=>{if(e.target===$('delOv'))closeDel();});
-  $('nodeTbody').addEventListener('click',e=>{
-    const btn=e.target.closest('button');if(!btn)return;
-    if(btn.dataset.act==='edit')loadEdit(btn.dataset.id);
-    if(btn.dataset.act==='del') openDel(btn.dataset.id);
+  $('btnOpenAdd').addEventListener('click', () => { resetForm(); openModal(); });
+  $('btnClose').addEventListener('click', closeModal);
+  $('btnCancel').addEventListener('click', closeModal);
+  $('btnSave').addEventListener('click', saveNode);
+  $('btnDelCancel').addEventListener('click', closeDel);
+  $('btnDelConfirm').addEventListener('click', confirmDel);
+
+  $('nodeOv').addEventListener('click', e => { if (e.target === $('nodeOv')) closeModal(); });
+  $('delOv').addEventListener('click', e => { if (e.target === $('delOv')) closeDel(); });
+
+  $('fSubcon2').addEventListener('change', function(){ populateTeams(this.value, ''); });
+
+  $('nodeTbody').addEventListener('click', e => {
+    const actionBtn = e.target.closest('[data-act]');
+    if (actionBtn){
+      if (actionBtn.dataset.act === 'edit') loadEdit(actionBtn.dataset.id);
+      if (actionBtn.dataset.act === 'del') openDel(actionBtn.dataset.id);
+      return;
+    }
+
+    const skip = e.target.closest('.no-row-link, a, button');
+    if (skip) return;
+
+    const row = e.target.closest('tr[data-row-link]');
+    if (row) window.location.href = row.dataset.rowLink;
   });
-  ['fSearch','fRegion','fStatusF','fSubconF','fDueFilter'].forEach(id=>{
-    $(id).addEventListener('input',renderTable);
-    $(id).addEventListener('change',renderTable);
+
+  ['fSearch','fRegion','fStatusF','fSubconF','fDueFilter'].forEach(id => {
+    $(id).addEventListener('input', renderTable);
+    $(id).addEventListener('change', renderTable);
   });
-  document.addEventListener('keydown',e=>{
-    if(e.key==='Escape'){
-      if($('nodeOv').classList.contains('open'))closeModal();
-      if($('delOv').classList.contains('open'))closeDel();
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape'){
+      if ($('nodeOv').classList.contains('open')) closeModal();
+      if ($('delOv').classList.contains('open')) closeDel();
     }
   });
 
@@ -680,3 +840,4 @@ tbody tr:hover td.col-act{background:rgba(59,130,246,.03);}
 @endpush
 
 </x-layout>
+```

@@ -131,6 +131,17 @@ class NodeController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function vicinityMap(Project $project, Node $node)
+    {
+        $poles = $node->poles()
+            ->whereNotNull('map_latitude')
+            ->whereNotNull('map_longitude')
+            ->orderBy('pole_code')
+            ->get(['id', 'pole_code', 'pole_name', 'map_latitude', 'map_longitude', 'status']);
+
+        return view('dashboards.admin.projects.nodes.vicinity-map', compact('project', 'node', 'poles'));
+    }
+
     private function withSpanCounts(Node $n): Node
     {
         return Node::where('id', $n->id)

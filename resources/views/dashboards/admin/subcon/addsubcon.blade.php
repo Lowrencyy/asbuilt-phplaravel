@@ -511,8 +511,9 @@ textarea.inp{min-height:90px;resize:vertical;}
 @push('scripts')
 <script>
 (function(){
-  const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-  const BASE = '{{ route("admin.subcons.index") }}';
+  const CSRF      = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const BASE      = '{{ route("admin.subcons.index") }}';
+  const SHOW_BASE = '{{ url("admin/subcons") }}';
 
   let SUBCONS = @json($subcons);
   let pendingDelId = null;
@@ -649,8 +650,9 @@ textarea.inp{min-height:90px;resize:vertical;}
             <div class="idmono">SUBCON #${s.id}</div>
             <div class="actions">
               <button class="ab ab-i" type="button" data-act="logo" data-id="${s.id}" title="View logo"><i class="mgc_pic_2_line"></i></button>
-              <button class="ab ab-e" type="button" data-act="edit" data-id="${s.id}" title="Edit"><i class="mgc_edit_2_line"></i></button>
-              <button class="ab ab-d" type="button" data-act="del" data-id="${s.id}" title="Delete"><i class="mgc_delete_2_line"></i></button>
+              <a class="ab" href="${SHOW_BASE}/${s.id}" title="Manage Members" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:inherit;"><i class="mgc_group_line"></i></a>
+              <button class="ab ab-e" type="button" data-act="edit" data-id="${s.id}" title="Edit Subcon"><i class="mgc_edit_2_line"></i></button>
+              <button class="ab ab-d" type="button" data-act="del" data-id="${s.id}" title="Delete Subcon"><i class="mgc_delete_2_line"></i></button>
             </div>
           </div>
         </div>

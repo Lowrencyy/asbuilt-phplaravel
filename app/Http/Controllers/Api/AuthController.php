@@ -22,6 +22,12 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+        // Block inactive accounts
+        if (! $user->is_active) {
+            Auth::logout();
+            return response()->json(['message' => 'Your account has been deactivated. Please contact your supervisor.'], 403);
+        }
+
         // Only these roles can log in via API
         $allowedRoles = ['lineman', 'admin', 'pm', 'subcon', 'project_manager', 'executives'];
         if (!in_array($user->role, $allowedRoles)) {
